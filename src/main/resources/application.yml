@@ -1,0 +1,27 @@
+# TODO use this in @JSONFormat
+json:
+  format:
+    timestamp: "yyyy-MM-dd HH:mm:ss"
+
+spring:
+  mvc:
+    dispatch-options-request: true
+  # ===============================
+  # = DATA SOURCE
+  # ===============================
+  datasource:
+    url: jdbc:postgresql://localhost:5432/storyboard
+    username: zachjustice
+    password_hash: tB9gh2RS
+    validationQuery: SELECT 1;
+  # ==============================================================
+  # = Spring Security / Queries for AuthenticationManagerBuilder
+  # ==============================================================
+  queries:
+    users-query: select email, password_hash, is_enabled from authors where email=?
+    roles-query: select a.email, r.label from authors a inner join author_roles ar on(a.id=ar.author_id) inner join roles r on(ar.role_id=r.id) where a.email=?
+
+page:
+  maxPageLength: 500
+  maxActionLength: 500
+  maxNumPageActions: 5
