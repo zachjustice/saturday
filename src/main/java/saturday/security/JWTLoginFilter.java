@@ -1,4 +1,4 @@
-package storyboard.security;
+package saturday.security;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -9,8 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import storyboard.utils.HTTPUtils;
-import storyboard.utils.TokenAuthenticationUtils;
+import saturday.utils.HTTPUtils;
+import saturday.utils.TokenAuthenticationUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;

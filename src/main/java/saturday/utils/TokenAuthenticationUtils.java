@@ -1,4 +1,4 @@
-package storyboard.utils;
+package saturday.utils;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

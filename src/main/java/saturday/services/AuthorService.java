@@ -1,13 +1,13 @@
-package storyboard.services;
+package saturday.services;
 
-import storyboard.domain.Author;
+import saturday.domain.Entity;
 
 /**
  * Created by zachjustice on 7/26/17.
  */
 public interface AuthorService {
-    Author findAuthorByEmail(String email);
-    Author findAuthorById(int id);
+    Entity findAuthorByEmail(String email);
+    Entity findAuthorById(int id);
 
-    void saveAuthor(Author author);
+    void saveAuthor(Entity entity);
 }

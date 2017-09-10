@@ -1,9 +1,9 @@
-package storyboard.config;
+package saturday.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import storyboard.utils.HTTPUtils;
+import saturday.utils.HTTPUtils;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;

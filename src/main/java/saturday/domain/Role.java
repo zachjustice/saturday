@@ -1,4 +1,4 @@
-package storyboard.domain;
+package saturday.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;

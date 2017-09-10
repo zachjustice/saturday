@@ -1,11 +1,10 @@
-package storyboard.domain;
+package saturday.domain;
 
 import java.util.Date;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -23,12 +22,12 @@ import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.Transient;
 
-@Entity
+@javax.persistence.Entity
 @Table(name = "authors")
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
-public class Author {
+public class Entity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

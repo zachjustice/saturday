@@ -1,10 +1,10 @@
-package storyboard.repositories;
+package saturday.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import storyboard.domain.Role;
+import saturday.domain.Role;
 
-@Repository("roleRepository")
-public interface RoleRepository extends JpaRepository<Role, Integer>{
+@Repository
+public interface RoleRepository extends JpaRepository<Role, Integer> {
     Role findByRole(String role);
 }
