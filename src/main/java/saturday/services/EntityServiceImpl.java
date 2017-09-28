@@ -1,8 +1,5 @@
 package saturday.services;
 
-import java.util.Arrays;
-import java.util.HashSet;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -11,8 +8,11 @@ import saturday.domain.Role;
 import saturday.repositories.EntityRepository;
 import saturday.repositories.RoleRepository;
 
-@Service("authorService")
-public class AuthorServiceImpl implements AuthorService {
+import java.util.Collections;
+import java.util.HashSet;
+
+@Service("entityService")
+public class EntityServiceImpl implements EntityService {
 
     @Autowired
     private EntityRepository entityRepository;
@@ -22,21 +22,19 @@ public class AuthorServiceImpl implements AuthorService {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
-    public Entity findAuthorByEmail(String email) {
+    public Entity findEntityByEmail(String email) {
         return entityRepository.findByEmail(email);
     }
 
-    @Override
-    public Entity findAuthorById(int id) {
+    public Entity findEntityById(int id) {
         return entityRepository.findById(id);
     }
 
-    @Override
-    public void saveAuthor(Entity entity) {
+    public void saveEntity(Entity entity) {
         entity.setPassword(bCryptPasswordEncoder.encode(entity.getPassword()));
         entity.setIsEnabled(true);
         Role authorRole = roleRepository.findByRole("USER");
-        entity.setRoles(new HashSet<>(Arrays.asList(authorRole)));
+        entity.setRoles(new HashSet<>(Collections.singletonList(authorRole)));
 
         entityRepository.save(entity);
     }

@@ -1,8 +1,7 @@
 package saturday.config;
 
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,18 +14,25 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import saturday.security.JWTAuthenticationFilter;
 import saturday.security.JWTLoginFilter;
 
+import javax.sql.DataSource;
+
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-    @Autowired
-    private DataSource dataSource;
     @Value("${spring.queries.users-query}")
     private String usersQuery;
     @Value("${spring.queries.roles-query}")
     private String rolesQuery;
+
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final DataSource dataSource;
+
+    @Autowired
+    public WebSecurityConfig(BCryptPasswordEncoder bCryptPasswordEncoder, @Qualifier("dataSource") DataSource dataSource) {
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.dataSource = dataSource;
+    }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth)
@@ -44,8 +50,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.csrf().disable().authorizeRequests()
                 .antMatchers("/").permitAll()
+                .antMatchers(HttpMethod.OPTIONS, "/validate_access_token").permitAll()
+                .antMatchers(HttpMethod.POST, "/validate_access_token").permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/login").permitAll()
                 .antMatchers(HttpMethod.POST, "/login").permitAll()
+                .antMatchers(HttpMethod.OPTIONS, "/register").permitAll()
                 .antMatchers(HttpMethod.POST, "/register").permitAll()
                 .anyRequest().authenticated()
                 .and()

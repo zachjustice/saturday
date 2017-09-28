@@ -1,18 +1,5 @@
 package saturday.domain;
 
-import java.util.Date;
-import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -20,10 +7,13 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.data.annotation.Transient;
+
+import javax.persistence.*;
+import java.util.Date;
+import java.util.Set;
 
 @javax.persistence.Entity
-@Table(name = "authors")
+@Table(name = "entities")
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
@@ -63,8 +53,20 @@ public class Entity {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modified;
 
+    @Column(name = "picture_url" )
+    private String pictureUrl;
+
+    @Column(name = "gender" )
+    private String gender;
+
+    @Column(name = "fb_id" )
+    private Long fbId ;
+
+    @Column(name = "fb_access_token " )
+    private String fbAccessToken ;
+
     @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "author_roles", joinColumns = @JoinColumn(name = "author_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @JoinTable(name = "entity_roles", joinColumns = @JoinColumn(name = "entity_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
 
     public int getId() {
@@ -73,14 +75,6 @@ public class Entity {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getName() {
@@ -132,4 +126,43 @@ public class Entity {
         this.roles = roles;
     }
 
+    public String getPictureUrl() {
+        return pictureUrl;
+    }
+
+    public void setPictureUrl(String pictureUrl) {
+        this.pictureUrl = pictureUrl;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public Long getFbId() {
+        return fbId;
+    }
+
+    public void setFbId(Long fbId) {
+        this.fbId = fbId;
+    }
+
+    public String getFbAccessToken() {
+        return fbAccessToken;
+    }
+
+    public void setFbAccessToken(String fbAccessToken) {
+        this.fbAccessToken = fbAccessToken;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }

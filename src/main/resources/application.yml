@@ -10,8 +10,8 @@ spring:
   # = DATA SOURCE
   # ===============================
   datasource:
-    url: jdbc:postgresql://localhost:5432/storyboard
-    username: zachjustice
+    url: jdbc:postgresql://localhost:5432/triturus
+    username: zach.justice
     password_hash: tB9gh2RS
     validationQuery: SELECT 1;
   # ==============================================================

@@ -2,8 +2,7 @@ package saturday.utils;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.security
-        .authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,13 +38,13 @@ public class TokenAuthenticationUtils {
 
         // parse the security.
         String user = Jwts.parser()
-            .setSigningKey(SECRET)
-            .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
-            .getBody()
-            .getSubject();
+                .setSigningKey(SECRET)
+                .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
+                .getBody()
+                .getSubject();
 
         return user != null ?
-            new UsernamePasswordAuthenticationToken(user, null, emptyList()) :
-            null;
+                new UsernamePasswordAuthenticationToken(user, null, emptyList()) :
+                null;
     }
 }
