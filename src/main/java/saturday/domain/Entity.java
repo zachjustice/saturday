@@ -33,7 +33,6 @@ public class Entity {
     @Length(min = 5, message = "*Your password must have at least 5 characters")
     @NotEmpty(message = "*Please provide your password")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Transient
     private String password;
 
     @Column(name = "name")
@@ -164,5 +163,19 @@ public class Entity {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    @Override
+    public String toString() {
+        return "Author{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", name='" + name + '\'' +
+                ", isEnabled=" + isEnabled +
+                ", created=" + created +
+                ", modified=" + modified +
+                ", roles=" + roles +
+                '}';
     }
 }

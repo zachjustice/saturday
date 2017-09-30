@@ -10,9 +10,9 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
-DROP TABLE  entities;
-DROP TABLE roles;
-DROP TABLE entity_roles;
+DROP TABLE entities CASCADE;
+DROP TABLE roles CASCADE;
+DROP TABLE entity_roles CASCADE;
 
 CREATE TABLE entities (
   id SERIAL PRIMARY KEY,
@@ -22,12 +22,12 @@ CREATE TABLE entities (
   token CHARACTER VARYING,
   is_enabled BOOLEAN DEFAULT false,
 
-  name CHARACTER VARYING NOT NULL,
-  email CHARACTER VARYING NOT NULL,
-  picture_url CHARACTER VARYING NOT NULL,
+  name CHARACTER VARYING, -- NOT NULL,
+  email CHARACTER VARYING, --NOT NULL,
+  picture_url CHARACTER VARYING, --NOT NULL,
   gender CHARACTER VARYING,
-  fb_id BIGINT NOT NULL,
-  fb_access_token CHARACTER VARYING NOT NULL
+  fb_id BIGINT, -- NOT NULL,
+  fb_access_token CHARACTER VARYING -- NOT NULL
 );
 
 CREATE TRIGGER update_entities_modtime BEFORE UPDATE ON entities FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
@@ -45,3 +45,7 @@ CREATE TABLE entity_roles (
 
 
 INSERT INTO roles (id, label) VALUES (1, 'USER');
+
+delete from entity_roles;
+delete from entities;
+select * from entities where email='zachjustice123@gmail.com';

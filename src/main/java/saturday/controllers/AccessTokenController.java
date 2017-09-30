@@ -15,8 +15,8 @@ public class AccessTokenController {
       [] generate a JWT to send back to the user. JWT is stored in DB
       [] each time a request is made, exchange JWT and invalidate the previous
     */
-    @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public ResponseEntity<Entity> createEntity(@RequestBody Entity entity) {
+    @RequestMapping(value = "/validate_access_token", method = RequestMethod.POST)
+    public ResponseEntity<Entity> validateAccessToken(@RequestBody Entity entity) {
         return null;
     }
 

@@ -47,7 +47,7 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
         String email = emailElement == null ? "" : emailElement.getAsString();
         String password = passwordElement == null ? "" : passwordElement.getAsString();
 
-        logger.info("Email: " + email);
+        logger.info("Email: " + email + ", password " + password);
 
         AccountCredentials accountCredentials = new AccountCredentials(email, password);
 
@@ -61,6 +61,7 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
         HTTPUtils.setCORSHeaders(req, response);
         response.setHeader("Access-Control-Expose-Headers", "Authorization");
 
+        logger.info("token: " + token.toString());
         return getAuthenticationManager().authenticate(token);
     }
 

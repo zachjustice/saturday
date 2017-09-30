@@ -1,5 +1,7 @@
 package saturday.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,8 @@ public class EntityServiceImpl implements EntityService {
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Override
     public Entity findEntityByEmail(String email) {
         return entityRepository.findByEmail(email);
@@ -35,6 +39,7 @@ public class EntityServiceImpl implements EntityService {
         entity.setIsEnabled(true);
         Role authorRole = roleRepository.findByRole("USER");
         entity.setRoles(new HashSet<>(Collections.singletonList(authorRole)));
+        logger.info("Saving entity " + entity.toString());
 
         entityRepository.save(entity);
     }

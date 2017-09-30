@@ -29,6 +29,7 @@ public class EntityController {
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public ResponseEntity<Entity> createEntity(@RequestBody Entity entity) {
+        logger.info("Entity Controller: " + entity.toString());
         entityService.saveEntity(entity);
         return new ResponseEntity<>(entity, HttpStatus.OK);
     }

@@ -18,8 +18,8 @@ spring:
   # = Spring Security / Queries for AuthenticationManagerBuilder
   # ==============================================================
   queries:
-    users-query: select email, password_hash, is_enabled from authors where email=?
-    roles-query: select a.email, r.label from authors a inner join author_roles ar on(a.id=ar.author_id) inner join roles r on(ar.role_id=r.id) where a.email=?
+    users-query: select email, password_hash, is_enabled from entities where email=?
+    roles-query: select e.email, r.label from entities e inner join entity_roles er on(e.id=er.entity_id) inner join roles r on(er.role_id=r.id) where e.email=?
 
 page:
   maxPageLength: 500
