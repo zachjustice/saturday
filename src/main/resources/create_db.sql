@@ -15,18 +15,23 @@ DROP TABLE roles CASCADE;
 DROP TABLE entity_roles CASCADE;
 
 CREATE TABLE entities (
+  -- my metadata
   id SERIAL PRIMARY KEY,
-  password_hash VARCHAR,
   created TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
   modified TIMESTAMP WITHOUT TIME ZONE,
   token CHARACTER VARYING,
   is_enabled BOOLEAN DEFAULT false,
 
+  -- user info
   name CHARACTER VARYING, -- NOT NULL,
-  email CHARACTER VARYING, --NOT NULL,
+  email CHARACTER VARYING UNIQUE, --NOT NULL,
   picture_url CHARACTER VARYING, --NOT NULL,
   gender CHARACTER VARYING,
-  fb_id BIGINT, -- NOT NULL,
+  birthday DATE,
+  password_hash VARCHAR,
+
+  -- fb metadata
+  fb_id BIGINT UNIQUE, -- NOT NULL,
   fb_access_token CHARACTER VARYING -- NOT NULL
 );
 
@@ -48,4 +53,4 @@ INSERT INTO roles (id, label) VALUES (1, 'USER');
 
 delete from entity_roles;
 delete from entities;
-select * from entities where email='zachjustice123@gmail.com';
+select * from entities;

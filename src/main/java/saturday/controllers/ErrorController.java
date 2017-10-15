@@ -1,4 +1,4 @@
-package storyboard.controllers;
+package saturday.controllers;
 
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;

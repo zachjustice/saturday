@@ -9,5 +9,5 @@ public interface EntityService {
     Entity findEntityByEmail(String email);
     Entity findEntityById(int id);
 
-    void saveEntity(Entity entity);
+    Entity saveEntity(Entity entity);
 }

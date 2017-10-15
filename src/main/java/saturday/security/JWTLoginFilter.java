@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import saturday.services.EntityServiceImpl;
 import saturday.utils.HTTPUtils;
 import saturday.utils.TokenAuthenticationUtils;
 
@@ -20,6 +21,8 @@ import java.io.IOException;
 import java.util.Collections;
 
 public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
+
+    private EntityServiceImpl entityService;
 
 
     public JWTLoginFilter(HttpMethod method, String url, AuthenticationManager authManager) {
@@ -61,7 +64,6 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
         HTTPUtils.setCORSHeaders(req, response);
         response.setHeader("Access-Control-Expose-Headers", "Authorization");
 
-        logger.info("token: " + token.toString());
         return getAuthenticationManager().authenticate(token);
     }
 

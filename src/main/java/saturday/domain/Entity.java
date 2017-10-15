@@ -24,6 +24,9 @@ public class Entity {
     @Column(name = "id")
     private int id;
 
+    @Column(name = "token")
+    private String token;
+
     @Column(name = "email")
     @Email(message = "*Please provide a valid Email")
     @NotEmpty(message = "*Please provide an email")
@@ -38,6 +41,15 @@ public class Entity {
     @Column(name = "name")
     @NotEmpty(message = "*Please provide your name")
     private String name;
+
+    @Column(name = "birthday")
+    @Temporal(TemporalType.DATE)
+    @JsonFormat(pattern = "yyyy-MM-dd")
+
+    private Date birthday;
+
+    @Column(name = "gender" )
+    private String gender;
 
     @Column(name = "isEnabled")
     private boolean isEnabled;
@@ -54,9 +66,6 @@ public class Entity {
 
     @Column(name = "picture_url" )
     private String pictureUrl;
-
-    @Column(name = "gender" )
-    private String gender;
 
     @Column(name = "fb_id" )
     private Long fbId ;
@@ -109,7 +118,7 @@ public class Entity {
     }
 
 
-    public boolean isEnabled() {
+    public boolean getIsEnabled() {
         return isEnabled;
     }
 
@@ -177,5 +186,21 @@ public class Entity {
                 ", modified=" + modified +
                 ", roles=" + roles +
                 '}';
+    }
+
+    public Date getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(Date birthday) {
+        this.birthday = birthday;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

@@ -20,8 +20,6 @@ public class EntityServiceImpl implements EntityService {
     private EntityRepository entityRepository;
     @Autowired
     private RoleRepository roleRepository;
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -34,14 +32,13 @@ public class EntityServiceImpl implements EntityService {
         return entityRepository.findById(id);
     }
 
-    public void saveEntity(Entity entity) {
-        entity.setPassword(bCryptPasswordEncoder.encode(entity.getPassword()));
+    public Entity saveEntity(Entity entity) {
         entity.setIsEnabled(true);
         Role authorRole = roleRepository.findByRole("USER");
         entity.setRoles(new HashSet<>(Collections.singletonList(authorRole)));
         logger.info("Saving entity " + entity.toString());
 
-        entityRepository.save(entity);
+        return entityRepository.save(entity);
     }
 }
 
