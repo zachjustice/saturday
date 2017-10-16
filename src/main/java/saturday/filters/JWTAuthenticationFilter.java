@@ -1,4 +1,4 @@
-package saturday.security;
+package saturday.filters;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;

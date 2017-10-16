@@ -1,4 +1,4 @@
-package saturday.security;
+package saturday.domain;
 
 /**
  * Created by zachjustice on 7/29/17.

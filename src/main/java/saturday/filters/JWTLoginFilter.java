@@ -1,4 +1,4 @@
-package saturday.security;
+package saturday.filters;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import saturday.domain.AccountCredentials;
 import saturday.services.EntityServiceImpl;
 import saturday.utils.HTTPUtils;
 import saturday.utils.TokenAuthenticationUtils;

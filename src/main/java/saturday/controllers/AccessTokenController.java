@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import saturday.domain.Entity;
 import saturday.services.EntityServiceImpl;
+import saturday.utils.TokenAuthenticationUtils;
+
+import javax.servlet.http.HttpServletResponse;
 
 @RestController
 public class AccessTokenController {
@@ -30,7 +33,7 @@ public class AccessTokenController {
       [] each time a request is made, exchange JWT and invalidate the previous
     */
     @RequestMapping(value = "/validate_access_token", method = RequestMethod.POST)
-    public ResponseEntity<Entity> validateAccessToken(@RequestBody Entity validationEntity) {
+    public ResponseEntity<Entity> validateAccessToken(HttpServletResponse response, @RequestBody Entity validationEntity) {
         Entity entity = this.entityService.findEntityByEmail(validationEntity.getEmail());
         logger.info("Attempt to find existing entity: " + entity);
 
@@ -41,6 +44,7 @@ public class AccessTokenController {
             logger.info("Entity doesn't exist. Created one: " + entity);
         }
 
+        TokenAuthenticationUtils.addAuthentication(response, entity.getEmail());
         return new ResponseEntity<>(entity, HttpStatus.OK);
     }
 

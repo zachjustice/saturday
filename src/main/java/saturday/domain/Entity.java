@@ -33,10 +33,8 @@ public class Entity {
     private String email;
 
     @Column(name = "password_hash")
-    @Length(min = 5, message = "*Your password must have at least 5 characters")
-    @NotEmpty(message = "*Please provide your password")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private String password;
+    private String password; // optional since they might be logging via social media
 
     @Column(name = "name")
     @NotEmpty(message = "*Please provide your name")
@@ -176,7 +174,7 @@ public class Entity {
 
     @Override
     public String toString() {
-        return "Author{" +
+        return "Entity{" +
                 "id=" + id +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +

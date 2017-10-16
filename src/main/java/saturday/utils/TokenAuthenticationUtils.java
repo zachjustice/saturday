@@ -36,7 +36,7 @@ public class TokenAuthenticationUtils {
             return null;
         }
 
-        // parse the security.
+        // parse the filters.
         String user = Jwts.parser()
                 .setSigningKey(SECRET)
                 .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
