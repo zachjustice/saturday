@@ -10,9 +10,9 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
-DROP TABLE entities CASCADE;
-DROP TABLE roles CASCADE;
-DROP TABLE entity_roles CASCADE;
+--DROP TABLE entities CASCADE;
+--DROP TABLE roles CASCADE;
+--DROP TABLE entity_roles CASCADE;
 
 CREATE TABLE entities (
   -- my metadata

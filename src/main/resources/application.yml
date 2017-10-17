@@ -11,7 +11,7 @@ spring:
   # ===============================
   datasource:
     url: jdbc:postgresql://localhost:5432/triturus
-    username: zach.justice
+    username: zachjustice
     password_hash: tB9gh2RS
     validationQuery: SELECT 1;
   # ==============================================================
