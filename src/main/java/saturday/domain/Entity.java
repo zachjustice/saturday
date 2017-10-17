@@ -65,6 +65,10 @@ public class Entity {
     @Column(name = "picture_url" )
     private String pictureUrl;
 
+    // refactor with s3
+    @Column(name = "local_picture" )
+    private String localPicture;
+
     @Column(name = "fb_id" )
     private Long fbId ;
 
@@ -200,5 +204,13 @@ public class Entity {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getLocalPicture() {
+        return localPicture;
+    }
+
+    public void setLocalPicture(String localPicture) {
+        this.localPicture = localPicture;
     }
 }

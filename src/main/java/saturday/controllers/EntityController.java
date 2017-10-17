@@ -87,6 +87,7 @@ public class EntityController {
         Date updatedBirthday = updatedEntity.getBirthday();
         String updatedGender = updatedEntity.getGender();
         String updatedPassword = updatedEntity.getPassword();
+        String updatedPic = updatedEntity.getLocalPicture();
 
         if(!StringUtils.isEmpty(updatedName)) {
             currEntity.setName(updatedName);
@@ -106,6 +107,10 @@ public class EntityController {
 
         if(!StringUtils.isEmpty(updatedPassword)) {
             currEntity.setPassword(bCryptPasswordEncoder.encode(updatedEntity.getPassword()));
+        }
+
+        if(!StringUtils.isEmpty(updatedPic)) {
+            currEntity.setLocalPicture(updatedPic);
         }
 
         logger.info("Updated: " + currEntity);

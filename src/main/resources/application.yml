@@ -3,9 +3,6 @@ json:
   format:
     timestamp: "yyyy-MM-dd HH:mm:ss"
 
-server:
-  port: 500
-
 spring:
   mvc:
     dispatch-options-request: true
@@ -13,9 +10,9 @@ spring:
   # = DATA SOURCE
   # ===============================
   datasource:
-    url: jdbc:postgresql://localhost:5432/triturus
-    username: zachjustice
-    password_hash: tB9gh2RS
+    url: jdbc:postgresql://elmer-01.db.elephantsql.com:5432/arjknbmi
+    username: arjknbmi
+    password: JUYGvOgxzQQgc2kHYijkRnr-EOKK1SKm
     validationQuery: SELECT 1;
   # ==============================================================
   # = Spring Security / Queries for AuthenticationManagerBuilder

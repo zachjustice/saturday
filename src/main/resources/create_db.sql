@@ -26,6 +26,7 @@ CREATE TABLE entities (
   name CHARACTER VARYING, -- NOT NULL,
   email CHARACTER VARYING UNIQUE, --NOT NULL,
   picture_url CHARACTER VARYING, --NOT NULL,
+  local_picture CHARACTER VARYING, -- TODO REFACTOR WITH S3
   gender CHARACTER VARYING,
   birthday DATE,
   password_hash VARCHAR,
