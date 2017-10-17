@@ -12,6 +12,7 @@ buildscript {
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: 'war'
 apply plugin: 'org.springframework.boot'
 
 version = '0.0.1-SNAPSHOT'
@@ -31,4 +32,8 @@ dependencies {
     testCompile("org.springframework.boot:spring-boot-starter-test")
     compile group: 'org.postgresql', name: 'postgresql', version: '9.4-1201-jdbc4'
     compile 'com.google.code.gson:gson:2.8.1'
+}
+
+war {
+	baseName = 'Saturday'
 }
