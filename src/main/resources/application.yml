@@ -23,3 +23,11 @@ spring:
   queries:
     users-query: select email, password_hash, is_enabled from entities where email=?
     roles-query: select e.email, r.label from entities e inner join entity_roles er on(e.id=er.entity_id) inner join roles r on(er.role_id=r.id) where e.email=?
+
+saturday:
+  aws:
+    access_key_id: AKIAJAZLZK7VXWSRT7ZQ
+    secret_access_key: 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
+  s3:
+    bucket: mom-diary-user-files
+    region: us-east-1
