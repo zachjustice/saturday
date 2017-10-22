@@ -8,12 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
 import saturday.exception.EntityExistsException;
 import saturday.services.EntityServiceImpl;
+import saturday.services.S3Service;
 import saturday.utils.TokenAuthenticationUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 
@@ -25,13 +26,15 @@ public class EntityController {
 
     private final EntityServiceImpl entityService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final S3Service s3Service;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    public EntityController(EntityServiceImpl entityService, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public EntityController(EntityServiceImpl entityService, BCryptPasswordEncoder bCryptPasswordEncoder, S3Service s3Service) {
         this.entityService = entityService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.s3Service = s3Service;
     }
 
     @RequestMapping(value = "/entities", method = RequestMethod.GET)
@@ -87,7 +90,6 @@ public class EntityController {
         Date updatedBirthday = updatedEntity.getBirthday();
         String updatedGender = updatedEntity.getGender();
         String updatedPassword = updatedEntity.getPassword();
-        String updatedPic = updatedEntity.getLocalPicture();
 
         if(!StringUtils.isEmpty(updatedName)) {
             currEntity.setName(updatedName);
@@ -109,13 +111,19 @@ public class EntityController {
             currEntity.setPassword(bCryptPasswordEncoder.encode(updatedEntity.getPassword()));
         }
 
-        if(!StringUtils.isEmpty(updatedPic)) {
-            currEntity.setLocalPicture(updatedPic);
-        }
-
         logger.info("Updated: " + currEntity);
         entityService.saveEntity(currEntity);
         return new ResponseEntity<>(currEntity, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/entities/{id}/profile_picture", method = RequestMethod.POST, consumes = "multipart/form-data")
+    public ResponseEntity<String> uploadProfilePicture(
+            @PathVariable(value="id") int id,
+            @RequestParam("picture") MultipartFile picture) throws EntityExistsException {
+
+        String fileUrl = ""; // s3 file url
+        s3Service.uploadFile("entity-" + id + "-profile-picture", picture);
+        return new ResponseEntity<String>(fileUrl, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)

@@ -1,4 +1,8 @@
 package saturday.services;
 
-public class S3Service {
+import org.springframework.web.multipart.MultipartFile;
+
+public interface S3Service {
+    public void downloadFile(String keyName);
+    public void uploadFile(String keyName, MultipartFile file);
 }

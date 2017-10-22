@@ -16,12 +16,16 @@ import java.util.HashSet;
 @Service("entityService")
 public class EntityServiceImpl implements EntityService {
 
-    @Autowired
-    private EntityRepository entityRepository;
-    @Autowired
-    private RoleRepository roleRepository;
+    private final EntityRepository entityRepository;
+    private final RoleRepository roleRepository;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    public EntityServiceImpl(EntityRepository entityRepository, RoleRepository roleRepository) {
+        this.entityRepository = entityRepository;
+        this.roleRepository = roleRepository;
+    }
 
     @Override
     public Entity findEntityByEmail(String email) {
