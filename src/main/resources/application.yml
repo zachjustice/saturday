@@ -10,9 +10,9 @@ spring:
   # = DATA SOURCE
   # ===============================
   datasource:
-    url: jdbc:postgresql://elmer-01.db.elephantsql.com:5432/arjknbmi
-    username: arjknbmi
-    password: JUYGvOgxzQQgc2kHYijkRnr-EOKK1SKm
+    url: jdbc:postgresql://${SATURDAY_HOST}:${SATURDAY_PORT}/${SATURDAY_DB_NAME}
+    username: ${SATURDAY_USERNAME}
+    password: ${SATURDAY_PASSWORD}
     validationQuery: SELECT 1;
   # ==============================================================
   # = Spring Security / Queries for AuthenticationManagerBuilder
@@ -20,8 +20,3 @@ spring:
   queries:
     users-query: select email, password_hash, is_enabled from entities where email=?
     roles-query: select e.email, r.label from entities e inner join entity_roles er on(e.id=er.entity_id) inner join roles r on(er.role_id=r.id) where e.email=?
-
-page:
-  maxPageLength: 500
-  maxActionLength: 500
-  maxNumPageActions: 5
