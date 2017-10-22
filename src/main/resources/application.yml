@@ -3,6 +3,9 @@ json:
   format:
     timestamp: "yyyy-MM-dd HH:mm:ss"
 
+server:
+  port: 5000
+
 spring:
   mvc:
     dispatch-options-request: true
