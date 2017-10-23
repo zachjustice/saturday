@@ -52,6 +52,7 @@ CREATE TABLE entity_roles (
 CREATE TABLE topics(
   id SERIAL PRIMARY KEY,
   name VARCHAR(150) NOT NULL,
+  description VARCHAR(500),
   creator_id INT NOT NULL REFERENCES entities(id),
   created TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
   modified TIMESTAMP WITHOUT TIME ZONE

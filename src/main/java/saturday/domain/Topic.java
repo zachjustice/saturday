@@ -25,6 +25,9 @@ public class Topic {
     @NotEmpty(message = "*Please provide a topic name")
     private String name;
 
+    @Column(name = "description")
+    private String description;
+
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "created_id", joinColumns = @JoinColumn(name = "entity_id"))
     private Entity creator;
@@ -77,5 +80,13 @@ public class Topic {
 
     public void setModified(Date modified) {
         this.modified = modified;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
