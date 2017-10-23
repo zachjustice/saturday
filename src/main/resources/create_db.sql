@@ -68,7 +68,7 @@ CREATE TABLE topic_members(
 );
 
 CREATE TABLE topic_permissions(
-  id INT NOT NULL,
+  id INT PRIMARY KEY,
   label CHARACTER VARYING NOT NULL
 );
 
