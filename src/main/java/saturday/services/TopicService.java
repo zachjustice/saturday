@@ -1,13 +1,14 @@
 package saturday.services;
 
 import saturday.domain.Entity;
+import saturday.domain.Topic;
 
 /**
  * Created by zachjustice on 7/26/17.
  */
-public interface EntityService {
-    Entity findEntityByEmail(String email);
-    Entity findEntityById(int id);
+public interface TopicService {
+    Topic findTopicByName(String name);
+    Topic findTopicById(int id);
 
-    Entity saveEntity(Entity entity);
+    Topic saveTopic(Topic topic);
 }
