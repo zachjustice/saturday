@@ -1,5 +1,7 @@
 package saturday.controllers;
 
+import com.amazonaws.services.s3.model.PutObjectResult;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.slf4j.Logger;
@@ -16,6 +18,7 @@ import saturday.services.S3Service;
 import saturday.utils.TokenAuthenticationUtils;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Date;
 
 /**
@@ -27,6 +30,11 @@ public class EntityController {
     private final EntityServiceImpl entityService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final S3Service s3Service;
+
+    @Value("${saturday.s3.bucket}")
+    private String bucketName;
+    @Value("${saturday.s3.url}")
+    private String s3url;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -119,11 +127,17 @@ public class EntityController {
     @RequestMapping(value = "/entities/{id}/profile_picture", method = RequestMethod.POST, consumes = "multipart/form-data")
     public ResponseEntity<String> uploadProfilePicture(
             @PathVariable(value="id") int id,
-            @RequestParam("picture") MultipartFile picture) throws EntityExistsException {
+            @RequestParam("picture") MultipartFile picture) throws EntityExistsException, IOException {
 
-        String fileUrl = ""; // s3 file url
-        s3Service.uploadFile("entity-" + id + "-profile-picture", picture);
-        return new ResponseEntity<String>(fileUrl, HttpStatus.OK);
+        String uploadKey = "entity-" + id + "-profile-picture"; // s3 file url
+        String fileUrl = s3url + "/" + bucketName + "/" + uploadKey;
+
+        s3Service.upload(picture, uploadKey);
+
+        Entity entity = entityService.findEntityById(id);
+        entity.setPictureUrl(fileUrl);
+
+        return new ResponseEntity<>(fileUrl, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
