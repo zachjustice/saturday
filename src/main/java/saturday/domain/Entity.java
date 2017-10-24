@@ -43,7 +43,6 @@ public class Entity {
     @Column(name = "birthday")
     @Temporal(TemporalType.DATE)
     @JsonFormat(pattern = "yyyy-MM-dd")
-
     private Date birthday;
 
     @Column(name = "gender" )
@@ -64,10 +63,6 @@ public class Entity {
 
     @Column(name = "picture_url" )
     private String pictureUrl;
-
-    // refactor with s3
-    @Column(name = "local_picture" )
-    private String localPicture;
 
     @Column(name = "fb_id" )
     private Long fbId ;
@@ -206,11 +201,4 @@ public class Entity {
         this.token = token;
     }
 
-    public String getLocalPicture() {
-        return localPicture;
-    }
-
-    public void setLocalPicture(String localPicture) {
-        this.localPicture = localPicture;
-    }
 }

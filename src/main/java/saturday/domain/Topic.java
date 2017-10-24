@@ -28,8 +28,8 @@ public class Topic {
     @Column(name = "description")
     private String description;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "created_id", joinColumns = @JoinColumn(name = "entity_id"))
+    @ManyToOne
+    @JoinColumn(name="creator_id", referencedColumnName = "id", nullable=false)
     private Entity creator;
 
     @Column(name = "created", insertable = false, updatable = false)
@@ -88,5 +88,17 @@ public class Topic {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public String toString() {
+        return "Topic{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", creator=" + creator +
+                ", created=" + created +
+                ", modified=" + modified +
+                '}';
     }
 }
