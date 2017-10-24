@@ -26,7 +26,6 @@ CREATE TABLE entities (
   name CHARACTER VARYING, -- NOT NULL,
   email CHARACTER VARYING UNIQUE, --NOT NULL,
   picture_url CHARACTER VARYING, --NOT NULL,
-  local_picture CHARACTER VARYING, -- TODO REFACTOR WITH S3
   gender CHARACTER VARYING,
   birthday DATE,
   password_hash VARCHAR,
@@ -58,7 +57,7 @@ CREATE TABLE topics(
   modified TIMESTAMP WITHOUT TIME ZONE
 );
 
-CREATE TRIGGER update_entities_modtime BEFORE UPDATE ON entities FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
+CREATE TRIGGER update_topics_modtime BEFORE UPDATE ON entities FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
 CREATE TABLE topic_members(
   id SERIAL PRIMARY KEY,
