@@ -39,7 +39,7 @@ CREATE TRIGGER update_entities_modtime BEFORE UPDATE ON entities FOR EACH ROW EX
 
 CREATE TABLE roles(
   id SERIAL PRIMARY KEY,
-  label CHARACTER VARYING NOT NULL
+  label VARCHAR(20) NOT NULL
 );
 
 CREATE TABLE entity_roles (
@@ -50,14 +50,29 @@ CREATE TABLE entity_roles (
 
 CREATE TABLE topics(
   id SERIAL PRIMARY KEY,
-  name VARCHAR(150) NOT NULL,
-  description VARCHAR(500),
+  name VARCHAR(20) NOT NULL,
+  description VARCHAR(150),
   creator_id INT NOT NULL REFERENCES entities(id),
   created TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
   modified TIMESTAMP WITHOUT TIME ZONE
 );
 
-CREATE TRIGGER update_topics_modtime BEFORE UPDATE ON entities FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
+CREATE TRIGGER update_topics_modtime BEFORE UPDATE ON topics FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
+
+CREATE TABLE topic_content (
+  id SERIAL PRIMARY KEY,
+  topic_id INT NOT NULL REFERENCES topics(id),
+  creator_id INT NOT NULL REFERENCES entities(id),
+  title VARCHAR(20),
+  subtitle VARCHAR(150),
+  description VARCHAR(40000),
+  s3_bucket_name VARCHAR NOT NULL,
+  s3_key VARCHAR NOT NULL,
+  created TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+  modified TIMESTAMP WITHOUT TIME ZONE
+);
+
+CREATE TRIGGER update_topic_content_modtime BEFORE UPDATE ON topic_content FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
 CREATE TABLE topic_members(
   id SERIAL PRIMARY KEY,
@@ -68,7 +83,7 @@ CREATE TABLE topic_members(
 
 CREATE TABLE topic_permissions(
   id INT PRIMARY KEY,
-  label CHARACTER VARYING NOT NULL
+  label VARCHAR(20) NOT NULL
 );
 
 CREATE TABLE topic_entity_permissions(
@@ -80,7 +95,7 @@ CREATE TABLE topic_entity_permissions(
   modified TIMESTAMP WITHOUT TIME ZONE
 );
 
-CREATE TRIGGER update_topic_role_modtime BEFORE UPDATE ON entities FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
+CREATE TRIGGER update_topic_role_modtime BEFORE UPDATE ON topic_entity_permissions FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
 CREATE TABLE topic_invites(
   id SERIAL PRIMARY KEY,
