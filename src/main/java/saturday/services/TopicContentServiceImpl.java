@@ -3,7 +3,6 @@ package saturday.services;
 import org.springframework.stereotype.Service;
 import saturday.domain.TopicContent;
 import saturday.repositories.TopicContentRepository;
-import saturday.repositories.TopicRepository;
 
 @Service("topicContentService")
 public class TopicContentServiceImpl implements TopicContentService {

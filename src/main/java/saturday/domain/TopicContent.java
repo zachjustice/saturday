@@ -23,7 +23,7 @@ public class TopicContent {
 
     @ManyToOne
     @JoinColumn(name="topic_id", referencedColumnName = "id", nullable=false)
-    private Entity topic;
+    private Topic topic;
 
     @ManyToOne
     @JoinColumn(name="creator_id", referencedColumnName = "id", nullable=false)
@@ -64,11 +64,11 @@ public class TopicContent {
         this.id = id;
     }
 
-    public Entity getTopic() {
+    public Topic getTopic() {
         return topic;
     }
 
-    public void setTopic(Entity topic) {
+    public void setTopic(Topic topic) {
         this.topic = topic;
     }
 
