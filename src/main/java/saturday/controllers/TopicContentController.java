@@ -1,51 +1,99 @@
 package saturday.controllers;
 
+import com.amazonaws.services.s3.model.PutObjectResult;
+import org.hibernate.validator.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
 import saturday.domain.NewTopicContent;
 import saturday.domain.TopicContent;
+import saturday.services.EntityService;
+import saturday.services.S3Service;
 import saturday.services.TopicContentService;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @RestController
 public class TopicContentController {
-    public final TopicContentService topicContentService;
 
-    public TopicContentController(TopicContentService topicContentService) {
+    @Value("${saturday.s3.bucket}")
+    private String bucketName;
+    @Value("${saturday.s3.url.prefix}")
+    private String s3urlPrefix;
+    @Value("${saturday.s3.topic.content.key.prefix")
+    private String keyPrefix;
+    @Value("${saturday.timestamp.format")
+    private String timestampFormat;
+
+    private final TopicContentService topicContentService;
+    private final EntityService entityService;
+    private final S3Service s3Service;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    public TopicContentController(TopicContentService topicContentService, EntityService entityService, S3Service s3Service) {
         this.topicContentService = topicContentService;
+        this.entityService = entityService;
+        this.s3Service = s3Service;
     }
 
     @RequestMapping(value = "/topic_content", method = RequestMethod.POST)
-    public ResponseEntity<TopicContent> createTopicContent(@RequestBody NewTopicContent newTopicContent) {
-
-        /*
-        if(StringUtils.isEmpty(newTopicContent.getName()) || newTopicContent.getCreator() <= 0) {
+    @ResponseBody
+    public ResponseEntity<TopicContent> createTopicContent(
+            @RequestPart("topicContent") @Valid NewTopicContent newTopicContent,
+            @RequestPart("file") @Valid @NotNull @NotBlank MultipartFile file
+    ) {
+        // Validate
+        if(file == null || newTopicContent.getCreator() <= 0) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        int creatorId = newTopicContent.getCreator();
+        // Get the creator
+        Integer creatorId = newTopicContent.getCreator();
         Entity creator = entityService.findEntityById(creatorId);
 
         if(creator == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        String name = newTopicContent.getName();
+        String now = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+
+        // TODO validate new topic content
+        String title = newTopicContent.getTitle();
+        String subtitle = newTopicContent.getSubtitle();
         String description = newTopicContent.getDescription();
+        String uploadKey = keyPrefix + title + "-" + now;
+        String s3url  = s3urlPrefix + bucketName + "/" + uploadKey;
 
-        TopicContent topic = new TopicContent();
-        topic.setName(name);
-        topic.setDescription(description);
-        topic.setCreator(creator);
+        // Upload to s3 first to avoid creating db row without matching s3 media
+        try {
+            s3Service.upload(file, uploadKey);
+        } catch (IOException e){
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
-        topicContent = topicContentService.saveTopicContent(topic);
+        // Create topic content
+        TopicContent topicContent = new TopicContent();
+        topicContent.setTitle(title);
+        topicContent.setSubtitle(subtitle);
+        topicContent.setDescription(description);
+        topicContent.setCreator(creator);
+        topicContent.setS3url(s3url);
+
+        topicContent = topicContentService.saveTopicContent(topicContent);
         logger.info("Created TopicContent: " + newTopicContent.toString());
 
         return new ResponseEntity<>(topicContent, HttpStatus.OK);
-        */
-        return new ResponseEntity<>(new TopicContent(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/topic_content/{id}", method = RequestMethod.GET)

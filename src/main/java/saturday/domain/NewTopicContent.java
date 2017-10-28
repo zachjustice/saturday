@@ -1,19 +1,10 @@
 package saturday.domain;
 
 public class NewTopicContent {
-    private String name;
     private String title;
     private String subtitle;
     private String description;
-    private Entity creator;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+    private Integer creator;
 
     public String getTitle() {
         return title;
@@ -39,19 +30,18 @@ public class NewTopicContent {
         this.description = description;
     }
 
-    public Entity getCreator() {
+    public Integer getCreator() {
         return creator;
     }
 
-    public void setCreator(Entity creator) {
+    public void setCreator(Integer creator) {
         this.creator = creator;
     }
 
     @Override
     public String toString() {
         return "NewTopicContent{" +
-                "name='" + name + '\'' +
-                ", title='" + title + '\'' +
+                "title='" + title + '\'' +
                 ", subtitle='" + subtitle + '\'' +
                 ", description='" + description + '\'' +
                 ", creator=" + creator +

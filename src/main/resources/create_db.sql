@@ -66,8 +66,7 @@ CREATE TABLE topic_content (
   title VARCHAR(20),
   subtitle VARCHAR(150),
   description VARCHAR(40000),
-  s3_bucket_name VARCHAR NOT NULL,
-  s3_key VARCHAR NOT NULL,
+  s3url VARCHAR NOT NULL,
   created TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
   modified TIMESTAMP WITHOUT TIME ZONE
 );

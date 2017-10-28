@@ -38,13 +38,9 @@ public class TopicContent {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "s3_bucket_name")
+    @Column(name = "s3url")
     @NotEmpty
-    private String s3_bucket_name;
-
-    @Column(name = "s3_key")
-    @NotEmpty
-    private String s3_key;
+    private String s3url;
 
     @Column(name = "created", insertable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -104,20 +100,12 @@ public class TopicContent {
         this.description = description;
     }
 
-    public String getS3_bucket_name() {
-        return s3_bucket_name;
+    public String getS3url() {
+        return s3url;
     }
 
-    public void setS3_bucket_name(String s3_bucket_name) {
-        this.s3_bucket_name = s3_bucket_name;
-    }
-
-    public String getS3_key() {
-        return s3_key;
-    }
-
-    public void setS3_key(String s3_key) {
-        this.s3_key = s3_key;
+    public void setS3url(String s3url) {
+        this.s3url = s3url;
     }
 
     public Date getCreated() {
@@ -145,8 +133,7 @@ public class TopicContent {
                 ", title='" + title + '\'' +
                 ", subtitle='" + subtitle + '\'' +
                 ", description='" + description + '\'' +
-                ", s3_bucket_name='" + s3_bucket_name + '\'' +
-                ", s3_key='" + s3_key + '\'' +
+                ", s3url='" + s3url + '\'' +
                 ", created=" + created +
                 ", modified=" + modified +
                 '}';

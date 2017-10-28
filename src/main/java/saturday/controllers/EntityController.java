@@ -1,6 +1,5 @@
 package saturday.controllers;
 
-import com.amazonaws.services.s3.model.PutObjectResult;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StringUtils;
@@ -33,8 +32,8 @@ public class EntityController {
 
     @Value("${saturday.s3.bucket}")
     private String bucketName;
-    @Value("${saturday.s3.url}")
-    private String s3url;
+    @Value("${saturday.s3.url.prefix}")
+    private String s3UrlPrefix;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -130,7 +129,7 @@ public class EntityController {
             @RequestParam("picture") MultipartFile picture) throws EntityExistsException, IOException {
 
         String uploadKey = "entity-" + id + "-profile-picture"; // s3 file url
-        String fileUrl = s3url + "/" + bucketName + "/" + uploadKey;
+        String fileUrl = s3UrlPrefix + bucketName + "/" + uploadKey;
 
         s3Service.upload(picture, uploadKey);
 

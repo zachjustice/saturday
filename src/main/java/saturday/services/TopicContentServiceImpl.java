@@ -23,7 +23,7 @@ public class TopicContentServiceImpl implements TopicContentService {
     }
 
     @Override
-    public TopicContent saveTopic(TopicContent topic) {
+    public TopicContent saveTopicContent(TopicContent topic) {
         // TODO validation
         return topicContentRepository.save(topic);
     }
