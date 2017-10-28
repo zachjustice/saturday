@@ -8,12 +8,12 @@ spring:
   # = DATA SOURCE
   # ===============================
   datasource:
-    #url: jdbc:postgresql://${SATURDAY_HOST}:${SATURDAY_PORT}/${SATURDAY_DB_NAME}
-    #username: ${SATURDAY_USERNAME}
-    #password: ${SATURDAY_PASSWORD}
-    url: jdbc:postgresql://${LOCALHOST_DB_HOST}:${LOCALHOST_DB_PORT}/${LOCALHOST_DB_NAME}
-    username: ${LOCALHOST_DB_USERNAME}
+    url: jdbc:postgresql://${SATURDAY_HOST}:${SATURDAY_PORT}/${SATURDAY_DB_NAME}
+    username: ${SATURDAY_USERNAME}
     password: ${SATURDAY_PASSWORD}
+    #url: jdbc:postgresql://${LOCALHOST_DB_HOST}:${LOCALHOST_DB_PORT}/${LOCALHOST_DB_NAME}
+    #username: ${LOCALHOST_DB_USERNAME}
+    #password: ${SATURDAY_PASSWORD}
     validationQuery: SELECT 1;
   # ==============================================================
   # = Spring Security / Queries for AuthenticationManagerBuilder
