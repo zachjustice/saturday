@@ -1,9 +1,13 @@
 package saturday.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class NewTopicContent {
+    private String data;
     private String title;
     private String subtitle;
     private String description;
+    private Integer topic;
     private Integer creator;
 
     public String getTitle() {
@@ -38,10 +42,27 @@ public class NewTopicContent {
         this.creator = creator;
     }
 
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
+    public Integer getTopic() {
+        return topic;
+    }
+
+    public void setTopic(Integer topic) {
+        this.topic = topic;
+    }
+
     @Override
     public String toString() {
         return "NewTopicContent{" +
-                "title='" + title + '\'' +
+                "data='" + data + '\'' +
+                ", title='" + title + '\'' +
                 ", subtitle='" + subtitle + '\'' +
                 ", description='" + description + '\'' +
                 ", creator=" + creator +

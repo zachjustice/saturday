@@ -37,24 +37,6 @@ public class S3ServiceImpl implements S3Service {
         this.s3Client = s3Client;
     }
 
-    public PutObjectResult upload(MultipartFile multipartFile, String uploadKey) throws IOException {
-        InputStream inputStream = multipartFile.getInputStream();
-
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentLength(multipartFile.getSize());
-        metadata.setContentType(multipartFile.getContentType());
-
-        PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, uploadKey, inputStream, metadata);
-
-        putObjectRequest.setCannedAcl(CannedAccessControlList.PublicRead);
-
-        PutObjectResult putObjectResult = s3Client.putObject(putObjectRequest);
-
-        IOUtils.closeQuietly(inputStream);
-
-        return putObjectResult;
-    }
-
     public List<PutObjectResult> upload(MultipartFile[] multipartFiles) {
         List<PutObjectResult> putObjectResults = new ArrayList<>();
 
@@ -69,6 +51,28 @@ public class S3ServiceImpl implements S3Service {
                 });
 
         return putObjectResults;
+    }
+
+    public PutObjectResult upload(MultipartFile multipartFile, String uploadKey) throws IOException {
+        InputStream inputStream = multipartFile.getInputStream();
+
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentLength(multipartFile.getSize());
+        metadata.setContentType(multipartFile.getContentType());
+
+        return upload(inputStream, uploadKey, metadata);
+    }
+
+   public PutObjectResult upload(InputStream inputStream, String uploadKey, ObjectMetadata metadata) throws IOException {
+        PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, uploadKey, inputStream, metadata);
+
+        putObjectRequest.setCannedAcl(CannedAccessControlList.PublicRead);
+
+        PutObjectResult putObjectResult = s3Client.putObject(putObjectRequest);
+
+        IOUtils.closeQuietly(inputStream);
+
+        return putObjectResult;
     }
 
     public ResponseEntity<byte[]> download(String key) throws IOException {
