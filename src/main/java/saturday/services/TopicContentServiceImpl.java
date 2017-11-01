@@ -4,6 +4,8 @@ import org.springframework.stereotype.Service;
 import saturday.domain.TopicContent;
 import saturday.repositories.TopicContentRepository;
 
+import java.util.List;
+
 @Service("topicContentService")
 public class TopicContentServiceImpl implements TopicContentService {
     public final TopicContentRepository topicContentRepository;
@@ -18,7 +20,7 @@ public class TopicContentServiceImpl implements TopicContentService {
     }
 
     @Override
-    public TopicContent findTopicContentByTopicId(int id) {
+    public List<TopicContent> findTopicContentByTopicId(int id) {
         return topicContentRepository.findByTopicId(id);
     }
 

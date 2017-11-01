@@ -9,8 +9,12 @@ import org.springframework.web.bind.annotation.*;
 import saturday.domain.Entity;
 import saturday.domain.NewTopic;
 import saturday.domain.Topic;
+import saturday.domain.TopicContent;
 import saturday.services.EntityService;
+import saturday.services.TopicContentService;
 import saturday.services.TopicService;
+
+import java.util.List;
 
 /**
  * Created by zachjustice on 7/27/17.
@@ -20,11 +24,13 @@ public class TopicController {
 
     private final TopicService topicService;
     private final EntityService entityService;
+    private final TopicContentService topicContentService;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public TopicController(TopicService topicService, EntityService entityService) {
+    public TopicController(TopicService topicService, EntityService entityService, TopicContentService topicContentService) {
         this.topicService = topicService;
         this.entityService = entityService;
+        this.topicContentService = topicContentService;
     }
 
     @RequestMapping(value = "/topics", method = RequestMethod.POST)
@@ -68,6 +74,19 @@ public class TopicController {
         }
 
         return new ResponseEntity<>(topic, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/topics/{id}/topic_content", method = RequestMethod.GET)
+    public ResponseEntity<List<TopicContent>> getTopicContentByTopic(@PathVariable(value="id") int id) {
+        Topic topic = topicService.findTopicById(id);
+
+        if(topic == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        List<TopicContent> topicContentList = topicContentService.findTopicContentByTopicId(id);
+
+        return new ResponseEntity<>(topicContentList , HttpStatus.OK);
     }
 
     @RequestMapping(value = "/topics/{id}", method = RequestMethod.GET)
