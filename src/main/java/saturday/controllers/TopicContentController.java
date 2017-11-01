@@ -82,6 +82,14 @@ public class TopicContentController {
 
         // Upload to s3 first to avoid creating db row without matching s3 media
         try {
+
+            // strip base64 data prefix
+            int i = data.indexOf(",");
+
+            if(i > -1) {
+                data = data.substring(i + 1);
+            }
+
             byte[] bI = java.util.Base64.getDecoder().decode(data);
             InputStream fis = new ByteArrayInputStream(bI);
 
