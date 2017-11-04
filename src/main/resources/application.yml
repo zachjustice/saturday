@@ -2,6 +2,10 @@ server:
   port: 5000
 
 spring:
+  http:
+    multipart:
+      maxFileSize: 100MB
+      maxRequestSize: 100MB
   mvc:
     dispatch-options-request: true
   # ===============================

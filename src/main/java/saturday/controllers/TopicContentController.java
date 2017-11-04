@@ -11,12 +11,15 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
 import saturday.domain.NewTopicContent;
+import saturday.domain.Topic;
 import saturday.domain.TopicContent;
+import saturday.exceptions.TopicNotFoundException;
 import saturday.services.EntityService;
 import saturday.services.S3Service;
 import saturday.services.TopicContentService;
 import saturday.services.TopicService;
 
+import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.ByteArrayInputStream;
@@ -121,28 +124,28 @@ public class TopicContentController {
     @RequestMapping(value = "/topic_content", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<TopicContent> createTopicContent(
-            @RequestPart("topicContent") @Valid NewTopicContent newTopicContent,
-            @RequestPart("file") @Valid @NotNull @NotBlank MultipartFile file
-    ) {
-        // Validate
-        if(file == null || newTopicContent.getCreator() <= 0) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
+            @RequestParam("creatorId")   Integer creatorId,
+            @RequestParam("topicId")     Integer topicId,
+            @RequestParam("title")       String title,
+            @RequestParam("subtitle")    String subtitle,
+            @RequestParam("description") String description,
+            @RequestParam("file")        MultipartFile file
+    ) throws TopicNotFoundException {
         // Get the creator
-        Integer creatorId = newTopicContent.getCreator();
         Entity creator = entityService.findEntityById(creatorId);
+        Topic topic = topicService.findTopicById(topicId);
 
         if(creator == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            throw new EntityNotFoundException();
+        }
+
+        if(topic == null) {
+            throw new TopicNotFoundException("The topic id, " + topicId + ", does not exist");
         }
 
         String now = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
         // TODO validate new topic content
-        String title = newTopicContent.getTitle();
-        String subtitle = newTopicContent.getSubtitle();
-        String description = newTopicContent.getDescription();
         String uploadKey = keyPrefix + title + "-" + now;
         String s3url  = s3urlPrefix + bucketName + "/" + uploadKey;
 
@@ -160,10 +163,11 @@ public class TopicContentController {
         topicContent.setSubtitle(subtitle);
         topicContent.setDescription(description);
         topicContent.setCreator(creator);
+        topicContent.setTopic(topic);
         topicContent.setS3url(s3url);
 
         topicContent = topicContentService.saveTopicContent(topicContent);
-        logger.info("Created TopicContent: " + newTopicContent.toString());
+        logger.info("Created TopicContent: " + topicContent.toString());
 
         return new ResponseEntity<>(topicContent, HttpStatus.OK);
     }

@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
-import saturday.exception.EntityExistsException;
+import saturday.exceptions.EntityExistsException;
 import saturday.services.EntityServiceImpl;
 import saturday.services.S3Service;
 import saturday.utils.TokenAuthenticationUtils;

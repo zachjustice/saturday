@@ -21,7 +21,7 @@ public class HTTPUtils {
             while ((line = reader.readLine()) != null)
                 jb.append(line);
         } catch (Exception e) {
-            // TODO Should be a bad request body exception or something
+            // TODO Should be a bad request body exceptions or something
             throw new Exception(e);
         }
 
