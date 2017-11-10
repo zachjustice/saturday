@@ -1,5 +1,7 @@
 package saturday.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,7 +21,10 @@ public class TokenAuthenticationUtils {
 
     private static long EXPIRATIONTIME = 864000000;
 
+    private static final Logger logger = LoggerFactory.getLogger(TokenAuthenticationUtils.class);
+
     public static void addAuthentication(HttpServletResponse res, String username) {
+        logger.info("JWT DATE: " + new Date(System.currentTimeMillis()) + " vs " + (new Date(System.currentTimeMillis() + EXPIRATIONTIME)));
         String JWT = Jwts.builder()
                 .setSubject(username)
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATIONTIME))
