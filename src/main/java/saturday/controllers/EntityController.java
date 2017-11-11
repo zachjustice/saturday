@@ -153,7 +153,8 @@ public class EntityController {
         entity = entityService.saveEntity(entity);
 
         // Only add token if the preceding was successful to avoid adding Auth headers to errored requests
-        TokenAuthenticationUtils.addAuthentication(response, entity.getEmail());
+        String token = TokenAuthenticationUtils.addAuthentication(response, entity.getEmail());
+        entity.setToken(token);
 
         return new ResponseEntity<>(entity, HttpStatus.OK);
     }
