@@ -77,7 +77,6 @@ public class TopicContentController {
         // TODO validate new topic content
         String data = newTopicContent.getData();
         String title = newTopicContent.getTitle();
-        String subtitle = newTopicContent.getSubtitle();
         String description = newTopicContent.getDescription();
         Integer topicId = newTopicContent.getTopic();
         String uploadKey = keyPrefix + title + "-" + now + ".jpeg";
@@ -109,7 +108,6 @@ public class TopicContentController {
         // Create topic content
         TopicContent topicContent = new TopicContent();
         topicContent.setTitle(title);
-        topicContent.setSubtitle(subtitle);
         topicContent.setDescription(description);
         topicContent.setCreator(creator);
         topicContent.setTopic(topicService.findTopicById(topicId));
@@ -127,7 +125,6 @@ public class TopicContentController {
             @RequestParam("creatorId")   Integer creatorId,
             @RequestParam("topicId")     Integer topicId,
             @RequestParam("title")       String title,
-            @RequestParam("subtitle")    String subtitle,
             @RequestParam("description") String description,
             @RequestParam("file")        MultipartFile file
     ) throws TopicNotFoundException {
@@ -160,7 +157,6 @@ public class TopicContentController {
         // Create topic content
         TopicContent topicContent = new TopicContent();
         topicContent.setTitle(title);
-        topicContent.setSubtitle(subtitle);
         topicContent.setDescription(description);
         topicContent.setCreator(creator);
         topicContent.setTopic(topic);
