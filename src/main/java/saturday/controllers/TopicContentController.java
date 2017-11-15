@@ -72,7 +72,7 @@ public class TopicContentController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        String now = new SimpleDateFormat("yyyy-MM-ddTHH:mm:ss").format(new Date());
+        String now = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new Date());
 
         // TODO validate new topic content
         String data = newTopicContent.getData();
@@ -137,7 +137,7 @@ public class TopicContentController {
             throw new TopicNotFoundException("The topic id, " + topicId + ", does not exist");
         }
 
-        String now = new SimpleDateFormat("yyyy-MM-ddTHH:mm:ss").format(new Date());
+        String now = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new Date());
 
         // TODO validate new topic content
         String uploadKey = keyPrefix + creatorId + "-" + now;
