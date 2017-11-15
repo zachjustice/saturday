@@ -29,12 +29,6 @@ public class TopicContent {
     @JoinColumn(name="creator_id", referencedColumnName = "id", nullable=false)
     private Entity creator;
 
-    @Column(name = "title")
-    private String title;
-
-    @Column(name = "subtitle")
-    private String subtitle;
-
     @Column(name = "description")
     private String description;
 
@@ -76,22 +70,6 @@ public class TopicContent {
         this.creator = creator;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getSubtitle() {
-        return subtitle;
-    }
-
-    public void setSubtitle(String subtitle) {
-        this.subtitle = subtitle;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -130,8 +108,6 @@ public class TopicContent {
                 "id=" + id +
                 ", topic=" + topic +
                 ", creator=" + creator +
-                ", title='" + title + '\'' +
-                ", subtitle='" + subtitle + '\'' +
                 ", description='" + description + '\'' +
                 ", s3url='" + s3url + '\'' +
                 ", created=" + created +

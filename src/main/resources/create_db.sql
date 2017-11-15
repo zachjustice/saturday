@@ -63,8 +63,6 @@ CREATE TABLE topic_content (
   id SERIAL PRIMARY KEY,
   topic_id INT NOT NULL REFERENCES topics(id),
   creator_id INT NOT NULL REFERENCES entities(id),
-  title VARCHAR(20),
-  subtitle VARCHAR(150),
   description VARCHAR(40000),
   s3url VARCHAR NOT NULL,
   created TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),

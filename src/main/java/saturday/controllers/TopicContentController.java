@@ -72,15 +72,13 @@ public class TopicContentController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        String now = new SimpleDateFormat("yyyy-MM-ddHH:mm:ss").format(new Date());
+        String now = new SimpleDateFormat("yyyy-MM-ddTHH:mm:ss").format(new Date());
 
         // TODO validate new topic content
         String data = newTopicContent.getData();
-        String title = newTopicContent.getTitle();
-        String subtitle = newTopicContent.getSubtitle();
         String description = newTopicContent.getDescription();
         Integer topicId = newTopicContent.getTopic();
-        String uploadKey = keyPrefix + title + "-" + now + ".jpeg";
+        String uploadKey = keyPrefix + creatorId + "-" + now + ".jpeg";
         String s3url  = s3urlPrefix + bucketName + "/" + uploadKey;
 
         // Upload to s3 first to avoid creating db row without matching s3 media
@@ -108,8 +106,6 @@ public class TopicContentController {
 
         // Create topic content
         TopicContent topicContent = new TopicContent();
-        topicContent.setTitle(title);
-        topicContent.setSubtitle(subtitle);
         topicContent.setDescription(description);
         topicContent.setCreator(creator);
         topicContent.setTopic(topicService.findTopicById(topicId));
@@ -126,8 +122,6 @@ public class TopicContentController {
     public ResponseEntity<TopicContent> createTopicContent(
             @RequestParam("creatorId")   Integer creatorId,
             @RequestParam("topicId")     Integer topicId,
-            @RequestParam("title")       String title,
-            @RequestParam("subtitle")    String subtitle,
             @RequestParam("description") String description,
             @RequestParam("file")        MultipartFile file
     ) throws TopicNotFoundException {
@@ -146,7 +140,7 @@ public class TopicContentController {
         String now = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
         // TODO validate new topic content
-        String uploadKey = keyPrefix + title + "-" + now;
+        String uploadKey = keyPrefix + creatorId + "-" + now;
         String s3url  = s3urlPrefix + bucketName + "/" + uploadKey;
 
         // Upload to s3 first to avoid creating db row without matching s3 media
@@ -159,8 +153,6 @@ public class TopicContentController {
 
         // Create topic content
         TopicContent topicContent = new TopicContent();
-        topicContent.setTitle(title);
-        topicContent.setSubtitle(subtitle);
         topicContent.setDescription(description);
         topicContent.setCreator(creator);
         topicContent.setTopic(topic);
