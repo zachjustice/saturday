@@ -35,7 +35,6 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
     public Authentication attemptAuthentication(
             HttpServletRequest req, HttpServletResponse response)
             throws AuthenticationException, IOException, ServletException {
-
         JsonObject json = null;
         logger.info("JWT LOGIN FILTER " + req.getMethod());
 
