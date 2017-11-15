@@ -17,13 +17,13 @@ public class TokenAuthenticationUtils {
     private static final String TOKEN_PREFIX = "Bearer";
     private static final String HEADER_STRING = "Authorization";
 
-    private static String SECRET = "MySecret";
+    private static String SECRET = "7834g32b2oeuqpidu!ddfghj)(4567cret";
 
     private static long EXPIRATIONTIME = 864000000;
 
     private static final Logger logger = LoggerFactory.getLogger(TokenAuthenticationUtils.class);
 
-    public static void addAuthentication(HttpServletResponse res, String username) {
+    public static String addAuthentication(HttpServletResponse res, String username) {
         logger.info("JWT DATE: " + new Date(System.currentTimeMillis()) + " vs " + (new Date(System.currentTimeMillis() + EXPIRATIONTIME)));
         String JWT = Jwts.builder()
                 .setSubject(username)
@@ -32,6 +32,7 @@ public class TokenAuthenticationUtils {
                 .compact();
 
         res.addHeader(HEADER_STRING, TOKEN_PREFIX + " " + JWT);
+        return JWT;
     }
 
     public static Authentication getAuthentication(HttpServletRequest request) {

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class NewTopicContent {
     private String data;
     private String title;
-    private String subtitle;
     private String description;
     private Integer topic;
     private Integer creator;
@@ -16,14 +15,6 @@ public class NewTopicContent {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getSubtitle() {
-        return subtitle;
-    }
-
-    public void setSubtitle(String subtitle) {
-        this.subtitle = subtitle;
     }
 
     public String getDescription() {
@@ -63,7 +54,6 @@ public class NewTopicContent {
         return "NewTopicContent{" +
                 "data='" + data + '\'' +
                 ", title='" + title + '\'' +
-                ", subtitle='" + subtitle + '\'' +
                 ", description='" + description + '\'' +
                 ", creator=" + creator +
                 '}';
