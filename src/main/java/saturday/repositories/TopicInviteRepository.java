@@ -14,5 +14,4 @@ public interface TopicInviteRepository extends JpaRepository<TopicInvite, Long> 
     List<TopicInvite> findTopicInvitesByInvitee(Entity invitee);
     List<TopicInvite> findTopicInvitesByInviter(Entity inviter);
     TopicInvite findById(int id);
-    TopicInvite delete(int id);
 }

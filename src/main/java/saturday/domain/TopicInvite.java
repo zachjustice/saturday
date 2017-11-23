@@ -41,4 +41,52 @@ public class TopicInvite {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modified;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Entity getInviter() {
+        return inviter;
+    }
+
+    public void setInviter(Entity inviter) {
+        this.inviter = inviter;
+    }
+
+    public Entity getInvitee() {
+        return invitee;
+    }
+
+    public void setInvitee(Entity invitee) {
+        this.invitee = invitee;
+    }
+
+    public Topic getTopic() {
+        return topic;
+    }
+
+    public void setTopic(Topic topic) {
+        this.topic = topic;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
+
+    public Date getModified() {
+        return modified;
+    }
+
+    public void setModified(Date modified) {
+        this.modified = modified;
+    }
 }

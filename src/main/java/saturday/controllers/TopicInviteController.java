@@ -25,7 +25,7 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-@RestController(value = "/topic_invites")
+@RestController()
 public class TopicInviteController {
     private final TopicInviteRepository topicInviteRepository;
 
@@ -34,12 +34,19 @@ public class TopicInviteController {
         this.topicInviteRepository = topicInviteRepository;
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/topic_invites/{id}", method = RequestMethod.GET)
     public ResponseEntity<TopicInvite> getTopicInvite(@PathVariable int id) throws TopicInviteNotFoundException {
         if(id < 1) {
             throw new TopicInviteNotFoundException("Could not find topic invite with the id " + id);
         }
+
         TopicInvite topicInvite = this.topicInviteRepository.findById(id);
+        return new ResponseEntity<>(topicInvite, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/topic_invites", method = RequestMethod.PUT)
+    public ResponseEntity<TopicInvite> saveTopicInvite(@RequestBody TopicInvite topicInvite) {
+        topicInvite = topicInviteRepository.save(topicInvite);
         return new ResponseEntity<>(topicInvite, HttpStatus.OK);
     }
 }
