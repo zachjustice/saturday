@@ -1,7 +1,8 @@
 package saturday.exceptions;
 
-public class TopicNotFoundException extends Exception {
-    public TopicNotFoundException(String message) {
+public class TopicInviteNotFoundException extends Exception {
+    public TopicInviteNotFoundException(String message) {
         super(message);
     }
+    public TopicInviteNotFoundException() {}
 }
