@@ -78,6 +78,17 @@ CREATE TABLE topic_members(
   created TIMESTAMP WITHOUT TIME ZONE DEFAULT now()
 );
 
+CREATE TABLE topic_invites(
+  id SERIAL PRIMARY KEY,
+  invitee_id INT NOT NULL REFERENCES  entities(id),
+  inviter_id INT NOT NULL REFERENCES  entities(id),
+  topic_id INT NOT NULL REFERENCES topics(id),
+  created TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+  modified TIMESTAMP WITHOUT TIME ZONE
+);
+
+CREATE TRIGGER update_topic_invites_modtime BEFORE UPDATE ON topic_invites FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
+
 CREATE TABLE topic_permissions(
   id INT PRIMARY KEY,
   label VARCHAR(20) NOT NULL
@@ -93,15 +104,6 @@ CREATE TABLE topic_entity_permissions(
 );
 
 CREATE TRIGGER update_topic_role_modtime BEFORE UPDATE ON topic_entity_permissions FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
-
-CREATE TABLE topic_invites(
-  id SERIAL PRIMARY KEY,
-  invitee_id INT NOT NULL REFERENCES  entities(id),
-  invitor_id INT NOT NULL REFERENCES  entities(id),
-  topic_id INT NOT NULL REFERENCES topics(id),
-  created TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
-  roles INT[]
-);
 
 
 INSERT INTO roles (id, label) VALUES (1, 'USER');

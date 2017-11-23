@@ -29,3 +29,12 @@ To redeploy
 ```
 eb deploy
 ```
+
+
+TODO
+* create topic invites domain, repo, service, serviceImpl
+* GET, POST, PUT, DELETE
+* create topic members domain, repo, service, serviceImpl
+* GET, POST, PUT, DELETE
+* Endpoint checks permissions
+* s3 bucket and key instead of url
