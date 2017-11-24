@@ -42,6 +42,10 @@ public class TopicInviteController {
 
     @RequestMapping(value = "/topic_invites", method = RequestMethod.POST)
     public ResponseEntity<TopicInvite> saveTopicInvite(@RequestBody TopicInviteRequest topicInviteRequest) throws BadHttpRequest {
+        if(topicInviteRequest.getInviteeId() == topicInviteRequest.getInviterId()) {
+            throw new BadHttpRequest(new Exception("Invitee and inviter cannot be the same."));
+        }
+
         Topic topic = topicService.findTopicById(topicInviteRequest.getTopicId());
         if(topic == null) {
             throw new BadHttpRequest(new Exception("Invalid topic id " + topicInviteRequest.getTopicId()));
