@@ -9,24 +9,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import saturday.domain.*;
 import saturday.exceptions.TopicInviteNotFoundException;
-import saturday.repositories.EntityRepository;
-import saturday.repositories.TopicInviteRepository;
-import saturday.repositories.TopicRepository;
-
-import javax.xml.ws.Response;
+import saturday.services.EntityService;
+import saturday.services.TopicInviteService;
+import saturday.services.TopicService;
 
 @RestController()
 public class TopicInviteController {
-    private final TopicInviteRepository topicInviteRepository;
-    private final EntityRepository entityRepository;
-    private final TopicRepository topicRepository;
+    private final TopicInviteService topicInviteService;
+    private final EntityService entityService;
+    private final TopicService topicService;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    public TopicInviteController(TopicInviteRepository topicInviteRepository, EntityRepository entityRepository, TopicRepository topicRepository) {
-        this.topicInviteRepository = topicInviteRepository;
-        this.entityRepository = entityRepository;
-        this.topicRepository = topicRepository;
+    public TopicInviteController(TopicInviteService topicInviteService, EntityService entityService, TopicService topicService) {
+        this.topicInviteService = topicInviteService;
+        this.entityService = entityService;
+        this.topicService = topicService;
     }
 
     @RequestMapping(value = "/topic_invites/{id}", method = RequestMethod.GET)
@@ -35,23 +34,23 @@ public class TopicInviteController {
             throw new TopicInviteNotFoundException("Could not find topic invite with the id " + id);
         }
 
-        TopicInvite topicInvite = this.topicInviteRepository.findById(id);
+        TopicInvite topicInvite = this.topicInviteService.findById(id);
         return new ResponseEntity<>(topicInvite, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/topic_invites", method = RequestMethod.PUT)
     public ResponseEntity<TopicInvite> saveTopicInvite(@RequestBody TopicInviteRequest topicInviteRequest) throws BadHttpRequest {
-        Topic topic = topicRepository.findById(topicInviteRequest.getTopicId());
+        Topic topic = topicService.findTopicById(topicInviteRequest.getTopicId());
         if(topic == null) {
             throw new BadHttpRequest(new Exception("Invalid topic id " + topicInviteRequest.getTopicId()));
         }
 
-        Entity invitee = entityRepository.findById(topicInviteRequest.getInviteeId());
+        Entity invitee = entityService.findEntityById(topicInviteRequest.getInviteeId());
         if(invitee == null) {
             throw new BadHttpRequest(new Exception("Invalid invitee id " + topicInviteRequest.getInviteeId()));
         }
 
-        Entity inviter = entityRepository.findById(topicInviteRequest.getInviterId());
+        Entity inviter = entityService.findEntityById(topicInviteRequest.getInviterId());
         if(inviter == null) {
             throw new BadHttpRequest(new Exception("Invalid inviter id " + topicInviteRequest.getInviterId()));
         }
@@ -60,7 +59,7 @@ public class TopicInviteController {
 
         TopicInvite topicInvite;
         if(topicInviteRequest.getId() > 0) {
-            topicInvite = topicInviteRepository.findById(topicInviteRequest.getId());
+            topicInvite = topicInviteService.findById(topicInviteRequest.getId());
         } else {
             topicInvite = new TopicInvite();
         }
@@ -71,13 +70,13 @@ public class TopicInviteController {
 
         logger.info("TopicInvite " + topicInvite);
 
-        topicInvite = topicInviteRepository.save(topicInvite);
+        topicInvite = topicInviteService.save(topicInvite);
         return new ResponseEntity<>(topicInvite, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/topic_invites/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<TopicInvite> delete(@PathVariable(value = "id") int id) {
-        topicInviteRepository.delete(id);
+        topicInviteService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
