@@ -89,4 +89,16 @@ public class TopicInvite {
     public void setModified(Date modified) {
         this.modified = modified;
     }
+
+    @Override
+    public String toString() {
+        return "TopicInvite{" +
+                "id=" + id +
+                ", inviter=" + inviter +
+                ", invitee=" + invitee +
+                ", topic=" + topic +
+                ", created=" + created +
+                ", modified=" + modified +
+                '}';
+    }
 }

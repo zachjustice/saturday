@@ -1,17 +1,18 @@
 package saturday.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-import javax.persistence.*;
-import java.util.Date;
-
 public class TopicInviteRequest {
+    private int id;
     private int inviterId;
     private int inviteeId;
     private int topicId;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public int getInviterId() {
         return inviterId;
@@ -35,5 +36,15 @@ public class TopicInviteRequest {
 
     public void setTopicId(int topicId) {
         this.topicId = topicId;
+    }
+
+    @Override
+    public String toString() {
+        return "TopicInviteRequest{" +
+                "id=" + id +
+                ", inviterId=" + inviterId +
+                ", inviteeId=" + inviteeId +
+                ", topicId=" + topicId +
+                '}';
     }
 }

@@ -9,7 +9,7 @@ import saturday.domain.TopicInvite;
 import java.util.List;
 
 @Repository
-public interface TopicInviteRepository extends JpaRepository<TopicInvite, Long> {
+public interface TopicInviteRepository extends JpaRepository<TopicInvite, Integer> {
     List<TopicInvite> findByTopicId(int id);
     List<TopicInvite> findTopicInvitesByInvitee(Entity invitee);
     List<TopicInvite> findTopicInvitesByInviter(Entity inviter);
