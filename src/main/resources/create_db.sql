@@ -90,7 +90,7 @@ CREATE TABLE topic_invites(
   topic_id INT NOT NULL REFERENCES topics(id),
   created TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
   modified TIMESTAMP WITHOUT TIME ZONE,
-  CONSTRAINT unique_invite UNIQUE(invitee_id, inviter_id, topic_id)
+  CONSTRAINT unique_invite UNIQUE(invitee_id, topic_id)
 );
 
 CREATE TRIGGER update_topic_invites_modtime BEFORE UPDATE ON topic_invites FOR EACH ROW EXECUTE PROCEDURE update_modified_column();

@@ -37,8 +37,8 @@ public class TopicInviteServiceImpl implements TopicInviteService {
     }
 
     @Override
-    public List<TopicInvite> findTopicInviteByInviteeAndInviterAndTopic(Entity invitee, Entity inviter, Topic topic) {
-        return topicInviteRepository.findTopicInviteByInviteeAndInviterAndTopic(invitee, inviter, topic);
+    public TopicInvite findTopicInviteByInviteeAndTopic(Entity invitee, Topic topic) {
+        return topicInviteRepository.findTopicInviteByInviteeAndTopic(invitee, topic);
     }
 
     @Override
@@ -56,5 +56,3 @@ public class TopicInviteServiceImpl implements TopicInviteService {
         return topicInviteRepository.findById(id);
     }
 }
-
-

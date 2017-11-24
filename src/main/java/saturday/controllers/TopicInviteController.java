@@ -13,6 +13,8 @@ import saturday.services.EntityService;
 import saturday.services.TopicInviteService;
 import saturday.services.TopicService;
 
+import java.util.List;
+
 @RestController()
 public class TopicInviteController {
     private final TopicInviteService topicInviteService;
@@ -38,7 +40,7 @@ public class TopicInviteController {
         return new ResponseEntity<>(topicInvite, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/topic_invites", method = RequestMethod.PUT)
+    @RequestMapping(value = "/topic_invites", method = RequestMethod.POST)
     public ResponseEntity<TopicInvite> saveTopicInvite(@RequestBody TopicInviteRequest topicInviteRequest) throws BadHttpRequest {
         Topic topic = topicService.findTopicById(topicInviteRequest.getTopicId());
         if(topic == null) {
@@ -55,18 +57,16 @@ public class TopicInviteController {
             throw new BadHttpRequest(new Exception("Invalid inviter id " + topicInviteRequest.getInviterId()));
         }
 
-        logger.info("TopicInviteRequest " + topicInviteRequest);
-
-        TopicInvite topicInvite;
-        if(topicInviteRequest.getId() > 0) {
-            topicInvite = topicInviteService.findById(topicInviteRequest.getId());
-        } else {
-            topicInvite = new TopicInvite();
+        TopicInvite existing = topicInviteService.findTopicInviteByInviteeAndTopic(invitee, topic);
+        if(existing != null) {
+            // Topic invite for the invited entity and topic already exists
+            return new ResponseEntity<TopicInvite>(existing, HttpStatus.CONFLICT);
         }
 
+        TopicInvite topicInvite = new TopicInvite();
+        topicInvite.setInviter(inviter);
         topicInvite.setTopic(topic);
         topicInvite.setInvitee(invitee);
-        topicInvite.setInviter(inviter);
 
         logger.info("TopicInvite " + topicInvite);
 
