@@ -4,14 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
-import saturday.domain.TopicInvite;
 import saturday.domain.TopicMember;
-import saturday.repositories.TopicInviteRepository;
 import saturday.repositories.TopicMemberRepository;
 
 import java.util.List;
 
-@Service("topicService")
+@Service("topicMemberService")
 public class TopicMemberServiceImpl implements TopicMemberService {
     private final TopicMemberRepository topicMemberRepository;
 
@@ -38,5 +36,10 @@ public class TopicMemberServiceImpl implements TopicMemberService {
     @Override
     public List<TopicMember> findByTopicId(int id) {
         return topicMemberRepository.findByTopicId(id);
+    }
+
+    @Override
+    public TopicMember findByEntityAndTopic(Entity entity, Topic topic) {
+        return topicMemberRepository.findByEntityAndTopic(entity, topic);
     }
 }

@@ -12,7 +12,7 @@ import saturday.repositories.TopicRepository;
 
 import java.util.List;
 
-@Service("topicService")
+@Service("topicInviteService")
 public class TopicInviteServiceImpl implements TopicInviteService {
     private final TopicInviteRepository topicInviteRepository;
 

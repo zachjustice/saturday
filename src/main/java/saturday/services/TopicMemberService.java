@@ -15,4 +15,5 @@ public interface TopicMemberService {
 
     TopicMember findById(int id);
     List<TopicMember> findByTopicId(int id);
+    TopicMember findByEntityAndTopic(Entity entity, Topic topic);
 }

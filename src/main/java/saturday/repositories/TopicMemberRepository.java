@@ -12,4 +12,5 @@ import java.util.List;
 public interface TopicMemberRepository extends JpaRepository<TopicMember, Integer> {
     List<TopicMember> findByTopicId(int id);
     TopicMember findById(int id);
+    TopicMember findByEntityAndTopic(Entity entity, Topic topic);
 }

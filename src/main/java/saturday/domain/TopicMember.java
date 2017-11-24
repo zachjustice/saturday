@@ -9,7 +9,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 @javax.persistence.Entity
-@Table(name = "topic_invites")
+@Table(name = "topic_members")
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
