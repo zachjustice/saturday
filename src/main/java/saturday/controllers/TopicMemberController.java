@@ -4,6 +4,7 @@ import javassist.tools.web.BadHttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -75,7 +76,11 @@ public class TopicMemberController {
 
     @RequestMapping(value = "/topic_members/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<TopicMember> delete(@PathVariable(value = "id") int id) {
-        topicMemberService.delete(id);
+        try {
+            topicMemberService.delete(id);
+        } catch(EmptyResultDataAccessException ex) {
+            throw new TopicMemberNotFoundException("No topic member with id " + id + " exists!");
+        }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
