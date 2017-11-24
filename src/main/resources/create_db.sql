@@ -80,8 +80,11 @@ CREATE TABLE topic_members(
   entity_id INT NOT NULL REFERENCES  entities(id),
   topic_id INT NOT NULL REFERENCES topics(id),
   created TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+  modified TIMESTAMP WITHOUT TIME ZONE,
   CONSTRAINT unique_topic_member UNIQUE(entity_id, topic_id)
 );
+
+CREATE TRIGGER update_topic_members_modtime BEFORE UPDATE ON topic_members FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
 CREATE TABLE topic_invites(
   id SERIAL PRIMARY KEY,
