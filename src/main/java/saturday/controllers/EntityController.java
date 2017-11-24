@@ -1,6 +1,7 @@
 package saturday.controllers;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.method.P;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.slf4j.Logger;
@@ -11,14 +12,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
+import saturday.domain.TopicInvite;
 import saturday.exceptions.EntityExistsException;
+import saturday.exceptions.TopicMemberNotFoundException;
 import saturday.services.EntityServiceImpl;
 import saturday.services.S3Service;
+import saturday.services.TopicInviteService;
 import saturday.utils.TokenAuthenticationUtils;
 
+import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by zachjustice on 7/27/17.
@@ -27,6 +33,7 @@ import java.util.Date;
 public class EntityController {
 
     private final EntityServiceImpl entityService;
+    private final TopicInviteService topicInviteService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final S3Service s3Service;
 
@@ -38,8 +45,9 @@ public class EntityController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    public EntityController(EntityServiceImpl entityService, BCryptPasswordEncoder bCryptPasswordEncoder, S3Service s3Service) {
+    public EntityController(EntityServiceImpl entityService, TopicInviteService topicInviteService, BCryptPasswordEncoder bCryptPasswordEncoder, S3Service s3Service) {
         this.entityService = entityService;
+        this.topicInviteService = topicInviteService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.s3Service = s3Service;
     }
@@ -157,5 +165,29 @@ public class EntityController {
         entity.setToken(token);
 
         return new ResponseEntity<>(entity, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/entities/{id}/received_topic_invites", method = RequestMethod.GET)
+    public ResponseEntity<List<TopicInvite>> getEntityReceivedTopicInvites(@PathVariable(value="id") int id) {
+        Entity invitee = entityService.findEntityById(id);
+
+        if(invitee == null) {
+            throw new EntityNotFoundException("No entity with id " + id + " exists!");
+        }
+
+        List<TopicInvite> topicInvites = topicInviteService.findTopicInvitesByInvitee(invitee);
+        return new ResponseEntity<>(topicInvites, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/entities/{id}/sent_topic_invites", method = RequestMethod.GET)
+    public ResponseEntity<List<TopicInvite>> getEntitySentTopicInvites(@PathVariable(value="id") int id) {
+        Entity inviter = entityService.findEntityById(id);
+
+        if(inviter == null) {
+            throw new EntityNotFoundException("No entity with id " + id + " exists!");
+        }
+
+        List<TopicInvite> topicInvites = topicInviteService.findTopicInvitesByInviter(inviter);
+        return new ResponseEntity<>(topicInvites, HttpStatus.OK);
     }
 }
