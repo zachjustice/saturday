@@ -1,6 +1,8 @@
 package saturday.exceptions;
 
-public class TopicMemberNotFoundException extends Exception {
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
+
+public class TopicMemberNotFoundException extends ResourceNotFoundException {
     public TopicMemberNotFoundException(String message) {
         super(message);
     }

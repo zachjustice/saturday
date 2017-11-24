@@ -38,6 +38,10 @@ public class TopicMemberController {
         }
 
         TopicMember topicMember = this.topicMemberService.findById(id);
+        if(topicMember == null) {
+            throw new TopicMemberNotFoundException("Couldn't find topic member with id " + id);
+        }
+
         return new ResponseEntity<>(topicMember, HttpStatus.OK);
     }
 
