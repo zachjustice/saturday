@@ -1,18 +1,9 @@
 package saturday.domain;
 
 public class TopicInviteRequest {
-    private int id;
     private int inviterId;
     private int inviteeId;
     private int topicId;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public int getInviterId() {
         return inviterId;
@@ -41,8 +32,7 @@ public class TopicInviteRequest {
     @Override
     public String toString() {
         return "TopicInviteRequest{" +
-                "id=" + id +
-                ", inviterId=" + inviterId +
+                "inviterId=" + inviterId +
                 ", inviteeId=" + inviteeId +
                 ", topicId=" + topicId +
                 '}';
