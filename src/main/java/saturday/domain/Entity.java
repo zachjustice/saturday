@@ -1,15 +1,13 @@
 package saturday.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @javax.persistence.Entity
@@ -70,9 +68,15 @@ public class Entity {
     @Column(name = "fb_access_token " )
     private String fbAccessToken ;
 
+    @JsonIgnore
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "entity_roles", joinColumns = @JoinColumn(name = "entity_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
+
+    @JsonIgnore
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "topic_members", joinColumns = @JoinColumn(name = "entity_id"), inverseJoinColumns = @JoinColumn(name = "topic_id"))
+    private List<Topic> topics;
 
     public int getId() {
         return id;
@@ -171,20 +175,6 @@ public class Entity {
         this.password = password;
     }
 
-    @Override
-    public String toString() {
-        return "Entity{" +
-                "id=" + id +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                ", name='" + name + '\'' +
-                ", isEnabled=" + isEnabled +
-                ", created=" + created +
-                ", modified=" + modified +
-                ", roles=" + roles +
-                '}';
-    }
-
     public Date getBirthday() {
         return birthday;
     }
@@ -199,6 +189,35 @@ public class Entity {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public boolean isEnabled() {
+        return isEnabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        isEnabled = enabled;
+    }
+
+    public List<Topic> getTopics() {
+        return topics;
+    }
+
+    public void setTopics(List<Topic> topics) {
+        this.topics = topics;
+    }
+
+    @Override
+    public String toString() {
+        return "Entity{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", name='" + name + '\'' +
+                ", isEnabled=" + isEnabled +
+                ", created=" + created +
+                ", modified=" + modified +
+                '}';
     }
 
 }

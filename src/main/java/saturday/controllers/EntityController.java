@@ -1,28 +1,28 @@
 package saturday.controllers;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.access.method.P;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
+import saturday.domain.Topic;
 import saturday.domain.TopicInvite;
 import saturday.exceptions.EntityExistsException;
-import saturday.exceptions.TopicMemberNotFoundException;
 import saturday.services.EntityServiceImpl;
+import saturday.services.PermissionService;
 import saturday.services.S3Service;
 import saturday.services.TopicInviteService;
 import saturday.utils.TokenAuthenticationUtils;
 
 import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletResponse;
-import javax.websocket.server.PathParam;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -35,8 +35,10 @@ public class EntityController {
 
     private final EntityServiceImpl entityService;
     private final TopicInviteService topicInviteService;
+    private final PermissionService permissionService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final S3Service s3Service;
+    //private final SecurityContextHolder securityContextHolder;
 
     @Value("${saturday.s3.bucket}")
     private String bucketName;
@@ -46,9 +48,10 @@ public class EntityController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    public EntityController(EntityServiceImpl entityService, TopicInviteService topicInviteService, BCryptPasswordEncoder bCryptPasswordEncoder, S3Service s3Service) {
+    public EntityController(EntityServiceImpl entityService, TopicInviteService topicInviteService, PermissionService permissionService, BCryptPasswordEncoder bCryptPasswordEncoder, S3Service s3Service) {
         this.entityService = entityService;
         this.topicInviteService = topicInviteService;
+        this.permissionService = permissionService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.s3Service = s3Service;
     }
@@ -187,5 +190,23 @@ public class EntityController {
         }
 
         return new ResponseEntity<>(topicInvites, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/entities/{id}/topics", method = RequestMethod.GET)
+    public ResponseEntity<List<Topic>> getEntityTopics(
+            @PathVariable(value="id") int id,
+            @RequestParam(value="getReceived", defaultValue = "true") boolean getReceived
+    ) throws AccessDeniedException {
+        if(!permissionService.canAccess(id)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+        }
+
+        Entity entity = entityService.findEntityById(id);
+
+        if(entity == null) {
+            throw new EntityNotFoundException("No entity with id " + id + " exists!");
+        }
+
+        return new ResponseEntity<>(entity.getTopics(), HttpStatus.OK);
     }
 }
