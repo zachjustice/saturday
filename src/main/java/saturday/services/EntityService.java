@@ -10,4 +10,5 @@ public interface EntityService {
     Entity findEntityById(int id);
 
     Entity saveEntity(Entity entity);
+    Entity getAuthenticatedEntity();
 }
