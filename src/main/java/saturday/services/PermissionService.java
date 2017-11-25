@@ -11,6 +11,10 @@ public class PermissionService {
     }
 
     public boolean canAccess(int resourceId) {
-        return resourceId == entityService.getAuthenticatedEntity().getId();
+        return entityService.getAuthenticatedEntity().getId() == resourceId;
+    }
+
+    public boolean canAccess(String email) {
+        return entityService.getAuthenticatedEntity().getEmail().equals(email);
     }
 }

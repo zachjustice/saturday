@@ -62,6 +62,10 @@ public class EntityController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
+        if(!permissionService.canAccess(email)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+        }
+
         Entity entity = entityService.findEntityByEmail(email);
 
         if(entity == null) {
@@ -75,6 +79,10 @@ public class EntityController {
 
     @RequestMapping(value = "/entities/{id}", method = RequestMethod.GET)
     public ResponseEntity<Entity> getEntity(@PathVariable(value="id") int id) {
+        if(!permissionService.canAccess(id)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+        }
+
         Entity entity = entityService.findEntityById(id);
         if(entity == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -85,12 +93,15 @@ public class EntityController {
         return new ResponseEntity<>(entity, HttpStatus.OK);
     }
 
-    // TODO auth check so only id-entity can update id-entity
     @RequestMapping(value = "/entities/{id}", method = RequestMethod.PUT)
     public ResponseEntity<Entity> saveEntity(
             @PathVariable(value="id") int id,
             @RequestBody Entity updatedEntity
     ) {
+        if(!permissionService.canAccess(id)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+        }
+
         if(updatedEntity.getId() != id || updatedEntity.getId() == 0) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -140,6 +151,10 @@ public class EntityController {
             @PathVariable(value="id") int id,
             @RequestParam("picture") MultipartFile picture) throws EntityExistsException, IOException {
 
+        if(!permissionService.canAccess(id)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+        }
+
         String uploadKey = "entity-" + id + "-profile-picture"; // s3 file url
         String fileUrl = s3UrlPrefix + bucketName + "/" + uploadKey;
 
@@ -176,6 +191,10 @@ public class EntityController {
             @PathVariable(value="id") int id,
             @RequestParam(value="getReceived", defaultValue = "true") boolean getReceived
     ) {
+        if(!permissionService.canAccess(id)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+        }
+
         Entity entity = entityService.findEntityById(id);
 
         if(entity == null) {
