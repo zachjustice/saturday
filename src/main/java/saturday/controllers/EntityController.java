@@ -22,6 +22,7 @@ import saturday.utils.TokenAuthenticationUtils;
 
 import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletResponse;
+import javax.websocket.server.PathParam;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -167,27 +168,24 @@ public class EntityController {
         return new ResponseEntity<>(entity, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/entities/{id}/received_topic_invites", method = RequestMethod.GET)
-    public ResponseEntity<List<TopicInvite>> getEntityReceivedTopicInvites(@PathVariable(value="id") int id) {
-        Entity invitee = entityService.findEntityById(id);
+    @RequestMapping(value = "/entities/{id}/topic_invites", method = RequestMethod.GET)
+    public ResponseEntity<List<TopicInvite>> getEntityReceivedTopicInvites(
+            @PathVariable(value="id") int id,
+            @RequestParam(value="getReceived", defaultValue = "true") boolean getReceived
+    ) {
+        Entity entity = entityService.findEntityById(id);
 
-        if(invitee == null) {
+        if(entity == null) {
             throw new EntityNotFoundException("No entity with id " + id + " exists!");
         }
 
-        List<TopicInvite> topicInvites = topicInviteService.findTopicInvitesByInvitee(invitee);
-        return new ResponseEntity<>(topicInvites, HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/entities/{id}/sent_topic_invites", method = RequestMethod.GET)
-    public ResponseEntity<List<TopicInvite>> getEntitySentTopicInvites(@PathVariable(value="id") int id) {
-        Entity inviter = entityService.findEntityById(id);
-
-        if(inviter == null) {
-            throw new EntityNotFoundException("No entity with id " + id + " exists!");
+        List<TopicInvite> topicInvites;
+        if(getReceived) {
+            topicInvites = topicInviteService.findTopicInvitesByInvitee(entity);
+        } else {
+            topicInvites = topicInviteService.findTopicInvitesByInviter(entity);
         }
 
-        List<TopicInvite> topicInvites = topicInviteService.findTopicInvitesByInviter(inviter);
         return new ResponseEntity<>(topicInvites, HttpStatus.OK);
     }
 }
