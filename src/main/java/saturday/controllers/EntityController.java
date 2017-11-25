@@ -62,10 +62,6 @@ public class EntityController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        if(!permissionService.canAccess(email)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
-        }
-
         Entity entity = entityService.findEntityByEmail(email);
 
         if(entity == null) {
@@ -79,10 +75,6 @@ public class EntityController {
 
     @RequestMapping(value = "/entities/{id}", method = RequestMethod.GET)
     public ResponseEntity<Entity> getEntity(@PathVariable(value="id") int id) {
-        if(!permissionService.canAccess(id)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
-        }
-
         Entity entity = entityService.findEntityById(id);
         if(entity == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
