@@ -77,7 +77,7 @@ public class EntityController {
     public ResponseEntity<Entity> getEntity(@PathVariable(value="id") int id) {
         Entity entity = entityService.findEntityById(id);
         if(entity == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new EntityNotFoundException("No entity with id " + id + " exists!");
         }
 
         entity.setPassword("");
@@ -90,7 +90,8 @@ public class EntityController {
             @PathVariable(value="id") int id,
             @RequestBody Entity updatedEntity
     ) {
-        if(!permissionService.canAccess(id)) {
+        Entity currEntity = entityService.findEntityById(updatedEntity.getId());
+        if(!permissionService.canAccess(currEntity)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
@@ -99,7 +100,6 @@ public class EntityController {
         }
 
         logger.info("New Entity: " + updatedEntity.toString());
-        Entity currEntity = entityService.findEntityById(updatedEntity.getId());
 
         if(currEntity == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -143,7 +143,9 @@ public class EntityController {
             @PathVariable(value="id") int id,
             @RequestParam("picture") MultipartFile picture) throws EntityExistsException, IOException {
 
-        if(!permissionService.canAccess(id)) {
+        Entity entity = entityService.findEntityById(id);
+
+        if(!permissionService.canAccess(entity)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
@@ -152,7 +154,6 @@ public class EntityController {
 
         s3Service.upload(picture, uploadKey);
 
-        Entity entity = entityService.findEntityById(id);
         entity.setPictureUrl(fileUrl);
 
         return new ResponseEntity<>(fileUrl, HttpStatus.OK);
@@ -183,11 +184,11 @@ public class EntityController {
             @PathVariable(value="id") int id,
             @RequestParam(value="getReceived", defaultValue = "true") boolean getReceived
     ) {
-        if(!permissionService.canAccess(id)) {
+        Entity entity = entityService.findEntityById(id);
+
+        if(!permissionService.canAccess(entity)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
-
-        Entity entity = entityService.findEntityById(id);
 
         if(entity == null) {
             throw new EntityNotFoundException("No entity with id " + id + " exists!");
@@ -208,11 +209,11 @@ public class EntityController {
             @PathVariable(value="id") int id,
             @RequestParam(value="getReceived", defaultValue = "true") boolean getReceived
     ) throws AccessDeniedException {
-        if(!permissionService.canAccess(id)) {
+        Entity entity = entityService.findEntityById(id);
+
+        if(!permissionService.canAccess(entity)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
-
-        Entity entity = entityService.findEntityById(id);
 
         if(entity == null) {
             throw new EntityNotFoundException("No entity with id " + id + " exists!");

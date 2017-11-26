@@ -78,6 +78,17 @@ public class Entity {
     @JoinTable(name = "topic_members", joinColumns = @JoinColumn(name = "entity_id"), inverseJoinColumns = @JoinColumn(name = "topic_id"))
     private List<Topic> topics;
 
+    @JsonIgnore
+    public boolean isAdmin() {
+        for(Role r: roles) {
+            if(r.getId() == 2) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public int getId() {
         return id;
     }

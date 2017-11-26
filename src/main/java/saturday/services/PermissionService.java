@@ -1,6 +1,7 @@
 package saturday.services;
 
 import org.springframework.stereotype.Component;
+import saturday.domain.Entity;
 
 @Component
 public class PermissionService {
@@ -10,11 +11,12 @@ public class PermissionService {
         this.entityService = entityService;
     }
 
-    public boolean canAccess(int resourceId) {
-        return entityService.getAuthenticatedEntity().getId() == resourceId;
-    }
+    public boolean canAccess(Entity entity) {
+        if(entity == null) {
+           return false;
+        }
 
-    public boolean canAccess(String email) {
-        return entityService.getAuthenticatedEntity().getEmail().equals(email);
+        Entity authenticatedEntity = entityService.getAuthenticatedEntity();
+        return authenticatedEntity.isAdmin() || entityService.getAuthenticatedEntity().getId() == entity.getId();
     }
 }
