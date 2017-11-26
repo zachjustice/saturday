@@ -56,9 +56,15 @@ public class TopicInviteController {
             throw new BadHttpRequest(new Exception("Invalid invitee id " + topicInviteRequest.getInviteeId()));
         }
 
-        Entity inviter = entityService.findEntityById(topicInviteRequest.getInviterId());
-        if(inviter == null) {
-            throw new BadHttpRequest(new Exception("Invalid inviter id " + topicInviteRequest.getInviterId()));
+        // Only allow admins to set the Inviter id. Otherwise the inviter is the authenticated user
+        Entity inviter;
+        if(entityService.getAuthenticatedEntity().isAdmin() && topicInviteRequest.getInviterId() > 0) {
+            inviter = entityService.findEntityById(topicInviteRequest.getInviterId());
+            if (inviter == null) {
+                throw new BadHttpRequest(new Exception("Invalid inviter id " + topicInviteRequest.getInviterId()));
+            }
+        } else {
+            inviter = entityService.getAuthenticatedEntity();
         }
 
         TopicInvite existing = topicInviteService.findTopicInviteByInviteeAndTopic(invitee, topic);

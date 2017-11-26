@@ -1,14 +1,11 @@
 package saturday.services;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicInvite;
 import saturday.repositories.TopicInviteRepository;
-import saturday.repositories.TopicRepository;
 
 import java.util.List;
 
@@ -39,6 +36,11 @@ public class TopicInviteServiceImpl implements TopicInviteService {
     @Override
     public TopicInvite findTopicInviteByInviteeAndTopic(Entity invitee, Topic topic) {
         return topicInviteRepository.findTopicInviteByInviteeAndTopic(invitee, topic);
+    }
+
+    @Override
+    public List<TopicInvite> findTopicInviteByInviteeOrInviter(Entity invitee, Entity inviter) {
+        return topicInviteRepository.findTopicInviteByInviteeOrInviter(invitee, inviter);
     }
 
     @Override

@@ -182,7 +182,7 @@ public class EntityController {
     @RequestMapping(value = "/entities/{id}/topic_invites", method = RequestMethod.GET)
     public ResponseEntity<List<TopicInvite>> getEntityReceivedTopicInvites(
             @PathVariable(value="id") int id,
-            @RequestParam(value="getReceived", defaultValue = "true") boolean getReceived
+            @RequestParam(value="getReceived", defaultValue = "true") Boolean getReceived
     ) {
         Entity entity = entityService.findEntityById(id);
 
@@ -195,7 +195,9 @@ public class EntityController {
         }
 
         List<TopicInvite> topicInvites;
-        if(getReceived) {
+        if(getReceived == null) {
+            topicInvites = topicInviteService.findTopicInviteByInviteeOrInviter(entity, entity);
+        } else if(getReceived) {
             topicInvites = topicInviteService.findTopicInvitesByInvitee(entity);
         } else {
             topicInvites = topicInviteService.findTopicInvitesByInviter(entity);

@@ -18,4 +18,5 @@ public interface TopicInviteService {
     List<TopicInvite> findTopicInvitesByInvitee(Entity invitee);
     List<TopicInvite> findTopicInvitesByInviter(Entity inviter);
     TopicInvite findTopicInviteByInviteeAndTopic(Entity invitee, Topic topic);
+    List<TopicInvite> findTopicInviteByInviteeOrInviter(Entity invitee, Entity inviter);
 }
