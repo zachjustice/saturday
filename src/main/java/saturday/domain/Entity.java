@@ -12,9 +12,6 @@ import java.util.Set;
 
 @javax.persistence.Entity
 @Table(name = "entities")
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id")
 public class Entity {
 
     @Id
@@ -65,8 +62,9 @@ public class Entity {
     @Column(name = "fb_id" )
     private Long fbId ;
 
-    @Column(name = "fb_access_token " )
-    private String fbAccessToken ;
+    @JsonIgnore
+    @Column(name = "fb_access_token" )
+    private String fbAccessToken;
 
     @JsonIgnore
     @ManyToMany(cascade = CascadeType.ALL)

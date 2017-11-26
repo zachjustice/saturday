@@ -11,9 +11,6 @@ import java.util.Date;
 
 @javax.persistence.Entity
 @Table(name = "topic_content")
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id")
 public class TopicContent {
 
     @Id

@@ -10,9 +10,6 @@ import java.util.Date;
 
 @javax.persistence.Entity
 @Table(name = "topic_invites")
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id")
 public class TopicInvite {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
