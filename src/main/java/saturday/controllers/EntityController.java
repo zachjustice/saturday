@@ -182,7 +182,7 @@ public class EntityController {
     @RequestMapping(value = "/entities/{id}/topic_invites", method = RequestMethod.GET)
     public ResponseEntity<List<TopicInvite>> getEntityReceivedTopicInvites(
             @PathVariable(value="id") int id,
-            @RequestParam(value="getReceived", defaultValue = "true") Boolean getReceived
+            @RequestParam(value="getReceived", required = false) Boolean getReceived
     ) {
         Entity entity = entityService.findEntityById(id);
 
@@ -196,7 +196,7 @@ public class EntityController {
 
         List<TopicInvite> topicInvites;
         if(getReceived == null) {
-            topicInvites = topicInviteService.findTopicInviteByInviteeOrInviter(entity, entity);
+            topicInvites = topicInviteService.findTopicInvitesByInviteeOrInviter(entity);
         } else if(getReceived) {
             topicInvites = topicInviteService.findTopicInvitesByInvitee(entity);
         } else {
@@ -208,8 +208,7 @@ public class EntityController {
 
     @RequestMapping(value = "/entities/{id}/topics", method = RequestMethod.GET)
     public ResponseEntity<List<Topic>> getEntityTopics(
-            @PathVariable(value="id") int id,
-            @RequestParam(value="getReceived", defaultValue = "true") boolean getReceived
+            @PathVariable(value="id") int id
     ) throws AccessDeniedException {
         Entity entity = entityService.findEntityById(id);
 

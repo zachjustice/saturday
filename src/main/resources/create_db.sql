@@ -10,10 +10,6 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
---DROP TABLE entities CASCADE;
---DROP TABLE roles CASCADE;
---DROP TABLE entity_roles CASCADE;
-
 CREATE TABLE entities (
   -- my metadata
   id SERIAL PRIMARY KEY,
@@ -77,10 +73,10 @@ CREATE TRIGGER update_topic_content_modtime BEFORE UPDATE ON topic_content FOR E
 
 CREATE TABLE topic_members(
   id SERIAL PRIMARY KEY,
-  entity_id INT NOT NULL REFERENCES  entities(id),
-  topic_id INT NOT NULL REFERENCES topics(id),
-  created TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
-  modified TIMESTAMP WITHOUT TIME ZONE,
+  entity_id INT NOT NULL REFERENCES entities(id),
+  topic_id  INT NOT NULL REFERENCES topics(id),
+  created   TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+  modified  TIMESTAMP WITHOUT TIME ZONE,
   CONSTRAINT unique_topic_member UNIQUE(entity_id, topic_id)
 );
 
@@ -88,10 +84,10 @@ CREATE TRIGGER update_topic_members_modtime BEFORE UPDATE ON topic_members FOR E
 
 CREATE TABLE topic_invites(
   id SERIAL PRIMARY KEY,
-  invitee_id INT NOT NULL REFERENCES  entities(id),
-  inviter_id INT NOT NULL REFERENCES  entities(id),
-  topic_id INT NOT NULL REFERENCES topics(id),
-  created TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+  invitee_id INT NOT NULL REFERENCES entities(id),
+  inviter_id INT NOT NULL REFERENCES entities(id),
+  topic_id   INT NOT NULL REFERENCES topics(id),
+  created  TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
   modified TIMESTAMP WITHOUT TIME ZONE,
   CONSTRAINT unique_invite UNIQUE(invitee_id, topic_id)
 );
@@ -106,9 +102,9 @@ CREATE TABLE topic_permissions(
 CREATE TABLE topic_entity_permissions(
   id SERIAL PRIMARY KEY,
   entity_id INT NOT NULL REFERENCES  entities(id),
-  topic_id INT NOT NULL REFERENCES topics(id),
+  topic_id  INT NOT NULL REFERENCES topics(id),
   topic_permission_id INT NOT NULL REFERENCES topic_permissions(id),
-  created TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+  created  TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
   modified TIMESTAMP WITHOUT TIME ZONE,
   CONSTRAINT unique_permission UNIQUE(entity_id, topic_id, topic_permission_id)
 );
@@ -116,8 +112,5 @@ CREATE TABLE topic_entity_permissions(
 CREATE TRIGGER update_topic_role_modtime BEFORE UPDATE ON topic_entity_permissions FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
 INSERT INTO roles (id, label) VALUES (1, 'USER');
-INSERT INTO roles (id, label) VALUES (2, 'MODERATOR');
+INSERT INTO roles (id, label) VALUES (2, 'ADMIN');
 
-delete from entity_roles;
-delete from entities;
-select * from entities;

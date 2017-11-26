@@ -1,5 +1,7 @@
 package saturday.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import saturday.domain.Entity;
@@ -12,6 +14,7 @@ import java.util.List;
 @Service("topicInviteService")
 public class TopicInviteServiceImpl implements TopicInviteService {
     private final TopicInviteRepository topicInviteRepository;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     TopicInviteServiceImpl(TopicInviteRepository topicInviteRepository) {
@@ -39,8 +42,10 @@ public class TopicInviteServiceImpl implements TopicInviteService {
     }
 
     @Override
-    public List<TopicInvite> findTopicInviteByInviteeOrInviter(Entity invitee, Entity inviter) {
-        return topicInviteRepository.findTopicInviteByInviteeOrInviter(invitee, inviter);
+    public List<TopicInvite> findTopicInvitesByInviteeOrInviter(Entity entity) {
+        List<TopicInvite> list = topicInviteRepository.findTopicInvitesByInviteeOrInviter(entity.getId());
+        logger.info("Topic invites " + list.size() + "");
+        return list;
     }
 
     @Override
