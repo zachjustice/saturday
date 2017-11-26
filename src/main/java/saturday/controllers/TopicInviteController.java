@@ -6,28 +6,29 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 import saturday.domain.*;
 import saturday.exceptions.TopicInviteNotFoundException;
-import saturday.services.EntityService;
-import saturday.services.TopicInviteService;
-import saturday.services.TopicService;
-
-import java.util.List;
+import saturday.services.*;
 
 @RestController()
 public class TopicInviteController {
     private final TopicInviteService topicInviteService;
     private final EntityService entityService;
     private final TopicService topicService;
+    private final PermissionService permissionService;
+    private final TopicMemberService topicMemberService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    public TopicInviteController(TopicInviteService topicInviteService, EntityService entityService, TopicService topicService) {
+    public TopicInviteController(TopicInviteService topicInviteService, EntityService entityService, TopicService topicService, PermissionService permissionService, TopicMemberService topicMemberService) {
         this.topicInviteService = topicInviteService;
         this.entityService = entityService;
         this.topicService = topicService;
+        this.permissionService = permissionService;
+        this.topicMemberService = topicMemberService;
     }
 
     @RequestMapping(value = "/topic_invites/{id}", method = RequestMethod.GET)
@@ -38,6 +39,38 @@ public class TopicInviteController {
 
         TopicInvite topicInvite = this.topicInviteService.findById(id);
         return new ResponseEntity<>(topicInvite, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/topic_invites/{id}/accept", method = RequestMethod.POST)
+    public ResponseEntity<TopicMember> acceptTopicInvite(@PathVariable int id) throws TopicInviteNotFoundException {
+        if(id < 1) {
+            throw new TopicInviteNotFoundException("Could not find topic invite with the id " + id);
+        }
+
+        TopicInvite topicInvite = this.topicInviteService.findById(id);
+
+        if(!permissionService.canAcceptInvite(topicInvite)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+        }
+
+        TopicMember topicMember = this.topicMemberService.save(topicInvite);
+
+        return new ResponseEntity<>(topicMember, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/topic_invites/{id}/reject", method = RequestMethod.POST)
+    public ResponseEntity<TopicInvite> rejectTopicInvite(@PathVariable int id) throws TopicInviteNotFoundException {
+        TopicInvite topicInvite = topicInviteService.findById(id);
+        if(topicInvite == null) {
+            throw new TopicInviteNotFoundException("Could not find topic invite with the id " + id);
+        }
+
+        if(!permissionService.canRejectInvite(topicInvite)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+        }
+
+        this.topicInviteService.delete(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = "/topic_invites", method = RequestMethod.POST)
@@ -58,7 +91,7 @@ public class TopicInviteController {
 
         // Only allow admins to set the Inviter id. Otherwise the inviter is the authenticated user
         Entity inviter;
-        if(entityService.getAuthenticatedEntity().isAdmin() && topicInviteRequest.getInviterId() > 0) {
+        if(entityService.getAuthenticatedEntity().isAdmin()) {
             inviter = entityService.findEntityById(topicInviteRequest.getInviterId());
             if (inviter == null) {
                 throw new BadHttpRequest(new Exception("Invalid inviter id " + topicInviteRequest.getInviterId()));

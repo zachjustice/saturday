@@ -4,23 +4,50 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
+import saturday.domain.TopicInvite;
 import saturday.domain.TopicMember;
 import saturday.repositories.TopicMemberRepository;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Service("topicMemberService")
 public class TopicMemberServiceImpl implements TopicMemberService {
     private final TopicMemberRepository topicMemberRepository;
+    private final EntityService entityService;
+    private final TopicService topicService;
 
     @Autowired
-    TopicMemberServiceImpl(TopicMemberRepository topicMemberRepository) {
+    TopicMemberServiceImpl(TopicMemberRepository topicMemberRepository, EntityService entityService, TopicService topicService) {
         this.topicMemberRepository = topicMemberRepository;
+        this.entityService = entityService;
+        this.topicService = topicService;
     }
 
     @Override
     public TopicMember save(TopicMember topicMember) {
         return topicMemberRepository.save(topicMember);
+    }
+
+    @Override
+    public TopicMember save(TopicInvite topicInvite) {
+        TopicMember topicMember = new TopicMember();
+
+        Entity member = entityService.findEntityById(topicInvite.getInvitee().getId());
+        if(member == null) {
+            throw new EntityNotFoundException("No entity with id " + topicInvite.getInvitee().getId());
+        }
+
+        Topic topic = topicService.findTopicById(topicInvite.getTopic().getId());
+        if(topic == null) {
+            throw new EntityNotFoundException("No topic with id " + topicInvite.getTopic().getId());
+        }
+
+        topicMember.setEntity(member);
+        topicMember.setTopic(topic);
+
+        topicMember = topicMemberRepository.save(topicMember);
+        return topicMember;
     }
 
     @Override

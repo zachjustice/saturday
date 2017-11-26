@@ -2,6 +2,7 @@ package saturday.services;
 
 import saturday.domain.Entity;
 import saturday.domain.Topic;
+import saturday.domain.TopicInvite;
 import saturday.domain.TopicMember;
 
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.List;
  */
 public interface TopicMemberService {
     TopicMember save(TopicMember topicMember);
+    TopicMember save(TopicInvite topicInvite);
     void delete(int id);
 
     TopicMember findById(int id);
