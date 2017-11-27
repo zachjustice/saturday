@@ -16,12 +16,14 @@ public class TopicMemberServiceImpl implements TopicMemberService {
     private final TopicMemberRepository topicMemberRepository;
     private final EntityService entityService;
     private final TopicService topicService;
+    private final TopicInviteService topicInviteService;
 
     @Autowired
-    TopicMemberServiceImpl(TopicMemberRepository topicMemberRepository, EntityService entityService, TopicService topicService) {
+    TopicMemberServiceImpl(TopicMemberRepository topicMemberRepository, EntityService entityService, TopicService topicService, TopicInviteService topicInviteService) {
         this.topicMemberRepository = topicMemberRepository;
         this.entityService = entityService;
         this.topicService = topicService;
+        this.topicInviteService = topicInviteService;
     }
 
     @Override
@@ -46,7 +48,10 @@ public class TopicMemberServiceImpl implements TopicMemberService {
         topicMember.setEntity(member);
         topicMember.setTopic(topic);
 
+        // TODO catch unique constraint validatation
         topicMember = topicMemberRepository.save(topicMember);
+        // TODO catch empty data access
+        topicInviteService.delete(topicInvite.getId());
         return topicMember;
     }
 
