@@ -78,6 +78,7 @@ public class Entity {
 
     @JsonIgnore
     public boolean isAdmin() {
+        // TODO remove constant
         for(Role r: roles) {
             if(r.getId() == 2) {
                 return true;

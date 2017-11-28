@@ -8,7 +8,7 @@ import java.util.List;
 
 @Service("topicContentService")
 public class TopicContentServiceImpl implements TopicContentService {
-    public final TopicContentRepository topicContentRepository;
+    private final TopicContentRepository topicContentRepository;
 
     public TopicContentServiceImpl(TopicContentRepository topicContentRepository) {
         this.topicContentRepository = topicContentRepository;
@@ -28,5 +28,10 @@ public class TopicContentServiceImpl implements TopicContentService {
     public TopicContent saveTopicContent(TopicContent topic) {
         // TODO validation
         return topicContentRepository.save(topic);
+    }
+
+    @Override
+    public List<TopicContent> findByTopicMember(int userId) {
+        return topicContentRepository.findByTopicMember(userId);
     }
 }

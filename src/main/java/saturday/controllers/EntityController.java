@@ -13,12 +13,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
+import saturday.domain.TopicContent;
 import saturday.domain.TopicInvite;
 import saturday.exceptions.EntityExistsException;
-import saturday.services.EntityServiceImpl;
-import saturday.services.PermissionService;
-import saturday.services.S3Service;
-import saturday.services.TopicInviteService;
+import saturday.services.*;
 import saturday.utils.TokenAuthenticationUtils;
 
 import javax.persistence.EntityNotFoundException;
@@ -34,11 +32,11 @@ import java.util.List;
 public class EntityController {
 
     private final EntityServiceImpl entityService;
+    private final TopicContentService topicContentService;
     private final TopicInviteService topicInviteService;
     private final PermissionService permissionService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final S3Service s3Service;
-    //private final SecurityContextHolder securityContextHolder;
 
     @Value("${saturday.s3.bucket}")
     private String bucketName;
@@ -48,8 +46,9 @@ public class EntityController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    public EntityController(EntityServiceImpl entityService, TopicInviteService topicInviteService, PermissionService permissionService, BCryptPasswordEncoder bCryptPasswordEncoder, S3Service s3Service) {
+    public EntityController(EntityServiceImpl entityService, TopicContentService topicContentService, TopicInviteService topicInviteService, PermissionService permissionService, BCryptPasswordEncoder bCryptPasswordEncoder, S3Service s3Service) {
         this.entityService = entityService;
+        this.topicContentService = topicContentService;
         this.topicInviteService = topicInviteService;
         this.permissionService = permissionService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
@@ -222,4 +221,24 @@ public class EntityController {
 
         return new ResponseEntity<>(entity.getTopics(), HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/entities/{id}/topic_content", method = RequestMethod.GET)
+    public ResponseEntity<List<TopicContent>> getEntityTopicContent(
+            @PathVariable(value="id") int id
+    ) throws AccessDeniedException {
+        Entity entity = entityService.findEntityById(id);
+
+        if(entity == null) {
+            throw new EntityNotFoundException("No entity with id " + id + " exists!");
+        }
+
+        if(!permissionService.canAccess(entity)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+        }
+
+        List<TopicContent> entityTopicContent = topicContentService.findByTopicMember(id);
+
+        return new ResponseEntity<>(entityTopicContent, HttpStatus.OK);
+    }
+
 }

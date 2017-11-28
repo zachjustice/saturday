@@ -15,6 +15,7 @@ public class PermissionService {
 
     public boolean canAccess(Entity entity) {
         if(entity == null) {
+            // TODO throw exception?
            return false;
         }
 
