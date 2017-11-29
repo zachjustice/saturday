@@ -208,7 +208,6 @@ public class TopicContentController {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
-        // can only update description for now
         topicContentService.delete(id);
 
         return new ResponseEntity<>(topicContent, HttpStatus.OK);
