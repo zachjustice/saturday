@@ -9,4 +9,5 @@ public interface TopicContentService {
     List<TopicContent> findTopicContentByTopicId(int id);
     TopicContent saveTopicContent(TopicContent topic);
     List<TopicContent> findByTopicMember(int userId);
+    void delete(int userId);
 }

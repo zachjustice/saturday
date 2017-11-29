@@ -34,4 +34,9 @@ public class TopicContentServiceImpl implements TopicContentService {
     public List<TopicContent> findByTopicMember(int userId) {
         return topicContentRepository.findByTopicMember(userId);
     }
+
+    @Override
+    public void delete(int userId) {
+        topicContentRepository.delete(userId);
+    }
 }

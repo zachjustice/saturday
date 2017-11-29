@@ -66,4 +66,13 @@ public class PermissionService {
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
         return authenticatedEntity.isAdmin() || authenticatedEntity.getId() == topicContent.getCreator().getId();
     }
+
+    // TODO topic admins / moderators
+    public boolean canDelete(TopicContent topicContent) {
+        if(topicContent == null) {
+            return false;
+        }
+        Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
+        return authenticatedEntity.isAdmin() || authenticatedEntity.getId() == topicContent.getCreator().getId();
+    }
 }

@@ -175,7 +175,7 @@ public class TopicContentController {
     @RequestMapping(value = "/topic_content/{id}", method = RequestMethod.PUT)
     public ResponseEntity<TopicContent> update(
             @PathVariable(value="id") int id,
-            @RequestBody TopicContentRequest topicContentRequest
+            @RequestBody TopicContent topicContentRequest
     ) {
         TopicContent topicContent = topicContentService.findTopicContentById(id);
 
@@ -190,6 +190,26 @@ public class TopicContentController {
         // can only update description for now
         topicContent.setDescription(topicContentRequest.getDescription());
         topicContent = topicContentService.saveTopicContent(topicContent);
+
+        return new ResponseEntity<>(topicContent, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/topic_content/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<TopicContent> update(
+            @PathVariable(value="id") int id
+    ) {
+        TopicContent topicContent = topicContentService.findTopicContentById(id);
+
+        if(topicContent == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        if(!permissionService.canModify(topicContent)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+        }
+
+        // can only update description for now
+        topicContentService.delete(id);
 
         return new ResponseEntity<>(topicContent, HttpStatus.OK);
     }
