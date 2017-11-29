@@ -1,7 +1,6 @@
 package saturday.controllers;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
-import saturday.domain.NewTopicContent;
+import saturday.domain.TopicContentRequest;
 import saturday.domain.Topic;
 import saturday.domain.TopicContent;
 import saturday.exceptions.TopicNotFoundException;
@@ -20,8 +19,6 @@ import saturday.services.TopicContentService;
 import saturday.services.TopicService;
 
 import javax.persistence.EntityNotFoundException;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,15 +54,15 @@ public class TopicContentController {
     @RequestMapping(value = "/topic_content", method = RequestMethod.PUT)
     @ResponseBody
     public ResponseEntity<TopicContent> createTopicContent(
-            @RequestBody NewTopicContent newTopicContent
+            @RequestBody TopicContentRequest topicContentRequest
     ) {
         // Validate
-        if(newTopicContent == null || newTopicContent.getCreator() <= 0) {
+        if(topicContentRequest == null || topicContentRequest.getCreator() <= 0) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         // Get the creator
-        Integer creatorId = newTopicContent.getCreator();
+        Integer creatorId = topicContentRequest.getCreator();
         Entity creator = entityService.findEntityById(creatorId);
 
         if(creator == null) {
@@ -75,9 +72,9 @@ public class TopicContentController {
         String now = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new Date());
 
         // TODO validate new topic content
-        String data = newTopicContent.getData();
-        String description = newTopicContent.getDescription();
-        Integer topicId = newTopicContent.getTopic();
+        String data = topicContentRequest.getData();
+        String description = topicContentRequest.getDescription();
+        Integer topicId = topicContentRequest.getTopic();
         String uploadKey = keyPrefix + creatorId + "-" + now + ".jpeg";
         String s3url  = s3urlPrefix + bucketName + "/" + uploadKey;
 
@@ -112,7 +109,7 @@ public class TopicContentController {
         topicContent.setS3url(s3url);
 
         topicContent = topicContentService.saveTopicContent(topicContent);
-        logger.info("Created TopicContent: " + newTopicContent.toString());
+        logger.info("Created TopicContent: " + topicContentRequest.toString());
 
         return new ResponseEntity<>(topicContent, HttpStatus.OK);
     }
@@ -171,6 +168,26 @@ public class TopicContentController {
         if(topicContent == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+
+        return new ResponseEntity<>(topicContent, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/topic_content/{id}", method = RequestMethod.PUT)
+    public ResponseEntity<TopicContent> update(
+            @PathVariable(value="id") int id,
+            @RequestBody TopicContentRequest topicContentRequest
+    ) {
+        TopicContent topicContent = topicContentService.findTopicContentById(id);
+
+        if(topicContent == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        // can only update description for now
+        topicContent.setDescription(topicContentRequest.getDescription());
+        logger.info(topicContentRequest.toString());
+        logger.info(topicContent.toString());
+        topicContent = topicContentService.saveTopicContent(topicContent);
 
         return new ResponseEntity<>(topicContent, HttpStatus.OK);
     }

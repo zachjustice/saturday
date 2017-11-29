@@ -1,20 +1,18 @@
 package saturday.domain;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-public class NewTopicContent {
+public class TopicContentRequest {
+    private String id;
     private String data;
-    private String title;
     private String description;
     private Integer topic;
     private Integer creator;
 
-    public String getTitle() {
-        return title;
+    public String getId() {
+        return id;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getDescription() {
@@ -51,11 +49,9 @@ public class NewTopicContent {
 
     @Override
     public String toString() {
-        return "NewTopicContent{" +
+        return "TopicContentRequest{" +
                 "data='" + data + '\'' +
-                ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
-                ", creator=" + creator +
                 '}';
     }
 }
