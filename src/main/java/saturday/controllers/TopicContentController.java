@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
@@ -13,10 +14,7 @@ import saturday.domain.TopicContentRequest;
 import saturday.domain.Topic;
 import saturday.domain.TopicContent;
 import saturday.exceptions.TopicNotFoundException;
-import saturday.services.EntityService;
-import saturday.services.S3Service;
-import saturday.services.TopicContentService;
-import saturday.services.TopicService;
+import saturday.services.*;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.ByteArrayInputStream;
@@ -40,14 +38,16 @@ public class TopicContentController {
     private final TopicContentService topicContentService;
     private final TopicService topicService;
     private final EntityService entityService;
+    private final PermissionService permissionService;
     private final S3Service s3Service;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public TopicContentController(TopicContentService topicContentService, TopicService topicService, EntityService entityService, S3Service s3Service) {
+    public TopicContentController(TopicContentService topicContentService, TopicService topicService, EntityService entityService, PermissionService permissionService, S3Service s3Service) {
         this.topicContentService = topicContentService;
         this.topicService = topicService;
         this.entityService = entityService;
+        this.permissionService = permissionService;
         this.s3Service = s3Service;
     }
 
@@ -183,10 +183,12 @@ public class TopicContentController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
+        if(!permissionService.canModify(topicContent)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+        }
+
         // can only update description for now
         topicContent.setDescription(topicContentRequest.getDescription());
-        logger.info(topicContentRequest.toString());
-        logger.info(topicContent.toString());
         topicContent = topicContentService.saveTopicContent(topicContent);
 
         return new ResponseEntity<>(topicContent, HttpStatus.OK);

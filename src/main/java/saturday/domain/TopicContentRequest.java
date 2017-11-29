@@ -50,8 +50,11 @@ public class TopicContentRequest {
     @Override
     public String toString() {
         return "TopicContentRequest{" +
-                "data='" + data + '\'' +
+                "id='" + id + '\'' +
+                ", data='" + data + '\'' +
                 ", description='" + description + '\'' +
+                ", topic=" + topic +
+                ", creator=" + creator +
                 '}';
     }
 }
