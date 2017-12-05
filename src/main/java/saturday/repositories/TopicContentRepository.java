@@ -15,8 +15,8 @@ public interface TopicContentRepository extends JpaRepository<TopicContent, Inte
     void delete(int id);
 
     @Query(
-        value = "select * from topic_content tc where tc.topic_id in (select tm.topic_id from topic_members tm where tm.entity_id = :userId)",
+        value = "select * from topic_content tc where tc.topic_id in (select tm.topic_id from topic_members tm where tm.entity_id = :entityId)",
         nativeQuery = true
     )
-    List<TopicContent> findByTopicMember(@Param("userId")int userId);
+    List<TopicContent> findByTopicMember(@Param("entityId")int entityId);
 }
