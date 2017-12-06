@@ -2,6 +2,8 @@ server:
   port: 5000
 
 spring:
+  security:
+    strategy: MODE_INHERITABLETHREADLOCAL
   http:
     multipart:
       maxFileSize: 100MB

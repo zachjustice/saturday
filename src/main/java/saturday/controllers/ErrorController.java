@@ -30,7 +30,7 @@ public class ErrorController extends ResponseEntityExceptionHandler {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(Exception.class)
+    @ExceptionHandler(Exception.class) // TODO Exceptions should be 500, and explicitly catch 400 errors
     public Map<String, String> handleException(Exception e) {
         return getErrorResponse(e);
     }

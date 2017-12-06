@@ -1,17 +1,17 @@
 package saturday.domain;
 
 public class TopicContentRequest {
-    private String id;
+    private int id;
     private String data;
     private String description;
     private Integer topic;
     private Integer creator;
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 

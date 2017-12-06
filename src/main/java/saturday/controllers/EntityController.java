@@ -162,6 +162,7 @@ public class EntityController {
     public ResponseEntity<Entity> createEntity(HttpServletResponse response, @RequestBody Entity entity) throws EntityExistsException {
         logger.info("Registered Entity: " + entity.toString());
         entity.setPassword(bCryptPasswordEncoder.encode(entity.getPassword()));
+
         Entity entityWithSameEmail = entityService.findEntityByEmail(entity.getEmail());
 
         if(entityWithSameEmail != null) {

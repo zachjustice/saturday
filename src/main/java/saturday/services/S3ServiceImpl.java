@@ -37,6 +37,11 @@ public class S3ServiceImpl implements S3Service {
         this.s3Client = s3Client;
     }
 
+    /**
+     * Upload multiple files to s3
+     * @param multipartFiles the array of files to upload
+     * @return s3 PutObjectResults which describe the metadata for uploaded object
+     */
     public List<PutObjectResult> upload(MultipartFile[] multipartFiles) {
         List<PutObjectResult> putObjectResults = new ArrayList<>();
 
@@ -53,6 +58,14 @@ public class S3ServiceImpl implements S3Service {
         return putObjectResults;
     }
 
+    /**
+     * Converts a multipartfile into an input stream for s3 and uploads to s3.
+     * Also forms the minimum amount of metadata for the s3 object.
+     * @param multipartFile The file to upload
+     * @param uploadKey The s3 key for the file
+     * @return PutObjectResult, s3 object describing metadata of the uploaded object
+     * @throws IOException If we fail to get the input stream from the multipart file
+     */
     public PutObjectResult upload(MultipartFile multipartFile, String uploadKey) throws IOException {
         InputStream inputStream = multipartFile.getInputStream();
 
@@ -63,6 +76,14 @@ public class S3ServiceImpl implements S3Service {
         return upload(inputStream, uploadKey, metadata);
     }
 
+    /**
+     * Takes an input stream, upload key, and object metadata to upload an object to s3.
+     * @param inputStream File to be uploaded
+     * @param uploadKey s3 key for the file
+     * @param metadata Metadata for the file
+     * @return PutObjectResult, s3 object of uploaded object's metadata
+     * @throws IOException if we fail to close the input stream
+     */
    public PutObjectResult upload(InputStream inputStream, String uploadKey, ObjectMetadata metadata) throws IOException {
         PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, uploadKey, inputStream, metadata);
 
@@ -75,6 +96,12 @@ public class S3ServiceImpl implements S3Service {
         return putObjectResult;
     }
 
+    /**
+     * Download an s3 image by key
+     * @param key the key for the s3 object
+     * @return The s3 image as a byte array
+     * @throws IOException if IOUtils fails to interpret data
+     */
     public ResponseEntity<byte[]> download(String key) throws IOException {
         GetObjectRequest getObjectRequest = new GetObjectRequest(bucketName, key);
 
@@ -94,9 +121,20 @@ public class S3ServiceImpl implements S3Service {
         return new ResponseEntity<>(bytes, httpHeaders, HttpStatus.OK);
     }
 
+    /**
+     * Lists the contents for a bucket
+     * @return list of object summaries
+     */
     public List<S3ObjectSummary> list() {
         ObjectListing objectListing = s3Client.listObjects(new ListObjectsRequest().withBucketName(bucketName));
 
         return objectListing.getObjectSummaries();
+    }
+
+    /**
+     * Delete an object from s3
+     */
+    public void delete(String bucketName, String s3key) {
+        s3Client.deleteObject(bucketName, s3key);
     }
 }

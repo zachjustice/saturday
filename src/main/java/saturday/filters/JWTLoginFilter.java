@@ -50,10 +50,9 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
         String email = emailElement == null ? "" : emailElement.getAsString();
         String password = passwordElement == null ? "" : passwordElement.getAsString();
 
-        logger.info("Email: " + email + ", password " + password);
+        logger.info("Email: " + email);
 
         AccountCredentials accountCredentials = new AccountCredentials(email, password);
-
 
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                 accountCredentials.getEmail(),
