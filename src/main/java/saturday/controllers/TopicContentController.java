@@ -57,6 +57,7 @@ public class TopicContentController {
             @RequestBody TopicContent newTopicContent
     ) {
         TopicContent topicContent = topicContentService.findTopicContentById(id);
+
         if(!permissionService.canModify(topicContent)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }

@@ -75,6 +75,7 @@ public class TopicContentServiceImpl implements TopicContentService {
     public TopicContent updateTopicContent(TopicContent oldTopicContent, TopicContent newTopicContent) {
         // can only update description for now
         oldTopicContent.setDescription(newTopicContent.getDescription());
+
         return topicContentRepository.save(oldTopicContent);
     }
 

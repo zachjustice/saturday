@@ -64,8 +64,8 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public Entity getAuthenticatedEntity() {
-        if(authenticatedEntity == null) {
-            String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+        String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+        if(authenticatedEntity == null || !authenticatedEntity.getEmail().equals(email)) {
             logger.info("AUTH ENTITY " + email);
 
             try {
