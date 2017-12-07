@@ -8,10 +8,13 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.TopicContent;
+import saturday.domain.TopicContentRequest;
 import saturday.services.PermissionService;
 import saturday.services.TopicContentService;
 
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 @RestController
 public class TopicContentController {
@@ -29,13 +32,25 @@ public class TopicContentController {
     @RequestMapping(value = "/topic_content", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<TopicContent> createTopicContent(
-            @RequestParam("creatorId")   Integer creatorId,
-            @RequestParam("topicId")     Integer topicId,
-            @RequestParam("description") String description,
+            @RequestParam("creatorId")   Integer       creatorId,
+            @RequestParam("topicId")     Integer       topicId,
+            @RequestParam("description") String        description,
+            @RequestParam("dateTaken")   String        dateTaken,
             @RequestParam("file")        MultipartFile file
     ) throws IOException {
 
-        TopicContent topicContent = topicContentService.save(file, creatorId, topicId, description);
+        Calendar calDateTaken = javax.xml.bind.DatatypeConverter.parseDateTime(dateTaken);
+        Date date = calDateTaken.getTime();
+
+        TopicContentRequest topicContentRequest = new TopicContentRequest();
+        topicContentRequest.setCreatorId(creatorId);
+        topicContentRequest.setTopicId(topicId);
+        topicContentRequest.setDescription(description);
+        topicContentRequest.setDateTaken(date);
+        topicContentRequest.setFile(file);
+
+        TopicContent topicContent = topicContentService.save(topicContentRequest);
+
         return new ResponseEntity<>(topicContent, HttpStatus.OK);
     }
 

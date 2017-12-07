@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicContent;
+import saturday.domain.TopicContentRequest;
 import saturday.exceptions.ProcessingResourceException;
 import saturday.repositories.TopicContentRepository;
 
@@ -80,7 +81,13 @@ public class TopicContentServiceImpl implements TopicContentService {
     }
 
     @Override
-    public TopicContent save(MultipartFile file, int creatorId, int topicId, String description) throws IOException {
+    public TopicContent save(TopicContentRequest topicContentRequest) throws IOException {
+        int topicId = topicContentRequest.getTopicId();
+        int creatorId = topicContentRequest.getCreatorId();
+        String description = topicContentRequest.getDescription();
+        MultipartFile file = topicContentRequest.getFile();
+        Date dateTaken = topicContentRequest.getDateTaken();
+
         Entity creator;
         Topic topic = topicService.findTopicById(topicId);
 
@@ -95,8 +102,13 @@ public class TopicContentServiceImpl implements TopicContentService {
             throw new ResourceNotFoundException("The topic id, " + topicId + ", does not exist");
         }
 
-        if(description.length() > 4000) {
+        if(description != null && description.length() > 4000) {
             throw new ProcessingResourceException("Topic Content Description cannot be more than 4000 characters");
+        }
+
+        // date taken associates the topic content with a particular calendar view for the user
+        if(dateTaken == null) {
+            dateTaken = new Date();
         }
 
         // upload after s3 validation.
@@ -110,7 +122,7 @@ public class TopicContentServiceImpl implements TopicContentService {
             s3Service.upload(file, uploadKey);
         } catch (IOException e){
             e.printStackTrace();
-            throw new IOException("Failed to upload file!");
+            throw new IOException("Failed to upload file: " + e.getMessage());
         }
 
         // Create topic content
@@ -119,6 +131,7 @@ public class TopicContentServiceImpl implements TopicContentService {
         topicContent.setCreator(creator);
         topicContent.setTopic(topic);
         topicContent.setS3url(s3url);
+        topicContent.setDateTaken(dateTaken);
 
         return topicContentRepository.save(topicContent);
     }
@@ -132,7 +145,7 @@ public class TopicContentServiceImpl implements TopicContentService {
     @Override
     public void delete(TopicContent topicContent) {
         // TODO store the bucketname and s3 key instead of the s3 url so we can delete by that
-        // s3Service.delete(bucketName, s3key);
+        // s3Service.delete(topicContent.bucketName, topicContent.s3key);
         topicContentRepository.delete(topicContent.getId());
     }
 }

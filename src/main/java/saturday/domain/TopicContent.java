@@ -33,6 +33,10 @@ public class TopicContent {
     @NotEmpty
     private String s3url;
 
+    @Column(name = "date_taken")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date dateTaken;
+
     @Column(name = "created", insertable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -110,5 +114,13 @@ public class TopicContent {
                 ", created=" + created +
                 ", modified=" + modified +
                 '}';
+    }
+
+    public Date getDateTaken() {
+        return dateTaken;
+    }
+
+    public void setDateTaken(Date dateTaken) {
+        this.dateTaken = dateTaken;
     }
 }

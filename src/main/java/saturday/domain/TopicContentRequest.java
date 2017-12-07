@@ -1,19 +1,15 @@
 package saturday.domain;
 
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Date;
+
 public class TopicContentRequest {
-    private int id;
-    private String data;
     private String description;
-    private Integer topic;
-    private Integer creator;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
+    private Date dateTaken;
+    private Integer topicId;
+    private Integer creatorId;
+    private MultipartFile file;
 
     public String getDescription() {
         return description;
@@ -23,38 +19,45 @@ public class TopicContentRequest {
         this.description = description;
     }
 
-    public Integer getCreator() {
-        return creator;
+    public Integer getCreatorId() {
+        return creatorId;
     }
 
-    public void setCreator(Integer creator) {
-        this.creator = creator;
+    public void setCreatorId(Integer creatorId) {
+        this.creatorId = creatorId;
     }
 
-    public String getData() {
-        return data;
+    public Integer getTopicId() {
+        return topicId;
     }
 
-    public void setData(String data) {
-        this.data = data;
+    public void setTopicId(Integer topicId) {
+        this.topicId = topicId;
     }
 
-    public Integer getTopic() {
-        return topic;
+    public Date getDateTaken() {
+        return dateTaken;
     }
 
-    public void setTopic(Integer topic) {
-        this.topic = topic;
+    public void setDateTaken(Date dateTaken) {
+        this.dateTaken = dateTaken;
     }
 
     @Override
     public String toString() {
         return "TopicContentRequest{" +
-                "id='" + id + '\'' +
-                ", data='" + data + '\'' +
                 ", description='" + description + '\'' +
-                ", topic=" + topic +
-                ", creator=" + creator +
+                ", dateTaken=" + dateTaken +
+                ", topicId=" + topicId +
+                ", creatorId=" + creatorId +
                 '}';
+    }
+
+    public MultipartFile getFile() {
+        return file;
+    }
+
+    public void setFile(MultipartFile file) {
+        this.file = file;
     }
 }
