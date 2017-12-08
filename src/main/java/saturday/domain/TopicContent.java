@@ -34,7 +34,7 @@ public class TopicContent {
     private String s3url;
 
     @Column(name = "date_taken")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date dateTaken;
 
     @Column(name = "created", insertable = false, updatable = false)

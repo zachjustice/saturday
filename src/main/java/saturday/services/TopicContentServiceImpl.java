@@ -74,8 +74,9 @@ public class TopicContentServiceImpl implements TopicContentService {
 
     @Override
     public TopicContent updateTopicContent(TopicContent oldTopicContent, TopicContent newTopicContent) {
-        // can only update description for now
+        // can only update description and date taken for now
         oldTopicContent.setDescription(newTopicContent.getDescription());
+        oldTopicContent.setDateTaken(newTopicContent.getDateTaken());
 
         return topicContentRepository.save(oldTopicContent);
     }

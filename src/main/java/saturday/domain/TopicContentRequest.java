@@ -1,11 +1,13 @@
 package saturday.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 
 public class TopicContentRequest {
     private String description;
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date dateTaken;
     private Integer topicId;
     private Integer creatorId;
