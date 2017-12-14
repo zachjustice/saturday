@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Service("topicContentService")
 public class TopicContentServiceImpl implements TopicContentService {
@@ -117,8 +118,8 @@ public class TopicContentServiceImpl implements TopicContentService {
         String s3url;
         try {
             // s3 url key is probably unique - should probably use GUID
-            String now = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new Date());
-            String uploadKey = keyPrefix + creatorId + "-" + now;
+            String uuid = UUID.randomUUID().toString();
+            String uploadKey = keyPrefix + creatorId + "-topic-content-" + uuid;
             s3url  = s3urlPrefix + bucketName + "/" + uploadKey;
             s3Service.upload(file, uploadKey);
         } catch (IOException e){
