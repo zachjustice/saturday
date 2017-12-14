@@ -138,7 +138,7 @@ public class EntityController {
     }
 
     @RequestMapping(value = "/entities/{id}/profile_picture", method = RequestMethod.POST, consumes = "multipart/form-data")
-    public ResponseEntity<String> uploadProfilePicture(
+    public ResponseEntity<Entity> uploadProfilePicture(
             @PathVariable(value="id") int id,
             @RequestParam("picture") MultipartFile picture) throws EntityExistsException, IOException {
 
@@ -155,7 +155,7 @@ public class EntityController {
 
         entity.setPictureUrl(fileUrl);
 
-        return new ResponseEntity<>(fileUrl, HttpStatus.OK);
+        return new ResponseEntity<>(entity, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
