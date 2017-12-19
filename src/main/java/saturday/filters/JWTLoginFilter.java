@@ -36,12 +36,12 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
             HttpServletRequest req, HttpServletResponse response)
             throws AuthenticationException, IOException, ServletException {
         JsonObject json = null;
-        logger.info("JWT LOGIN FILTER " + req.getMethod());
 
         try {
             json = HTTPUtils.getPostBodyAsJson(req);
         } catch (Exception e) {
             logger.info("Encountered malformed request body while logging in user: " + e.getMessage());
+            e.printStackTrace();
         }
 
         JsonElement emailElement = json.get("email");
@@ -50,10 +50,7 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
         String email = emailElement == null ? "" : emailElement.getAsString();
         String password = passwordElement == null ? "" : passwordElement.getAsString();
 
-        logger.info("Email: " + email + ", password " + password);
-
         AccountCredentials accountCredentials = new AccountCredentials(email, password);
-
 
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                 accountCredentials.getEmail(),

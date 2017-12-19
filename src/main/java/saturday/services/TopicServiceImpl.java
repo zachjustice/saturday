@@ -3,6 +3,7 @@ package saturday.services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import saturday.domain.Topic;
 import saturday.repositories.TopicRepository;
@@ -25,7 +26,13 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public Topic findTopicById(int id) {
-        return topicRepository.findById(id);
+        Topic topic = topicRepository.findById(id);
+
+        if(topic == null) {
+            throw new ResourceNotFoundException("No topic with name " + id + " exists!");
+        }
+
+        return topic;
     }
 
     @Override

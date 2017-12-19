@@ -17,4 +17,5 @@ public interface S3Service {
     List<PutObjectResult> upload(MultipartFile[] multipartFiles);
     List<S3ObjectSummary> list();
     ResponseEntity<byte[]> download(String key) throws IOException;
+    void delete(String bucketName, String s3key);
 }

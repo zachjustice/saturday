@@ -4,8 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.stereotype.Service;
 import saturday.domain.Entity;
@@ -31,13 +31,26 @@ public class EntityServiceImpl implements EntityService {
         this.roleRepository = roleRepository;
     }
 
+    /**
+     * Used by register route to make sure an entity with the same email doesn't exist,
+     * so we don't throw an exception in this case if we can't find the entity
+     * @param email The email by which to find an entity
+     * @return The entity with this email
+     */
     @Override
     public Entity findEntityByEmail(String email) {
-        return entityRepository.findByEmail(email);
+        Entity entity = entityRepository.findByEmail(email);
+        return entity;
     }
 
     public Entity findEntityById(int id) {
-        return entityRepository.findById(id);
+        Entity entity = entityRepository.findById(id);
+
+        if(entity == null) {
+            throw new ResourceNotFoundException("No entity with the id " + id + " exists!");
+        }
+
+        return entity;
     }
 
     public Entity saveEntity(Entity entity) {
@@ -51,8 +64,9 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public Entity getAuthenticatedEntity() {
-        if(authenticatedEntity == null) {
-            String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+        String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+        if(authenticatedEntity == null || !authenticatedEntity.getEmail().equals(email)) {
+            logger.info("AUTH ENTITY " + email);
 
             try {
                 authenticatedEntity = findEntityByEmail(email);

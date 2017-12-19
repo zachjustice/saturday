@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by zachjustice on 7/27/17.
@@ -138,7 +139,7 @@ public class EntityController {
     }
 
     @RequestMapping(value = "/entities/{id}/profile_picture", method = RequestMethod.POST, consumes = "multipart/form-data")
-    public ResponseEntity<String> uploadProfilePicture(
+    public ResponseEntity<Entity> uploadProfilePicture(
             @PathVariable(value="id") int id,
             @RequestParam("picture") MultipartFile picture) throws EntityExistsException, IOException {
 
@@ -148,20 +149,23 @@ public class EntityController {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
-        String uploadKey = "entity-" + id + "-profile-picture"; // s3 file url
-        String imageUrl = s3UrlPrefix + bucketName + "/" + uploadKey;
+        String uuid = UUID.randomUUID().toString();
+
+        String uploadKey = "entity-" + id + "-profile-picture-" + uuid; // s3 file url
+        String fileUrl = s3UrlPrefix + bucketName + "/" + uploadKey;
 
         s3Service.upload(picture, uploadKey);
 
-        entity.setPictureUrl(imageUrl);
+        entity.setPictureUrl(fileUrl);
 
-        return new ResponseEntity<>(imageUrl, HttpStatus.OK);
+        return new ResponseEntity<>(entity, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public ResponseEntity<Entity> createEntity(HttpServletResponse response, @RequestBody Entity entity) throws EntityExistsException {
         logger.info("Registered Entity: " + entity.toString());
         entity.setPassword(bCryptPasswordEncoder.encode(entity.getPassword()));
+
         Entity entityWithSameEmail = entityService.findEntityByEmail(entity.getEmail());
 
         if(entityWithSameEmail != null) {

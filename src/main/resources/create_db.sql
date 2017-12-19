@@ -64,6 +64,7 @@ CREATE TABLE topic_content (
   creator_id INT NOT NULL REFERENCES entities(id),
   description VARCHAR(40000),
   s3url VARCHAR NOT NULL,
+  date_taken TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
   created TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
   modified TIMESTAMP WITHOUT TIME ZONE,
   CONSTRAINT unique_s3_url UNIQUE(s3url)

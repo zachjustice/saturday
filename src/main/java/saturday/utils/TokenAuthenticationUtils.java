@@ -24,7 +24,6 @@ public class TokenAuthenticationUtils {
     private static final Logger logger = LoggerFactory.getLogger(TokenAuthenticationUtils.class);
 
     public static String addAuthentication(HttpServletResponse res, String username) {
-        logger.info("JWT DATE: " + new Date(System.currentTimeMillis()) + " vs " + (new Date(System.currentTimeMillis() + EXPIRATIONTIME)));
         String JWT = Jwts.builder()
                 .setSubject(username)
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATIONTIME))
