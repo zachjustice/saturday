@@ -1,5 +1,6 @@
 package saturday.utils;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.jsonwebtoken.Jwts;
@@ -41,12 +42,17 @@ public class TokenAuthenticationUtils {
             return null;
         }
 
-        // parse the filters.
-        String user = Jwts.parser()
-                .setSigningKey(SECRET)
-                .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
-                .getBody()
-                .getSubject();
+        String user;
+        try {
+            // parse the filters.
+            user = Jwts.parser()
+                    .setSigningKey(SECRET)
+                    .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
+                    .getBody()
+                    .getSubject();
+        } catch(ExpiredJwtException ex) {
+            user = null;
+        }
 
         return user != null ?
                 new UsernamePasswordAuthenticationToken(user, null, emptyList()) :
