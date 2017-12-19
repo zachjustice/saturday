@@ -28,6 +28,10 @@ public class TopicInvite {
     @JoinColumn(name="topic_id", referencedColumnName = "id", nullable=false)
     private Topic topic;
 
+    @ManyToOne
+    @JoinColumn(name="status", referencedColumnName = "id", nullable=false)
+    private TopicInviteStatus status;
+
     @Column(name = "created", insertable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -84,6 +88,14 @@ public class TopicInvite {
 
     public void setModified(Date modified) {
         this.modified = modified;
+    }
+
+    public TopicInviteStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(TopicInviteStatus status) {
+        this.status = status;
     }
 
     @Override

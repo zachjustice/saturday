@@ -97,9 +97,11 @@ CREATE TABLE topic_invites(
   invitee_id INT NOT NULL REFERENCES entities(id),
   inviter_id INT NOT NULL REFERENCES entities(id),
   topic_id   INT NOT NULL REFERENCES topics(id),
-  status INT NOT NULL REFERENCES topic_invite_status(id),
-  created  TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
-  modified TIMESTAMP WITHOUT TIME ZONE,
+  status     INT NOT NULL REFERENCES topic_invite_statuses(id),
+
+  created    TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+  modified   TIMESTAMP WITHOUT TIME ZONE,
+
   CONSTRAINT unique_invite UNIQUE(invitee_id, topic_id)
 );
 
