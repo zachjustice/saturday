@@ -12,7 +12,6 @@ import saturday.exceptions.ProcessingResourceException;
 import saturday.repositories.TopicContentRepository;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -119,7 +118,7 @@ public class TopicContentServiceImpl implements TopicContentService {
         try {
             // s3 url key is probably unique - should probably use GUID
             String uuid = UUID.randomUUID().toString();
-            s3key = keyPrefix + "topic-content-" + uuid;
+            s3key = keyPrefix + uuid; // topic-content/{{GUID}}
             s3Service.upload(file, s3key);
         } catch (IOException e){
             e.printStackTrace();
@@ -138,9 +137,15 @@ public class TopicContentServiceImpl implements TopicContentService {
         return topicContentRepository.save(topicContent);
     }
 
+    /**
+     * Get an entity's topic content based on the topics they're a part of.
+     * @param entityId The entity for which to fetch topics content
+     * @return A list of the entity's topic content
+     */
     @Override
     public List<TopicContent> findByTopicMember(int entityId) {
         entityService.findEntityById(entityId); // throws Resource Not Found Exception
+
         return topicContentRepository.findByTopicMember(entityId);
     }
 

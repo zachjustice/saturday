@@ -52,7 +52,7 @@ public class TopicMemberController {
 
     @RequestMapping(value = "/topic_members", method = RequestMethod.POST)
     public ResponseEntity<TopicMember> saveTopicMember(@RequestBody TopicMemberRequest topicMemberRequest) throws BadHttpRequest {
-        if(!permissionService.canAccess(topicMemberRequest)) {
+        if(!permissionService.canCreate(topicMemberRequest)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 

@@ -23,7 +23,6 @@ public class EntityServiceImpl implements EntityService {
     private final RoleRepository roleRepository;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private Entity authenticatedEntity;
 
     @Autowired
     public EntityServiceImpl(EntityRepository entityRepository, RoleRepository roleRepository) {
@@ -65,14 +64,12 @@ public class EntityServiceImpl implements EntityService {
     @Override
     public Entity getAuthenticatedEntity() {
         String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
-        if(authenticatedEntity == null || !authenticatedEntity.getEmail().equals(email)) {
-            logger.info("AUTH ENTITY " + email);
+        Entity authenticatedEntity;
 
-            try {
-                authenticatedEntity = findEntityByEmail(email);
-            } catch (EmptyResultDataAccessException ex) {
-                throw new RequestRejectedException("Couldn't find email for authenticated entity: '" + email + "'");
-            }
+        try {
+            authenticatedEntity = findEntityByEmail(email);
+        } catch (EmptyResultDataAccessException ex) {
+            throw new RequestRejectedException("Couldn't find email for authenticated entity: '" + email + "'");
         }
 
         return authenticatedEntity;

@@ -27,8 +27,13 @@ public class PermissionService {
         return authenticatedEntity.isAdmin() || authenticatedEntity.getId() == entity.getId();
     }
 
-    // TODO for now only entities who can add a topicMember via post route
-    public boolean canAccess(TopicMemberRequest topicMemberRequest) {
+    /**
+     * Check if the auth'ed entity can create the topic member resource
+     * Only site admins can use this resource since normal users should use invites
+     * @param topicMemberRequest The resource to validate
+     * @return Whether the user is allowed to create the topic member
+     */
+    public boolean canCreate(TopicMemberRequest topicMemberRequest) {
         if(topicMemberRequest == null) {
             return false;
         }
