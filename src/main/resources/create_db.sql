@@ -87,11 +87,17 @@ CREATE TABLE topic_members(
 
 CREATE TRIGGER update_topic_members_modtime BEFORE UPDATE ON topic_members FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
+CREATE TABLE topic_invite_statuses(
+  id SERIAL PRIMARY KEY, -- these are constants, so no autoincrement
+  label VARCHAR(20) NOT NULL
+);
+
 CREATE TABLE topic_invites(
   id SERIAL PRIMARY KEY,
   invitee_id INT NOT NULL REFERENCES entities(id),
   inviter_id INT NOT NULL REFERENCES entities(id),
   topic_id   INT NOT NULL REFERENCES topics(id),
+  status INT NOT NULL REFERENCES topic_invite_status(id),
   created  TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
   modified TIMESTAMP WITHOUT TIME ZONE,
   CONSTRAINT unique_invite UNIQUE(invitee_id, topic_id)
@@ -100,7 +106,7 @@ CREATE TABLE topic_invites(
 CREATE TRIGGER update_topic_invites_modtime BEFORE UPDATE ON topic_invites FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
 CREATE TABLE topic_permissions(
-  id INT PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
   label VARCHAR(20) NOT NULL
 );
 
@@ -118,4 +124,6 @@ CREATE TRIGGER update_topic_role_modtime BEFORE UPDATE ON topic_entity_permissio
 
 INSERT INTO roles (id, label) VALUES (1, 'USER');
 INSERT INTO roles (id, label) VALUES (2, 'ADMIN');
+
+INSERT INTO topic_invite_statuses(id, label) VALUES (1, 'PENDING'), (2, 'REJECTED'), (3, 'ACCEPTED');
 
