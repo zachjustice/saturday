@@ -25,7 +25,7 @@ import java.util.List;
 @Service("s3Service")
 public class S3ServiceImpl implements S3Service {
 
-    @Value("${saturday.s3.bucket}")
+    @Value("${saturday.s3.user-files-bucket}")
     private String bucketName;
 
     private final AmazonS3 s3Client;

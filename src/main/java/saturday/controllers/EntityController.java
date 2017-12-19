@@ -39,10 +39,12 @@ public class EntityController {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final S3Service s3Service;
 
-    @Value("${saturday.s3.bucket}")
+    @Value("${saturday.s3.user-files-bucket}")
     private String bucketName;
     @Value("${saturday.s3.url.prefix}")
     private String s3UrlPrefix;
+    @Value("${saturday.s3.entity.profile_picture.key.prefix}")
+    private String entityProfilePictureKeyPrefix;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -152,7 +154,7 @@ public class EntityController {
         String uuid = UUID.randomUUID().toString();
 
         String uploadKey = "entity-" + id + "-profile-picture-" + uuid; // s3 file url
-        String fileUrl = s3UrlPrefix + bucketName + "/" + uploadKey;
+        String fileUrl = s3UrlPrefix + bucketName + "/" + entityProfilePictureKeyPrefix + "/" + uploadKey;
 
         s3Service.upload(picture, uploadKey);
 

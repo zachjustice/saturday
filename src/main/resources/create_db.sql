@@ -63,11 +63,15 @@ CREATE TABLE topic_content (
   topic_id INT NOT NULL REFERENCES topics(id),
   creator_id INT NOT NULL REFERENCES entities(id),
   description VARCHAR(40000),
-  s3url VARCHAR NOT NULL,
+  s3bucket VARCHAR NOT NULL,
+  s3key VARCHAR NOT NULL,
   date_taken TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
   created TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
   modified TIMESTAMP WITHOUT TIME ZONE,
-  CONSTRAINT unique_s3_url UNIQUE(s3url)
+
+  CONSTRAINT valid_s3_bucket_length CHECK(CHAR_LENGTH(s3bucket) > 2 AND CHAR_LENGTH(s3bucket) < 64),
+  CONSTRAINT valid_s3_key_length CHECK(CHAR_LENGTH(s3key) > 0 AND CHAR_LENGTH(s3key) < 1024),
+  CONSTRAINT unique_s3_bucket_and_key UNIQUE(s3bucket, s3key)
 );
 
 CREATE TRIGGER update_topic_content_modtime BEFORE UPDATE ON topic_content FOR EACH ROW EXECUTE PROCEDURE update_modified_column();

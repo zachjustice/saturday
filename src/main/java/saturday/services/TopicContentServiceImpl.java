@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @Service("topicContentService")
 public class TopicContentServiceImpl implements TopicContentService {
-    @Value("${saturday.s3.bucket}")
+    @Value("${saturday.s3.user-files-bucket}")
     private String bucketName;
     @Value("${saturday.s3.url.prefix}")
     private String s3urlPrefix;
@@ -115,13 +115,12 @@ public class TopicContentServiceImpl implements TopicContentService {
 
         // upload after s3 validation.
         // then insert into db since we have the bucket name and s3 key
-        String s3url;
+        String s3key;
         try {
             // s3 url key is probably unique - should probably use GUID
             String uuid = UUID.randomUUID().toString();
-            String uploadKey = keyPrefix + creatorId + "-topic-content-" + uuid;
-            s3url  = s3urlPrefix + bucketName + "/" + uploadKey;
-            s3Service.upload(file, uploadKey);
+            s3key = keyPrefix + "topic-content-" + uuid;
+            s3Service.upload(file, s3key);
         } catch (IOException e){
             e.printStackTrace();
             throw new IOException("Failed to upload file: " + e.getMessage());
@@ -132,7 +131,8 @@ public class TopicContentServiceImpl implements TopicContentService {
         topicContent.setDescription(description);
         topicContent.setCreator(creator);
         topicContent.setTopic(topic);
-        topicContent.setS3url(s3url);
+        topicContent.setS3bucket(bucketName);
+        topicContent.setS3key(s3key);
         topicContent.setDateTaken(dateTaken);
 
         return topicContentRepository.save(topicContent);
@@ -146,8 +146,7 @@ public class TopicContentServiceImpl implements TopicContentService {
 
     @Override
     public void delete(TopicContent topicContent) {
-        // TODO store the bucketname and s3 key instead of the s3 url so we can delete by that
-        // s3Service.delete(topicContent.bucketName, topicContent.s3key);
+        s3Service.delete(topicContent.getS3bucket(), topicContent.getS3key());
         topicContentRepository.delete(topicContent.getId());
     }
 }

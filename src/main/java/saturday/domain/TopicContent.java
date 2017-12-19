@@ -29,9 +29,13 @@ public class TopicContent {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "s3url")
+    @Column(name = "s3bucket")
     @NotEmpty
-    private String s3url;
+    private String s3bucket;
+
+    @Column(name = "s3key")
+    @NotEmpty
+    private String s3key;
 
     @Column(name = "date_taken")
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -46,6 +50,10 @@ public class TopicContent {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modified;
+
+    public String getS3url() {
+        return "https://s3.amazonaws.com/" + getS3bucket() + "/" + getS3key();
+    }
 
     public int getId() {
         return id;
@@ -79,13 +87,6 @@ public class TopicContent {
         this.description = description;
     }
 
-    public String getS3url() {
-        return s3url;
-    }
-
-    public void setS3url(String s3url) {
-        this.s3url = s3url;
-    }
 
     public Date getCreated() {
         return created;
@@ -103,17 +104,20 @@ public class TopicContent {
         this.modified = modified;
     }
 
-    @Override
-    public String toString() {
-        return "TopicContent{" +
-                "id=" + id +
-                ", topic=" + topic +
-                ", creator=" + creator +
-                ", description='" + description + '\'' +
-                ", s3url='" + s3url + '\'' +
-                ", created=" + created +
-                ", modified=" + modified +
-                '}';
+    public String getS3bucket() {
+        return s3bucket;
+    }
+
+    public void setS3bucket(String s3bucket) {
+        this.s3bucket = s3bucket;
+    }
+
+    public String getS3key() {
+        return s3key;
+    }
+
+    public void setS3key(String s3key) {
+        this.s3key = s3key;
     }
 
     public Date getDateTaken() {
@@ -122,5 +126,19 @@ public class TopicContent {
 
     public void setDateTaken(Date dateTaken) {
         this.dateTaken = dateTaken;
+    }
+
+    @Override
+    public String toString() {
+        return "TopicContent{" +
+                "id=" + id +
+                ", topic=" + topic + '\'' +
+                ", creator=" + creator + '\'' +
+                ", description='" + description + '\'' +
+                ", s3bucket='" + s3bucket + '\'' +
+                ", s3key='" + s3key + '\'' +
+                ", created=" + created + '\'' +
+                ", modified=" + modified +
+                '}';
     }
 }

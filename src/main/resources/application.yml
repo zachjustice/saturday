@@ -15,9 +15,6 @@ spring:
     url: jdbc:postgresql://${SATURDAY_HOST}:${SATURDAY_PORT}/${SATURDAY_DB_NAME}
     username: ${SATURDAY_USERNAME}
     password: ${SATURDAY_PASSWORD}
-    #url: jdbc:postgresql://${LOCALHOST_DB_HOST}:${LOCALHOST_DB_PORT}/${LOCALHOST_DB_NAME}
-    #username: ${LOCALHOST_DB_USERNAME}
-    #password: ${SATURDAY_PASSWORD}
     validationQuery: SELECT 1;
   # ==============================================================
   # = Spring Security / Queries for AuthenticationManagerBuilder
@@ -28,13 +25,17 @@ spring:
 
 saturday:
   s3:
+    region: us-east-1
     url:
       prefix: "https://s3.amazonaws.com/"
-    bucket: mom-diary-user-files
-    region: us-east-1
+    user-files-bucket: mom-diary-user-files
     topic:
       content:
         key:
-          prefix: "user-posts/"
+          prefix: "topic-content/"
+    entity:
+      profile_picture:
+        key:
+          prefix: "entity.profile-pictures/"
   timestamp:
     format: "yyyy-MM-dd HH:mm:ss"
