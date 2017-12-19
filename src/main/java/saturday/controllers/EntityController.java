@@ -149,13 +149,13 @@ public class EntityController {
         }
 
         String uploadKey = "entity-" + id + "-profile-picture"; // s3 file url
-        String fileUrl = s3UrlPrefix + bucketName + "/" + uploadKey;
+        String imageUrl = s3UrlPrefix + bucketName + "/" + uploadKey;
 
         s3Service.upload(picture, uploadKey);
 
-        entity.setPictureUrl(fileUrl);
+        entity.setPictureUrl(imageUrl);
 
-        return new ResponseEntity<>(fileUrl, HttpStatus.OK);
+        return new ResponseEntity<>(imageUrl, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
