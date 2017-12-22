@@ -10,11 +10,13 @@ import java.util.List;
 public class PermissionService {
     private final EntityService entityService;
     private final TopicMemberService topicMemberService;
+    private final TopicService topicService;
 
     @Autowired
-    public PermissionService(EntityService entityService, TopicMemberService topicMemberService) {
+    public PermissionService(EntityService entityService, TopicMemberService topicMemberService, TopicService topicService) {
         this.entityService = entityService;
         this.topicMemberService = topicMemberService;
+        this.topicService = topicService;
     }
 
     public boolean canAccess(Entity entity) {
@@ -101,5 +103,42 @@ public class PermissionService {
         }
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
         return authenticatedEntity.isAdmin() || authenticatedEntity.getId() == topicContent.getCreator().getId();
+    }
+
+    /**
+     * Inviters, invitees, and admins can view topic invites.
+     * TODO: Topic moderators, etc should be able to view a topic's invites
+     *
+     * @param topicInvite to valid access against
+     * @return whether auth'ed entity can view this topic invite
+     */
+    public boolean canView(TopicInvite topicInvite) {
+        Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
+        return authenticatedEntity.isAdmin()
+                || authenticatedEntity.getId() == topicInvite.getInvitee().getId()
+                || authenticatedEntity.getId() == topicInvite.getInviter().getId();
+
+    }
+
+    /**
+     * Topic members can send invites to other users.
+     *
+     * @param topicInviteRequest The topic invite to be sent
+     * @return Whether or not the authenticated user can send the invite
+     */
+    public boolean canSendInvite(TopicInviteRequest topicInviteRequest) {
+        Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
+        if (authenticatedEntity.isAdmin()) {
+            return true;
+        }
+
+        //Topic topic = topicService.findTopicById(topicInviteRequest.getTopicId());
+        Topic topic = topicService.findTopicById(topicInviteRequest.getTopicId());
+        TopicMember topicMember = this.topicMemberService.findByEntityAndTopic(authenticatedEntity, topic);
+        if (topicMember != null && topicMember.getEntity().getId() != authenticatedEntity.getId()) {
+            return false;
+        }
+
+        return true;
     }
 }
