@@ -39,13 +39,13 @@ public class TopicMemberController {
 
     @RequestMapping(value = "/topic_members/{id}", method = RequestMethod.GET)
     public ResponseEntity<TopicMember> getTopicMember(@PathVariable int id) throws TopicMemberNotFoundException {
-        if(id < 1) {
-            throw new TopicMemberNotFoundException("Could not find topic member with the id " + id);
-        }
-
         TopicMember topicMember = this.topicMemberService.findById(id);
         if(topicMember == null) {
             throw new TopicMemberNotFoundException("Couldn't find topic member with id " + id);
+        }
+
+        if(!permissionService.canAccess(topicMember)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
         return new ResponseEntity<>(topicMember, HttpStatus.OK);

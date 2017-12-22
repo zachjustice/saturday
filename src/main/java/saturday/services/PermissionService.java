@@ -142,11 +142,29 @@ public class PermissionService {
         return true;
     }
 
+    /**
+     * Only admins and topic members can view topic info
+     * @param topic The topic to validate auth'ed user against
+     * @return If the auth'ed user has access to the topic
+     */
     public boolean canAccess(Topic topic) {
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
         TopicMember topicMember = this.topicMemberService.findByEntityAndTopic(authenticatedEntity, topic);
 
         return authenticatedEntity.isAdmin()
                 || topicMember != null;
+    }
+
+    /**
+     * Only admins and topic members can view topic info, i.e. who else is in the topic
+     * @param topicMember1 The topic to validate auth'ed user against
+     * @return If the auth'ed user has access to the topic
+     */
+    public boolean canAccess(TopicMember topicMember1) {
+        Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
+        TopicMember topicMember2 = this.topicMemberService.findByEntityAndTopic(authenticatedEntity, topicMember1.getTopic());
+
+        return authenticatedEntity.isAdmin()
+                || topicMember2 != null;
     }
 }
