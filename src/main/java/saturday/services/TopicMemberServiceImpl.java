@@ -4,11 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
-import saturday.domain.TopicInvite;
 import saturday.domain.TopicMember;
+import saturday.exceptions.ProcessingResourceException;
 import saturday.repositories.TopicMemberRepository;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Service("topicMemberService")
@@ -27,32 +26,14 @@ public class TopicMemberServiceImpl implements TopicMemberService {
     }
 
     @Override
-    public TopicMember save(TopicMember topicMember) {
+    public TopicMember save(TopicMember topicMember) throws ProcessingResourceException {
+        // check if the invitee is already a topic member
+        TopicMember existingTopicMember = topicMemberRepository.findByEntityAndTopic(topicMember.getEntity(), topicMember.getTopic());
+        if (existingTopicMember != null) {
+            throw new ProcessingResourceException("Entity is already a member of this topic.");
+        }
+
         return topicMemberRepository.save(topicMember);
-    }
-
-    @Override
-    public TopicMember save(TopicInvite topicInvite) {
-        TopicMember topicMember = new TopicMember();
-
-        Entity member = entityService.findEntityById(topicInvite.getInvitee().getId());
-        if(member == null) {
-            throw new EntityNotFoundException("No entity with id " + topicInvite.getInvitee().getId());
-        }
-
-        Topic topic = topicService.findTopicById(topicInvite.getTopic().getId());
-        if(topic == null) {
-            throw new EntityNotFoundException("No topic with id " + topicInvite.getTopic().getId());
-        }
-
-        topicMember.setEntity(member);
-        topicMember.setTopic(topic);
-
-        // TODO catch unique constraint validatation
-        topicMember = topicMemberRepository.save(topicMember);
-        // TODO catch empty data access
-        topicInviteService.delete(topicInvite.getId());
-        return topicMember;
     }
 
     @Override

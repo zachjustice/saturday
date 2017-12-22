@@ -4,12 +4,16 @@ import javassist.tools.web.BadHttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
-import saturday.domain.*;
-import saturday.exceptions.TopicInviteNotFoundException;
+import saturday.domain.TopicInvite;
+import saturday.domain.TopicInviteRequest;
+import saturday.domain.TopicInviteStatus;
+import saturday.domain.TopicMember;
+import saturday.exceptions.ProcessingResourceException;
 import saturday.services.*;
 
 @RestController()
@@ -22,6 +26,13 @@ public class TopicInviteController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    @Value("${saturday.topic.invite.status.pending}")
+    private int TOPIC_INVITE_PENDING;
+    @Value("${saturday.topic.invite.status.rejected}")
+    private int TOPIC_INVITE_REJECTED;
+    @Value("${saturday.topic.invite.status.accepted}")
+    private int TOPIC_INVITE_ACCEPTED;
+
     @Autowired
     public TopicInviteController(TopicInviteService topicInviteService, EntityService entityService, TopicService topicService, PermissionService permissionService, TopicMemberService topicMemberService) {
         this.topicInviteService = topicInviteService;
@@ -32,93 +43,66 @@ public class TopicInviteController {
     }
 
     @RequestMapping(value = "/topic_invites/{id}", method = RequestMethod.GET)
-    public ResponseEntity<TopicInvite> getTopicInvite(@PathVariable int id) throws TopicInviteNotFoundException {
-        if(id < 1) {
-            throw new TopicInviteNotFoundException("Could not find topic invite with the id " + id);
+    public ResponseEntity<TopicInvite> getTopicInvite(@PathVariable int id) {
+        TopicInvite topicInvite = this.topicInviteService.findById(id);
+
+        if (!permissionService.canView(topicInvite)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
-        TopicInvite topicInvite = this.topicInviteService.findById(id);
         return new ResponseEntity<>(topicInvite, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/topic_invites/{id}/accept", method = RequestMethod.POST)
-    public ResponseEntity<TopicMember> acceptTopicInvite(@PathVariable int id) throws TopicInviteNotFoundException {
-        if(id < 1) {
-            throw new TopicInviteNotFoundException("Could not find topic invite with the id " + id);
-        }
-
+    @RequestMapping(value = "/topic_invites/{id}/status", method = RequestMethod.PUT)
+    public ResponseEntity<TopicInvite> acceptTopicInvite(@PathVariable int id, @RequestBody TopicInviteStatus newStatus) throws Exception {
         TopicInvite topicInvite = this.topicInviteService.findById(id);
-
-        if(!permissionService.canAcceptInvite(topicInvite)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+        if (topicInvite.getStatus().getId() != TOPIC_INVITE_PENDING) {
+            throw new Exception("Error updating topic invite status. This topic invite has status " + topicInvite.getStatus().getRole());
         }
 
-        TopicMember topicMember = this.topicMemberService.save(topicInvite);
+        if (newStatus.getId() == TOPIC_INVITE_ACCEPTED) {
+            if (!permissionService.canAcceptInvite(topicInvite)) {
+                throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+            }
 
-        return new ResponseEntity<>(topicMember, HttpStatus.OK);
-    }
+            TopicMember member = new TopicMember();
+            member.setEntity(topicInvite.getInvitee());
+            member.setTopic(topicInvite.getTopic());
 
-    @RequestMapping(value = "/topic_invites/{id}/reject", method = RequestMethod.POST)
-    public ResponseEntity<TopicInvite> rejectTopicInvite(@PathVariable int id) throws TopicInviteNotFoundException {
-        TopicInvite topicInvite = topicInviteService.findById(id);
-        if(topicInvite == null) {
-            throw new TopicInviteNotFoundException("Could not find topic invite with the id " + id);
+            this.topicInviteService.saveStatus(topicInvite, newStatus);
+            this.topicMemberService.save(member);
+
+        } else if (newStatus.getId() == TOPIC_INVITE_REJECTED) {
+            if (!permissionService.canRejectInvite(topicInvite)) {
+                throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+            }
+
+            this.topicInviteService.saveStatus(topicInvite, newStatus);
+        } else {
+            throw new Exception("New topic invite status must either be REJECTED or ACCEPTED");
         }
 
-        if(!permissionService.canRejectInvite(topicInvite)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
-        }
-
-        this.topicInviteService.delete(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(topicInvite, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/topic_invites", method = RequestMethod.POST)
-    public ResponseEntity<TopicInvite> saveTopicInvite(@RequestBody TopicInviteRequest topicInviteRequest) throws BadHttpRequest {
-        if(topicInviteRequest.getInviteeId() == topicInviteRequest.getInviterId()) {
-            throw new BadHttpRequest(new Exception("Invitee and inviter cannot be the same."));
+    public ResponseEntity<TopicInvite> saveTopicInvite(@RequestBody TopicInviteRequest topicInviteRequest) throws BadHttpRequest, ProcessingResourceException {
+
+        if (!permissionService.canSendInvite(topicInviteRequest)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
-        Topic topic = topicService.findTopicById(topicInviteRequest.getTopicId());
-        if(topic == null) {
-            throw new BadHttpRequest(new Exception("Invalid topic id " + topicInviteRequest.getTopicId()));
-        }
-
-        Entity invitee = entityService.findEntityById(topicInviteRequest.getInviteeId());
-        if(invitee == null) {
-            throw new BadHttpRequest(new Exception("Invalid invitee id " + topicInviteRequest.getInviteeId()));
-        }
-
-        // Only allow admins to set the Inviter id. Otherwise the inviter is the authenticated user
-        Entity inviter;
-        if(entityService.getAuthenticatedEntity().isAdmin()) {
-            inviter = entityService.findEntityById(topicInviteRequest.getInviterId());
-            if (inviter == null) {
-                throw new BadHttpRequest(new Exception("Invalid inviter id " + topicInviteRequest.getInviterId()));
-            }
-        } else {
-            inviter = entityService.getAuthenticatedEntity();
-        }
-
-        TopicInvite existing = topicInviteService.findTopicInviteByInviteeAndTopic(invitee, topic);
-        if(existing != null) {
-            // Topic invite for the invited entity and topic already exists
-            return new ResponseEntity<TopicInvite>(existing, HttpStatus.CONFLICT);
-        }
-
-        TopicInvite topicInvite = new TopicInvite();
-        topicInvite.setInviter(inviter);
-        topicInvite.setTopic(topic);
-        topicInvite.setInvitee(invitee);
-
-        logger.info("TopicInvite " + topicInvite);
-
-        topicInvite = topicInviteService.save(topicInvite);
+        TopicInvite topicInvite = topicInviteService.save(topicInviteRequest);
         return new ResponseEntity<>(topicInvite, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/topic_invites/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<TopicInvite> delete(@PathVariable(value = "id") int id) {
+        TopicInvite topicInvite = topicInviteService.findById(id);
+        if (!permissionService.canDeleteInvite(topicInvite)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+        }
+
         topicInviteService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }

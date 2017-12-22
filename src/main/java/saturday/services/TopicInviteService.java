@@ -1,8 +1,8 @@
 package saturday.services;
 
-import saturday.domain.Entity;
-import saturday.domain.Topic;
-import saturday.domain.TopicInvite;
+import javassist.tools.web.BadHttpRequest;
+import saturday.domain.*;
+import saturday.exceptions.ProcessingResourceException;
 
 import java.util.List;
 
@@ -10,7 +10,9 @@ import java.util.List;
  * Created by zachjustice on 7/26/17.
  */
 public interface TopicInviteService {
-    TopicInvite save(TopicInvite topicInvite);
+    TopicInvite save(TopicInviteRequest topicInvite) throws BadHttpRequest, ProcessingResourceException;
+
+    TopicInvite saveStatus(TopicInvite topicInvite, TopicInviteStatus newStatus) throws Exception;
     void delete(int id);
 
     TopicInvite findById(int id);

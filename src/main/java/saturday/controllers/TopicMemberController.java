@@ -13,6 +13,7 @@ import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicMember;
 import saturday.domain.TopicMemberRequest;
+import saturday.exceptions.ProcessingResourceException;
 import saturday.exceptions.TopicMemberNotFoundException;
 import saturday.services.EntityService;
 import saturday.services.PermissionService;
@@ -51,7 +52,7 @@ public class TopicMemberController {
     }
 
     @RequestMapping(value = "/topic_members", method = RequestMethod.POST)
-    public ResponseEntity<TopicMember> saveTopicMember(@RequestBody TopicMemberRequest topicMemberRequest) throws BadHttpRequest {
+    public ResponseEntity<TopicMember> saveTopicMember(@RequestBody TopicMemberRequest topicMemberRequest) throws BadHttpRequest, ProcessingResourceException {
         if(!permissionService.canCreate(topicMemberRequest)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
