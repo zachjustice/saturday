@@ -38,8 +38,7 @@ public class EntityServiceImpl implements EntityService {
      */
     @Override
     public Entity findEntityByEmail(String email) {
-        Entity entity = entityRepository.findByEmail(email);
-        return entity;
+        return entityRepository.findByEmail(email);
     }
 
     public Entity findEntityById(int id) {
@@ -65,6 +64,8 @@ public class EntityServiceImpl implements EntityService {
     public Entity getAuthenticatedEntity() {
         String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         Entity authenticatedEntity;
+
+        logger.info("AUTHED AS " + email);
 
         try {
             authenticatedEntity = findEntityByEmail(email);
