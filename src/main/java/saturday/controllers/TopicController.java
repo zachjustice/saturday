@@ -4,13 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import saturday.domain.*;
-import saturday.services.EntityService;
-import saturday.services.TopicContentService;
-import saturday.services.TopicMemberService;
-import saturday.services.TopicService;
+import saturday.exceptions.TopicNotFoundException;
+import saturday.services.*;
 
 import java.util.List;
 
@@ -24,13 +23,16 @@ public class TopicController {
     private final TopicService topicService;
     private final EntityService entityService;
     private final TopicContentService topicContentService;
+    private final PermissionService permissionService;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public TopicController(TopicMemberService topicMemberService, TopicService topicService, EntityService entityService, TopicContentService topicContentService) {
+    public TopicController(TopicMemberService topicMemberService, TopicService topicService, EntityService entityService, TopicContentService topicContentService, PermissionService permissionService) {
         this.topicMemberService = topicMemberService;
         this.topicService = topicService;
         this.entityService = entityService;
         this.topicContentService = topicContentService;
+        this.permissionService = permissionService;
     }
 
     @RequestMapping(value = "/topics", method = RequestMethod.POST)
@@ -74,19 +76,6 @@ public class TopicController {
         }
 
         return new ResponseEntity<>(topic, HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/topics/{id}/topic_content", method = RequestMethod.GET)
-    public ResponseEntity<List<TopicContent>> getTopicContentByTopic(@PathVariable(value = "id") int id) {
-        Topic topic = topicService.findTopicById(id);
-
-        if (topic == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-        List<TopicContent> topicContentList = topicContentService.findTopicContentByTopicId(id);
-
-        return new ResponseEntity<>(topicContentList, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/topics/{id}", method = RequestMethod.GET)
@@ -136,8 +125,32 @@ public class TopicController {
         return new ResponseEntity<>(currTopic, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/topics/{id}/topic_content", method = RequestMethod.GET)
+    public ResponseEntity<List<TopicContent>> getTopicContentByTopic(@PathVariable(value = "id") int id) {
+        Topic topic = topicService.findTopicById(id);
+
+        if (topic == null) {
+            throw new TopicNotFoundException("No topic with id " + id + " exists!");
+        }
+
+        List<TopicContent> topicContentList = topicContentService.findTopicContentByTopicId(id);
+
+        return new ResponseEntity<>(topicContentList, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "topics/{id}/topic_members", method = RequestMethod.GET)
     public ResponseEntity<List<TopicMember>> getTopicTopicMember(@PathVariable(value = "id") int id) {
+        Topic topic = topicService.findTopicById(id);
+
+        if (topic == null) {
+            throw new TopicNotFoundException("No topic with id " + id + " exists!");
+        }
+
+        if (!permissionService.canAccess(topic)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+        }
+
+
         List<TopicMember> topicMembers = topicMemberService.findByTopicId(id);
         return new ResponseEntity<>(topicMembers, HttpStatus.OK);
     }
