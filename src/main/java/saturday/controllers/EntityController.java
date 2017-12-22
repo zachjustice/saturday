@@ -191,12 +191,12 @@ public class EntityController {
     ) {
         Entity entity = entityService.findEntityById(id);
 
-        if(!permissionService.canAccess(entity)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
-        }
-
         if(entity == null) {
             throw new EntityNotFoundException("No entity with id " + id + " exists!");
+        }
+
+        if(!permissionService.canAccess(entity)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
         List<TopicInvite> topicInvites;
