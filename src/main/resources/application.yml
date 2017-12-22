@@ -39,3 +39,9 @@ saturday:
           prefix: "entity.profile-pictures/"
   timestamp:
     format: "yyyy-MM-dd HH:mm:ss"
+  topic:
+    invite:
+      status:
+        pending: 1
+        rejected: 2
+        accepted: 3
