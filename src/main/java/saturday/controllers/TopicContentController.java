@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.TopicContent;
 import saturday.domain.TopicContentRequest;
+import saturday.exceptions.ProcessingResourceException;
 import saturday.services.PermissionService;
 import saturday.services.TopicContentService;
 
@@ -37,7 +38,7 @@ public class TopicContentController {
             @RequestParam("description") String        description,
             @RequestParam("dateTaken")   String        dateTaken,
             @RequestParam("file")        MultipartFile file
-    ) throws IOException {
+    ) throws IOException, ProcessingResourceException {
 
         Calendar calDateTaken = javax.xml.bind.DatatypeConverter.parseDateTime(dateTaken);
         Date date = calDateTaken.getTime();

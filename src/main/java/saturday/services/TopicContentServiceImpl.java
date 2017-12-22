@@ -82,7 +82,7 @@ public class TopicContentServiceImpl implements TopicContentService {
     }
 
     @Override
-    public TopicContent save(TopicContentRequest topicContentRequest) throws IOException {
+    public TopicContent save(TopicContentRequest topicContentRequest) throws IOException, ProcessingResourceException {
         int topicId = topicContentRequest.getTopicId();
         int creatorId = topicContentRequest.getCreatorId();
         String description = topicContentRequest.getDescription();
