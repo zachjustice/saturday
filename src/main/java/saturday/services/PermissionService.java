@@ -3,8 +3,7 @@ package saturday.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import saturday.domain.*;
-
-import java.util.List;
+import saturday.exceptions.ProcessingResourceException;
 
 @Component
 public class PermissionService {
@@ -19,7 +18,7 @@ public class PermissionService {
         this.topicService = topicService;
     }
 
-    public boolean canAccess(Entity entity) {
+    public boolean canView(Entity entity) {
         if(entity == null) {
             // TODO throw exception?
            return false;
@@ -48,20 +47,15 @@ public class PermissionService {
      * @param topicContent The topic content to perform access validation against
      * @return whether or not the currently auth'ed entity can access this content
      */
-    public boolean canAccess(TopicContent topicContent) {
+    public boolean canView(TopicContent topicContent) throws ProcessingResourceException {
         if(topicContent == null) {
-            // TODO throw exception?
-            return false;
+            throw new ProcessingResourceException("Null topic content argument while checking permissions.");
         }
 
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
-        List<TopicMember> topicMemberList = this.topicMemberService.findByTopicId(topicContent.getId());
-        boolean isAuthenticatedEntityAMember = topicMemberList.stream()
-                        .anyMatch(topicMember -> {
-                            return topicMember.getEntity().getId() == authenticatedEntity.getId();
-                        });
 
-        return authenticatedEntity.isAdmin() || isAuthenticatedEntityAMember;
+        return authenticatedEntity.isAdmin()
+                || isTopicMember(authenticatedEntity, topicContent.getTopic());
     }
 
     public boolean canAcceptInvite(TopicInvite topicInvite) {
@@ -128,18 +122,10 @@ public class PermissionService {
      */
     public boolean canSendInvite(TopicInviteRequest topicInviteRequest) {
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
-        if (authenticatedEntity.isAdmin()) {
-            return true;
-        }
 
         //Topic topic = topicService.findTopicById(topicInviteRequest.getTopicId());
         Topic topic = topicService.findTopicById(topicInviteRequest.getTopicId());
-        TopicMember topicMember = this.topicMemberService.findByEntityAndTopic(authenticatedEntity, topic);
-        if (topicMember != null && topicMember.getEntity().getId() != authenticatedEntity.getId()) {
-            return false;
-        }
-
-        return true;
+        return authenticatedEntity.isAdmin() || isTopicMember(authenticatedEntity, topic);
     }
 
     /**
@@ -147,24 +133,48 @@ public class PermissionService {
      * @param topic The topic to validate auth'ed user against
      * @return If the auth'ed user has access to the topic
      */
-    public boolean canAccess(Topic topic) {
+    public boolean canView(Topic topic) {
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
-        TopicMember topicMember = this.topicMemberService.findByEntityAndTopic(authenticatedEntity, topic);
 
         return authenticatedEntity.isAdmin()
-                || topicMember != null;
+                || isTopicMember(authenticatedEntity, topic);
     }
 
     /**
      * Only admins and topic members can view topic info, i.e. who else is in the topic
-     * @param topicMember1 The topic to validate auth'ed user against
+     * @param topicMember The topic to validate auth'ed user against
      * @return If the auth'ed user has access to the topic
      */
-    public boolean canAccess(TopicMember topicMember1) {
+    public boolean canView(TopicMember topicMember) {
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
-        TopicMember topicMember2 = this.topicMemberService.findByEntityAndTopic(authenticatedEntity, topicMember1.getTopic());
 
         return authenticatedEntity.isAdmin()
-                || topicMember2 != null;
+                || isTopicMember(authenticatedEntity, topicMember.getTopic());
+    }
+
+    /**
+     * Topic members can create topic content
+     * @param topicContentRequest the topic content request to authenticate
+     * @return If the auth'ed user has access to the topic
+     */
+    public boolean canCreate(TopicContentRequest topicContentRequest) {
+        Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
+        // TODO better way to do this
+        Topic topic = new Topic();
+        topic.setId(topicContentRequest.getTopicId());
+
+        return authenticatedEntity.isAdmin()
+                || isTopicMember(authenticatedEntity, topic);
+    }
+
+    /**
+     * Check if the given entity is a member of the topic
+     * @param entity The entity to check for membership
+     * @param topic The topic
+     * @return If the entity is a topic member
+     */
+    private boolean isTopicMember(Entity entity, Topic topic) {
+        TopicMember topicMember = this.topicMemberService.findByEntityAndTopic(entity, topic);
+        return topicMember != null;
     }
 }

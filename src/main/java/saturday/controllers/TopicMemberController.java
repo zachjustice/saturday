@@ -44,7 +44,7 @@ public class TopicMemberController {
             throw new TopicMemberNotFoundException("Couldn't find topic member with id " + id);
         }
 
-        if(!permissionService.canAccess(topicMember)) {
+        if(!permissionService.canView(topicMember)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 

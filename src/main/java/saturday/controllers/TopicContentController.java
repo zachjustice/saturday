@@ -1,6 +1,5 @@
 package saturday.controllers;
 
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -8,17 +7,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import saturday.domain.Entity;
 import saturday.domain.TopicContent;
 import saturday.domain.TopicContentRequest;
 import saturday.exceptions.ProcessingResourceException;
 import saturday.services.PermissionService;
 import saturday.services.TopicContentService;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -40,6 +35,10 @@ public class TopicContentController {
     public ResponseEntity<TopicContent> createTopicContent(
             @RequestBody TopicContentRequest topicContentRequest
     ) throws IOException, ProcessingResourceException {
+
+        if(!permissionService.canCreate(topicContentRequest)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+        }
 
         TopicContent topicContent = topicContentService.save(topicContentRequest);
         logger.info("Created TopicContent: " + topicContentRequest.toString());
@@ -68,17 +67,21 @@ public class TopicContentController {
         topicContentRequest.setDateTaken(date);
         topicContentRequest.setFile(file);
 
+        if(!permissionService.canCreate(topicContentRequest)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+        }
+
         TopicContent topicContent = topicContentService.save(topicContentRequest);
 
         return new ResponseEntity<>(topicContent, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/topic_content/{id}", method = RequestMethod.GET)
-    public ResponseEntity<TopicContent> findTopicByName(@PathVariable(value="id") int id) {
+    public ResponseEntity<TopicContent> findTopicByName(@PathVariable(value="id") int id) throws ProcessingResourceException {
 
         TopicContent topicContent = topicContentService.findTopicContentById(id);
 
-        if(!permissionService.canAccess(topicContent)) {
+        if(!permissionService.canView(topicContent)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 

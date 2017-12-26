@@ -93,7 +93,7 @@ public class EntityController {
             @RequestBody Entity updatedEntity
     ) {
         Entity currEntity = entityService.findEntityById(updatedEntity.getId());
-        if(!permissionService.canAccess(currEntity)) {
+        if(!permissionService.canView(currEntity)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
@@ -147,7 +147,7 @@ public class EntityController {
 
         Entity entity = entityService.findEntityById(id);
 
-        if(!permissionService.canAccess(entity)) {
+        if(!permissionService.canView(entity)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
@@ -195,7 +195,7 @@ public class EntityController {
             throw new EntityNotFoundException("No entity with id " + id + " exists!");
         }
 
-        if(!permissionService.canAccess(entity)) {
+        if(!permissionService.canView(entity)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
@@ -217,7 +217,7 @@ public class EntityController {
     ) throws AccessDeniedException {
         Entity entity = entityService.findEntityById(id);
 
-        if(!permissionService.canAccess(entity)) {
+        if(!permissionService.canView(entity)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
@@ -238,7 +238,7 @@ public class EntityController {
             throw new EntityNotFoundException("No entity with id " + id + " exists!");
         }
 
-        if(!permissionService.canAccess(entity)) {
+        if(!permissionService.canView(entity)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 

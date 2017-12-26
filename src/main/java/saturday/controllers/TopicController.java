@@ -146,7 +146,7 @@ public class TopicController {
             throw new TopicNotFoundException("No topic with id " + id + " exists!");
         }
 
-        if (!permissionService.canAccess(topic)) {
+        if (!permissionService.canView(topic)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
