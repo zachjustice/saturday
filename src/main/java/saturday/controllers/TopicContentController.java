@@ -1,5 +1,6 @@
 package saturday.controllers;
 
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -7,13 +8,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import saturday.domain.Entity;
 import saturday.domain.TopicContent;
 import saturday.domain.TopicContentRequest;
 import saturday.exceptions.ProcessingResourceException;
 import saturday.services.PermissionService;
 import saturday.services.TopicContentService;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -29,6 +34,19 @@ public class TopicContentController {
         this.topicContentService = topicContentService;
         this.permissionService = permissionService;
     }
+
+    @RequestMapping(value = "/topic_content", method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseEntity<TopicContent> createTopicContent(
+            @RequestBody TopicContentRequest topicContentRequest
+    ) throws IOException {
+
+        TopicContent topicContent = topicContentService.save(topicContentRequest);
+        logger.info("Created TopicContent: " + topicContentRequest.toString());
+
+        return new ResponseEntity<>(topicContent, HttpStatus.OK);
+    }
+
 
     @RequestMapping(value = "/topic_content", method = RequestMethod.POST)
     @ResponseBody

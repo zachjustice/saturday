@@ -1,5 +1,6 @@
 package saturday.services;
 
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
@@ -11,7 +12,10 @@ import saturday.domain.TopicContentRequest;
 import saturday.exceptions.ProcessingResourceException;
 import saturday.repositories.TopicContentRepository;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -87,6 +91,7 @@ public class TopicContentServiceImpl implements TopicContentService {
         int creatorId = topicContentRequest.getCreatorId();
         String description = topicContentRequest.getDescription();
         MultipartFile file = topicContentRequest.getFile();
+        String data = topicContentRequest.getData();
         Date dateTaken = topicContentRequest.getDateTaken();
 
         Entity creator;
@@ -114,12 +119,31 @@ public class TopicContentServiceImpl implements TopicContentService {
 
         // upload after s3 validation.
         // then insert into db since we have the bucket name and s3 key
-        String s3key;
+        String uuid = UUID.randomUUID().toString();
+        String s3key = keyPrefix + uuid; // topic-content/{{GUID}}
+        String s3url = s3urlPrefix + bucketName + "/" + s3key;
+
         try {
-            // s3 url key is probably unique - should probably use GUID
-            String uuid = UUID.randomUUID().toString();
-            s3key = keyPrefix + uuid; // topic-content/{{GUID}}
-            s3Service.upload(file, s3key);
+            if(data != null) {
+                // strip base64 data prefix
+                int i = data.indexOf(",");
+
+                if(i > -1) {
+                    data = data.substring(i + 1);
+                }
+
+                byte[] bI = java.util.Base64.getDecoder().decode(data);
+                InputStream fis = new ByteArrayInputStream(bI);
+
+                ObjectMetadata metadata = new ObjectMetadata();
+                metadata.setContentLength(bI.length);
+                metadata.setContentType("image/jpeg");
+
+                s3Service.upload(fis, s3url, metadata);
+            } else {
+                // s3 url key is probably unique - should probably use GUID
+                s3Service.upload(file, s3url );
+            }
         } catch (IOException e){
             e.printStackTrace();
             throw new IOException("Failed to upload file: " + e.getMessage());

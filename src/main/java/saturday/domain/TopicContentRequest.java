@@ -12,6 +12,15 @@ public class TopicContentRequest {
     private Integer topicId;
     private Integer creatorId;
     private MultipartFile file;
+    private String data;
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
 
     public String getDescription() {
         return description;
