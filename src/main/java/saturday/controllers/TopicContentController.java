@@ -39,7 +39,7 @@ public class TopicContentController {
     @ResponseBody
     public ResponseEntity<TopicContent> createTopicContent(
             @RequestBody TopicContentRequest topicContentRequest
-    ) throws IOException {
+    ) throws IOException, ProcessingResourceException {
 
         TopicContent topicContent = topicContentService.save(topicContentRequest);
         logger.info("Created TopicContent: " + topicContentRequest.toString());

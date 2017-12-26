@@ -126,4 +126,3 @@ CREATE TRIGGER update_topic_role_modtime BEFORE UPDATE ON topic_entity_permissio
 
 INSERT INTO roles (id, label) VALUES (1, 'USER'), (2, 'ADMIN');
 INSERT INTO topic_invite_statuses(id, label) VALUES (1, 'PENDING'), (2, 'REJECTED'), (3, 'ACCEPTED');
-

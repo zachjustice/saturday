@@ -139,10 +139,10 @@ public class TopicContentServiceImpl implements TopicContentService {
                 metadata.setContentLength(bI.length);
                 metadata.setContentType("image/jpeg");
 
-                s3Service.upload(fis, s3url, metadata);
+                s3Service.upload(fis, s3key, metadata);
             } else {
                 // s3 url key is probably unique - should probably use GUID
-                s3Service.upload(file, s3url );
+                s3Service.upload(file, s3key);
             }
         } catch (IOException e){
             e.printStackTrace();
