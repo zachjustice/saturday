@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
@@ -16,13 +15,13 @@ import saturday.domain.Topic;
 import saturday.domain.TopicContent;
 import saturday.domain.TopicInvite;
 import saturday.exceptions.EntityExistsException;
+import saturday.exceptions.ProcessingResourceException;
 import saturday.services.*;
 import saturday.utils.TokenAuthenticationUtils;
 
 import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -59,10 +58,7 @@ public class EntityController {
     }
 
     @RequestMapping(value = "/entities", method = RequestMethod.GET)
-    public ResponseEntity<Entity> findEntityByEmail(@RequestParam(value="email") String email) {
-        if(StringUtils.isEmpty(email)) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<Entity> findEntityByEmail(@RequestParam(value="email") String email) throws ProcessingResourceException {
 
         Entity entity = entityService.findEntityByEmail(email);
 
@@ -70,7 +66,9 @@ public class EntityController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
+        // TODO better way to do this
         entity.setPassword("");
+        entity.setToken("");
 
         return new ResponseEntity<>(entity, HttpStatus.OK);
     }
@@ -78,11 +76,10 @@ public class EntityController {
     @RequestMapping(value = "/entities/{id}", method = RequestMethod.GET)
     public ResponseEntity<Entity> getEntity(@PathVariable(value="id") int id) {
         Entity entity = entityService.findEntityById(id);
-        if(entity == null) {
-            throw new EntityNotFoundException("No entity with id " + id + " exists!");
-        }
 
+        // TODO better way to do this
         entity.setPassword("");
+        entity.setToken("");
 
         return new ResponseEntity<>(entity, HttpStatus.OK);
     }
@@ -91,59 +88,22 @@ public class EntityController {
     public ResponseEntity<Entity> saveEntity(
             @PathVariable(value="id") int id,
             @RequestBody Entity updatedEntity
-    ) {
+    ) throws ProcessingResourceException {
+
         Entity currEntity = entityService.findEntityById(updatedEntity.getId());
+
         if(!permissionService.canView(currEntity)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
-        if(updatedEntity.getId() != id || updatedEntity.getId() == 0) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-        logger.info("New Entity: " + updatedEntity.toString());
-
-        if(currEntity == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-        logger.info("Old Entity: " + currEntity.toString());
-
-        String updatedName = updatedEntity.getName();
-        String updatedEmail = updatedEntity.getEmail();
-        Date updatedBirthday = updatedEntity.getBirthday();
-        String updatedGender = updatedEntity.getGender();
-        String updatedPassword = updatedEntity.getPassword();
-
-        if(!StringUtils.isEmpty(updatedName)) {
-            currEntity.setName(updatedName);
-        }
-
-        if(!StringUtils.isEmpty(updatedEmail)) {
-            currEntity.setEmail(updatedEmail);
-        }
-
-        if(updatedBirthday != null) {
-            currEntity.setBirthday(updatedBirthday);
-        }
-
-        if(!StringUtils.isEmpty(updatedGender)) {
-            currEntity.setGender(updatedGender);
-        }
-
-        if(!StringUtils.isEmpty(updatedPassword)) {
-            currEntity.setPassword(bCryptPasswordEncoder.encode(updatedEntity.getPassword()));
-        }
-
-        logger.info("Updated: " + currEntity);
-        entityService.saveEntity(currEntity);
+        currEntity = entityService.updateEntity(currEntity, updatedEntity);
         return new ResponseEntity<>(currEntity, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/entities/{id}/profile_picture", method = RequestMethod.POST, consumes = "multipart/form-data")
     public ResponseEntity<Entity> uploadProfilePicture(
             @PathVariable(value="id") int id,
-            @RequestParam("picture") MultipartFile picture) throws EntityExistsException, IOException {
+            @RequestParam("picture") MultipartFile picture) throws EntityExistsException, IOException, ProcessingResourceException {
 
         Entity entity = entityService.findEntityById(id);
 
@@ -153,26 +113,20 @@ public class EntityController {
 
         String uuid = UUID.randomUUID().toString();
 
-        String uploadKey = "entity-" + id + "-profile-picture-" + uuid; // s3 file url
-        String fileUrl = s3UrlPrefix + bucketName + "/" + entityProfilePictureKeyPrefix + "/" + uploadKey;
+        String uploadKey = entityProfilePictureKeyPrefix + uuid; // s3 file url
+        String fileUrl = s3UrlPrefix + bucketName + "/" + uploadKey;
 
         s3Service.upload(picture, uploadKey);
 
         entity.setPictureUrl(fileUrl);
+        entityService.saveEntity(entity);
 
         return new ResponseEntity<>(entity, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public ResponseEntity<Entity> createEntity(HttpServletResponse response, @RequestBody Entity entity) throws EntityExistsException {
+    public ResponseEntity<Entity> createEntity(HttpServletResponse response, @RequestBody Entity entity) throws EntityExistsException, ProcessingResourceException {
         logger.info("Registered Entity: " + entity.toString());
-        entity.setPassword(bCryptPasswordEncoder.encode(entity.getPassword()));
-
-        Entity entityWithSameEmail = entityService.findEntityByEmail(entity.getEmail());
-
-        if(entityWithSameEmail != null) {
-            throw new EntityExistsException("An entity with the email '" + entity.getEmail() + "' already exists.");
-        }
 
         // TODO validate fields before saving
         entity = entityService.saveEntity(entity);
@@ -217,12 +171,12 @@ public class EntityController {
     ) throws AccessDeniedException {
         Entity entity = entityService.findEntityById(id);
 
-        if(!permissionService.canView(entity)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
-        }
-
         if(entity == null) {
             throw new EntityNotFoundException("No entity with id " + id + " exists!");
+        }
+
+        if(!permissionService.canView(entity)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
         return new ResponseEntity<>(entity.getTopics(), HttpStatus.OK);

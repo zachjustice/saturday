@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import saturday.domain.Entity;
+import saturday.exceptions.ProcessingResourceException;
 import saturday.services.EntityServiceImpl;
 import saturday.utils.TokenAuthenticationUtils;
 
@@ -33,7 +34,7 @@ public class AccessTokenController {
       [] each time a request is made, exchange JWT and invalidate the previous
     */
     @RequestMapping(value = "/validate_access_token", method = RequestMethod.POST)
-    public ResponseEntity<Entity> validateAccessToken(HttpServletResponse response, @RequestBody Entity validationEntity) {
+    public ResponseEntity<Entity> validateAccessToken(HttpServletResponse response, @RequestBody Entity validationEntity) throws ProcessingResourceException {
         Entity entity = this.entityService.findEntityByEmail(validationEntity.getEmail());
         logger.info("Attempt to find existing entity: " + entity);
 

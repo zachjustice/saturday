@@ -36,7 +36,7 @@ saturday:
     entity:
       profile_picture:
         key:
-          prefix: "entity.profile-pictures/"
+          prefix: "profile-pictures/"
   timestamp:
     format: "yyyy-MM-dd HH:mm:ss"
   topic:
