@@ -4,11 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import saturday.domain.*;
-import saturday.exceptions.TopicNotFoundException;
+import saturday.domain.Topic;
+import saturday.domain.TopicContent;
+import saturday.domain.TopicMember;
+import saturday.exceptions.AccessDeniedException;
+import saturday.exceptions.ProcessingResourceException;
 import saturday.services.*;
 
 import java.util.List;
@@ -36,54 +37,32 @@ public class TopicController {
     }
 
     @RequestMapping(value = "/topics", method = RequestMethod.POST)
-    public ResponseEntity<Topic> createTopic(@RequestBody NewTopic newTopic) {
+    public ResponseEntity<Topic> createTopic(@RequestBody Topic topic) throws ProcessingResourceException {
 
-        if (StringUtils.isEmpty(newTopic.getName()) || newTopic.getCreator() <= 0) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-        int creatorId = newTopic.getCreator();
-        Entity creator = entityService.findEntityById(creatorId);
-
-        if (creator == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-        String name = newTopic.getName();
-        String description = newTopic.getDescription();
-
-        Topic topic = new Topic();
-        topic.setName(name);
-        topic.setDescription(description);
-        topic.setCreator(creator);
-
+        // TODO constraints around topics created per minute, max amount of topics per week / month?
+        //      similar to how aws api gateway does rate limiting?
         topic = topicService.saveTopic(topic);
-        logger.info("Created Topic: " + newTopic.toString());
 
         return new ResponseEntity<>(topic, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/topics", method = RequestMethod.GET)
-    public ResponseEntity<Topic> findTopicByName(@RequestParam(value = "name") String name) {
-        if (StringUtils.isEmpty(name)) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
+    public ResponseEntity<Topic> findTopicByName(@RequestParam(value = "name") String name) throws ProcessingResourceException, AccessDeniedException {
         Topic topic = topicService.findTopicByName(name);
 
-        if (topic == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if(!permissionService.canView(topic)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions");
         }
 
         return new ResponseEntity<>(topic, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/topics/{id}", method = RequestMethod.GET)
-    public ResponseEntity<Topic> getTopic(@PathVariable(value = "id") int id) {
+    public ResponseEntity<Topic> getTopic(@PathVariable(value = "id") int id) throws AccessDeniedException {
         Topic topic = topicService.findTopicById(id);
 
-        if (topic == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if(!permissionService.canView(topic)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions");
         }
 
         return new ResponseEntity<>(topic, HttpStatus.OK);
@@ -93,65 +72,51 @@ public class TopicController {
     @RequestMapping(value = "/topics/{id}", method = RequestMethod.PUT)
     public ResponseEntity<Topic> saveTopic(
             @PathVariable(value = "id") int id,
-            @RequestBody Topic newTopic
-    ) {
-        if (newTopic.getId() != id || newTopic.getId() == 0) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            @RequestBody Topic topic
+    ) throws ProcessingResourceException, AccessDeniedException {
+        topic = topicService.findTopicById(topic.getId());
+
+        if(!permissionService.canModify(topic)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions");
         }
 
-        logger.info("New Topic: " + newTopic.toString());
-        Topic currTopic = topicService.findTopicById(newTopic.getId());
-
-        if (currTopic == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-        logger.info("Old Topic: " + currTopic.toString());
-
-        // Validate Topic
-        String newName = newTopic.getName();
-        String newDescription = newTopic.getDescription();
-
-        if (!StringUtils.isEmpty(newName)) {
-            currTopic.setName(newName);
-        }
-
-        if (!StringUtils.isEmpty(newDescription)) {
-            currTopic.setDescription(newDescription);
-        }
-
-        logger.info("Updated: " + currTopic);
-        topicService.saveTopic(currTopic);
-        return new ResponseEntity<>(currTopic, HttpStatus.OK);
+        topic = topicService.saveTopic(topic);
+        return new ResponseEntity<>(topic, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/topics/{id}/topic_content", method = RequestMethod.GET)
-    public ResponseEntity<List<TopicContent>> getTopicContentByTopic(@PathVariable(value = "id") int id) {
+    public ResponseEntity<List<TopicContent>> getTopicContentByTopic(@PathVariable(value = "id") int id) throws AccessDeniedException {
         Topic topic = topicService.findTopicById(id);
 
-        if (topic == null) {
-            throw new TopicNotFoundException("No topic with id " + id + " exists!");
+        if(!permissionService.canView(topic)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions");
         }
 
         List<TopicContent> topicContentList = topicContentService.findTopicContentByTopicId(id);
-
         return new ResponseEntity<>(topicContentList, HttpStatus.OK);
     }
 
     @RequestMapping(value = "topics/{id}/topic_members", method = RequestMethod.GET)
-    public ResponseEntity<List<TopicMember>> getTopicTopicMember(@PathVariable(value = "id") int id) {
+    public ResponseEntity<List<TopicMember>> getTopicTopicMember(@PathVariable(value = "id") int id) throws AccessDeniedException {
         Topic topic = topicService.findTopicById(id);
-
-        if (topic == null) {
-            throw new TopicNotFoundException("No topic with id " + id + " exists!");
-        }
 
         if (!permissionService.canView(topic)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
-
         List<TopicMember> topicMembers = topicMemberService.findByTopicId(id);
         return new ResponseEntity<>(topicMembers, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "topics/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<Topic> delete(@PathVariable(value = "id") int id) throws AccessDeniedException {
+        Topic topic = topicService.findTopicById(id);
+
+        if (!permissionService.canDelete(topic)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+        }
+
+        topicService.delete(topic);
+        return new ResponseEntity<>(topic, HttpStatus.OK);
     }
 }

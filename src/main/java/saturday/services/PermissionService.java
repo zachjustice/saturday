@@ -18,6 +18,17 @@ public class PermissionService {
         this.topicService = topicService;
     }
 
+    /**
+     * Check if the given entity is a member of the topic
+     * @param entity The entity to check for membership
+     * @param topic The topic
+     * @return If the entity is a topic member
+     */
+    private boolean isTopicMember(Entity entity, Topic topic) {
+        TopicMember topicMember = this.topicMemberService.findByEntityAndTopic(entity, topic);
+        return topicMember != null;
+    }
+
     public boolean canView(Entity entity) {
         if(entity == null) {
             // TODO throw exception?
@@ -34,7 +45,7 @@ public class PermissionService {
      * @param topicMemberRequest The resource to validate
      * @return Whether the user is allowed to create the topic member
      */
-    public boolean canCreate(TopicMemberRequest topicMemberRequest) {
+    public boolean canCreateTopic(TopicMemberRequest topicMemberRequest) {
         if(topicMemberRequest == null) {
             return false;
         }
@@ -154,7 +165,7 @@ public class PermissionService {
 
     /**
      * Topic members can create topic content
-     * @param topicContentRequest the topic content request to authenticate
+     * @param topicContentRequest TopicContentRequest to auth against
      * @return If the auth'ed user has access to the topic
      */
     public boolean canCreate(TopicContentRequest topicContentRequest) {
@@ -168,13 +179,24 @@ public class PermissionService {
     }
 
     /**
-     * Check if the given entity is a member of the topic
-     * @param entity The entity to check for membership
-     * @param topic The topic
-     * @return If the entity is a topic member
+     * Only topic creators can update topic details for now
+     * TODO add moderator check
+     * @param topic The topic to auth against
+     * @return If the auth'ed user can modify the topic
      */
-    private boolean isTopicMember(Entity entity, Topic topic) {
-        TopicMember topicMember = this.topicMemberService.findByEntityAndTopic(entity, topic);
-        return topicMember != null;
+    public boolean canModify(Topic topic) {
+        Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
+        return authenticatedEntity.isAdmin() || authenticatedEntity.getId() == topic.getCreator().getId();
+    }
+
+    /**
+     * Only site admins or topic creators can delete topics
+     * @param topic the topic to delete
+     * @return If the auth'ed user can delete the topic
+     */
+    public boolean canDelete(Topic topic) {
+        Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
+        return authenticatedEntity.isAdmin()
+                || authenticatedEntity.getId() == topic.getCreator().getId();
     }
 }

@@ -7,12 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 import saturday.domain.TopicInvite;
 import saturday.domain.TopicInviteRequest;
 import saturday.domain.TopicInviteStatus;
 import saturday.domain.TopicMember;
+import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.ProcessingResourceException;
 import saturday.services.*;
 
@@ -43,7 +43,7 @@ public class TopicInviteController {
     }
 
     @RequestMapping(value = "/topic_invites/{id}", method = RequestMethod.GET)
-    public ResponseEntity<TopicInvite> getTopicInvite(@PathVariable int id) {
+    public ResponseEntity<TopicInvite> getTopicInvite(@PathVariable int id) throws AccessDeniedException {
         TopicInvite topicInvite = this.topicInviteService.findById(id);
 
         if (!permissionService.canView(topicInvite)) {
@@ -60,6 +60,7 @@ public class TopicInviteController {
             throw new Exception("Error updating topic invite status. This topic invite has status " + topicInvite.getStatus().getRole());
         }
 
+        // TODO find better way to do this
         if (newStatus.getId() == TOPIC_INVITE_ACCEPTED) {
             if (!permissionService.canAcceptInvite(topicInvite)) {
                 throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
@@ -86,7 +87,7 @@ public class TopicInviteController {
     }
 
     @RequestMapping(value = "/topic_invites", method = RequestMethod.POST)
-    public ResponseEntity<TopicInvite> saveTopicInvite(@RequestBody TopicInviteRequest topicInviteRequest) throws BadHttpRequest, ProcessingResourceException {
+    public ResponseEntity<TopicInvite> saveTopicInvite(@RequestBody TopicInviteRequest topicInviteRequest) throws BadHttpRequest, ProcessingResourceException, AccessDeniedException {
 
         if (!permissionService.canSendInvite(topicInviteRequest)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
@@ -97,7 +98,7 @@ public class TopicInviteController {
     }
 
     @RequestMapping(value = "/topic_invites/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<TopicInvite> delete(@PathVariable(value = "id") int id) {
+    public ResponseEntity<TopicInvite> delete(@PathVariable(value = "id") int id) throws AccessDeniedException {
         TopicInvite topicInvite = topicInviteService.findById(id);
         if (!permissionService.canDeleteInvite(topicInvite)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");

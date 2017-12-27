@@ -15,7 +15,6 @@ import saturday.repositories.TopicContentRepository;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -108,6 +107,7 @@ public class TopicContentServiceImpl implements TopicContentService {
             throw new ResourceNotFoundException("The topic id, " + topicId + ", does not exist");
         }
 
+        // Description can be null, but otherwise there's a length limit
         if(description != null && description.length() > 4000) {
             throw new ProcessingResourceException("Topic Content Description cannot be more than 4000 characters");
         }
@@ -121,7 +121,6 @@ public class TopicContentServiceImpl implements TopicContentService {
         // then insert into db since we have the bucket name and s3 key
         String uuid = UUID.randomUUID().toString();
         String s3key = keyPrefix + uuid; // topic-content/{{GUID}}
-        String s3url = s3urlPrefix + bucketName + "/" + s3key;
 
         try {
             if(data != null) {
@@ -132,9 +131,11 @@ public class TopicContentServiceImpl implements TopicContentService {
                     data = data.substring(i + 1);
                 }
 
+                // get input stream for upload
                 byte[] bI = java.util.Base64.getDecoder().decode(data);
                 InputStream fis = new ByteArrayInputStream(bI);
 
+                // generate object metadata based on input stream
                 ObjectMetadata metadata = new ObjectMetadata();
                 metadata.setContentLength(bI.length);
                 metadata.setContentType("image/jpeg");

@@ -1,9 +1,7 @@
 package saturday.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
@@ -15,7 +13,7 @@ public class Topic {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "id", updatable = false)
     private int id;
 
     @Column(name = "name")
@@ -26,7 +24,8 @@ public class Topic {
     private String description;
 
     @ManyToOne
-    @JoinColumn(name="creator_id", referencedColumnName = "id", nullable=false)
+    @JoinColumn(name="creator_id", referencedColumnName = "id", nullable=false, updatable = false)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Entity creator;
 
     @Column(name = "created", insertable = false, updatable = false)

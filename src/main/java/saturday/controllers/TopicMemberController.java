@@ -7,12 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicMember;
 import saturday.domain.TopicMemberRequest;
+import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.ProcessingResourceException;
 import saturday.exceptions.TopicMemberNotFoundException;
 import saturday.services.EntityService;
@@ -38,7 +38,7 @@ public class TopicMemberController {
     }
 
     @RequestMapping(value = "/topic_members/{id}", method = RequestMethod.GET)
-    public ResponseEntity<TopicMember> getTopicMember(@PathVariable int id) throws TopicMemberNotFoundException {
+    public ResponseEntity<TopicMember> getTopicMember(@PathVariable int id) throws TopicMemberNotFoundException, AccessDeniedException {
         TopicMember topicMember = this.topicMemberService.findById(id);
         if(topicMember == null) {
             throw new TopicMemberNotFoundException("Couldn't find topic member with id " + id);
@@ -52,8 +52,8 @@ public class TopicMemberController {
     }
 
     @RequestMapping(value = "/topic_members", method = RequestMethod.POST)
-    public ResponseEntity<TopicMember> saveTopicMember(@RequestBody TopicMemberRequest topicMemberRequest) throws BadHttpRequest, ProcessingResourceException {
-        if(!permissionService.canCreate(topicMemberRequest)) {
+    public ResponseEntity<TopicMember> saveTopicMember(@RequestBody TopicMemberRequest topicMemberRequest) throws BadHttpRequest, ProcessingResourceException, AccessDeniedException {
+        if(!permissionService.canCreateTopic(topicMemberRequest)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
@@ -84,7 +84,7 @@ public class TopicMemberController {
     }
 
     @RequestMapping(value = "/topic_members/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<TopicMember> delete(@PathVariable(value = "id") int id) {
+    public ResponseEntity<TopicMember> delete(@PathVariable(value = "id") int id) throws AccessDeniedException {
         if(!entityService.getAuthenticatedEntity().isAdmin()) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }

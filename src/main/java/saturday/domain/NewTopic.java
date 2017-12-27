@@ -1,7 +1,5 @@
 package saturday.domain;
 
-import org.hibernate.validator.constraints.NotEmpty;
-
 public class NewTopic {
 
     private String name;

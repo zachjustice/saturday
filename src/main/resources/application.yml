@@ -40,6 +40,10 @@ saturday:
   timestamp:
     format: "yyyy-MM-dd HH:mm:ss"
   topic:
+    name:
+      max_length: 20
+    description:
+      max_length: 150
     invite:
       status:
         pending: 1

@@ -6,20 +6,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicContent;
 import saturday.domain.TopicInvite;
+import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.EntityExistsException;
 import saturday.exceptions.ProcessingResourceException;
 import saturday.services.*;
 import saturday.utils.TokenAuthenticationUtils;
 
-import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
@@ -35,7 +33,6 @@ public class EntityController {
     private final TopicContentService topicContentService;
     private final TopicInviteService topicInviteService;
     private final PermissionService permissionService;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final S3Service s3Service;
 
     @Value("${saturday.s3.user-files-bucket}")
@@ -48,12 +45,11 @@ public class EntityController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    public EntityController(EntityServiceImpl entityService, TopicContentService topicContentService, TopicInviteService topicInviteService, PermissionService permissionService, BCryptPasswordEncoder bCryptPasswordEncoder, S3Service s3Service) {
+    public EntityController(EntityServiceImpl entityService, TopicContentService topicContentService, TopicInviteService topicInviteService, PermissionService permissionService, S3Service s3Service) {
         this.entityService = entityService;
         this.topicContentService = topicContentService;
         this.topicInviteService = topicInviteService;
         this.permissionService = permissionService;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.s3Service = s3Service;
     }
 
@@ -88,7 +84,7 @@ public class EntityController {
     public ResponseEntity<Entity> saveEntity(
             @PathVariable(value="id") int id,
             @RequestBody Entity updatedEntity
-    ) throws ProcessingResourceException {
+    ) throws ProcessingResourceException, AccessDeniedException {
 
         Entity currEntity = entityService.findEntityById(updatedEntity.getId());
 
@@ -103,7 +99,7 @@ public class EntityController {
     @RequestMapping(value = "/entities/{id}/profile_picture", method = RequestMethod.POST, consumes = "multipart/form-data")
     public ResponseEntity<Entity> uploadProfilePicture(
             @PathVariable(value="id") int id,
-            @RequestParam("picture") MultipartFile picture) throws EntityExistsException, IOException, ProcessingResourceException {
+            @RequestParam("picture") MultipartFile picture) throws EntityExistsException, IOException, ProcessingResourceException, AccessDeniedException {
 
         Entity entity = entityService.findEntityById(id);
 
@@ -111,6 +107,7 @@ public class EntityController {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
+        // TODO do this better
         String uuid = UUID.randomUUID().toString();
 
         String uploadKey = entityProfilePictureKeyPrefix + uuid; // s3 file url
@@ -142,12 +139,8 @@ public class EntityController {
     public ResponseEntity<List<TopicInvite>> getEntityReceivedTopicInvites(
             @PathVariable(value="id") int id,
             @RequestParam(value="getReceived", required = false) Boolean getReceived
-    ) {
+    ) throws AccessDeniedException {
         Entity entity = entityService.findEntityById(id);
-
-        if(entity == null) {
-            throw new EntityNotFoundException("No entity with id " + id + " exists!");
-        }
 
         if(!permissionService.canView(entity)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
@@ -171,10 +164,6 @@ public class EntityController {
     ) throws AccessDeniedException {
         Entity entity = entityService.findEntityById(id);
 
-        if(entity == null) {
-            throw new EntityNotFoundException("No entity with id " + id + " exists!");
-        }
-
         if(!permissionService.canView(entity)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
@@ -187,10 +176,6 @@ public class EntityController {
             @PathVariable(value="id") int id
     ) throws AccessDeniedException {
         Entity entity = entityService.findEntityById(id);
-
-        if(entity == null) {
-            throw new EntityNotFoundException("No entity with id " + id + " exists!");
-        }
 
         if(!permissionService.canView(entity)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
