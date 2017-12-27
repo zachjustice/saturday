@@ -11,6 +11,8 @@ import saturday.domain.Topic;
 import saturday.exceptions.ProcessingResourceException;
 import saturday.repositories.TopicRepository;
 
+import java.util.List;
+
 @Service("topicService")
 public class TopicServiceImpl implements TopicService {
 
@@ -29,19 +31,25 @@ public class TopicServiceImpl implements TopicService {
         this.entityService = entityService;
     }
 
+    /**
+     * Find topics with a matching name
+     * @param name The name to search by
+     * @return List of topics
+     * @throws ProcessingResourceException if the string is empty
+     */
     @Override
-    public Topic findTopicByName(String name) throws ProcessingResourceException {
+    public List<Topic> findTopicByName(String name) throws ProcessingResourceException {
         if (StringUtils.isEmpty(name)) {
             throw new ProcessingResourceException("Search by topic name with an empty string.");
         }
 
-        Topic topic = topicRepository.findByName(name);
+        List<Topic> topics = topicRepository.findByName(name);
 
-        if(topic == null) {
+        if(topics == null) {
             throw new ResourceNotFoundException("No topic with name " + name + " exists!");
         }
 
-        return topic;
+        return topics;
     }
 
     @Override

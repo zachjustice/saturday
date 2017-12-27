@@ -13,6 +13,7 @@ import saturday.exceptions.ProcessingResourceException;
 import saturday.services.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by zachjustice on 7/27/17.
@@ -47,14 +48,12 @@ public class TopicController {
     }
 
     @RequestMapping(value = "/topics", method = RequestMethod.GET)
-    public ResponseEntity<Topic> findTopicByName(@RequestParam(value = "name") String name) throws ProcessingResourceException, AccessDeniedException {
-        Topic topic = topicService.findTopicByName(name);
+    public ResponseEntity<List<Topic>> findTopicByName(@RequestParam(value = "name") String name) throws ProcessingResourceException, AccessDeniedException {
+        List<Topic> topics = topicService.findTopicByName(name);
 
-        if(!permissionService.canView(topic)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions");
-        }
+        topics = topics.stream().filter(permissionService::canView).collect(Collectors.toList());
 
-        return new ResponseEntity<>(topic, HttpStatus.OK);
+        return new ResponseEntity<>(topics, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/topics/{id}", method = RequestMethod.GET)
