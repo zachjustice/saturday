@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import saturday.exceptions.AccessDeniedException;
-import saturday.exceptions.ProcessingResourceException;
+import saturday.exceptions.BusinessLogicException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +31,7 @@ public class ErrorController extends ResponseEntityExceptionHandler {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(ProcessingResourceException.class)
+    @ExceptionHandler(BusinessLogicException.class)
     public Map<String, String> handleBadRequestException(Exception e) {
         return getErrorResponse(e);
     }

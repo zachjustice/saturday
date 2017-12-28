@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicMember;
+import saturday.domain.TopicMemberStatus;
 
 import java.util.List;
 
@@ -13,4 +14,5 @@ public interface TopicMemberRepository extends JpaRepository<TopicMember, Intege
     List<TopicMember> findByTopicId(int id);
     TopicMember findById(int id);
     TopicMember findByEntityAndTopic(Entity entity, Topic topic);
+    TopicMember findByEntityAndTopicAndStatus(Entity entity, Topic topic, TopicMemberStatus status);
 }

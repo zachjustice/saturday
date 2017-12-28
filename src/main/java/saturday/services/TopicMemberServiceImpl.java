@@ -1,11 +1,14 @@
 package saturday.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicMember;
-import saturday.exceptions.ProcessingResourceException;
+import saturday.domain.TopicMemberStatus;
+import saturday.exceptions.BusinessLogicException;
 import saturday.repositories.TopicMemberRepository;
 
 import java.util.List;
@@ -14,26 +17,94 @@ import java.util.List;
 public class TopicMemberServiceImpl implements TopicMemberService {
     private final TopicMemberRepository topicMemberRepository;
     private final EntityService entityService;
-    private final TopicService topicService;
-    private final TopicInviteService topicInviteService;
+
+    @Value("${saturday.topic.invite.status.pending}")
+    private int TOPIC_MEMBER_STATUS_PENDING;
 
     @Autowired
-    TopicMemberServiceImpl(TopicMemberRepository topicMemberRepository, EntityService entityService, TopicService topicService, TopicInviteService topicInviteService) {
+    TopicMemberServiceImpl(TopicMemberRepository topicMemberRepository, EntityService entityService) {
         this.topicMemberRepository = topicMemberRepository;
         this.entityService = entityService;
-        this.topicService = topicService;
-        this.topicInviteService = topicInviteService;
     }
 
+    /**
+     * Topic members can send requests to other users.
+     * @param topicMember the new topic member with an initial status of pending
+     * @return The created topic member
+     * @throws BusinessLogicException If the topicMember.topic topicMember.entity is null or if the topic member already
+     *      exists
+     */
     @Override
-    public TopicMember save(TopicMember topicMember) throws ProcessingResourceException {
+    public TopicMember save(TopicMember topicMember) throws BusinessLogicException {
+
+        if(topicMember.getTopic() == null) {
+            throw new BusinessLogicException("Failed to create topic member. Null topic.");
+        }
+
+        if(topicMember.getEntity() == null) {
+            throw new BusinessLogicException("Failed to create topic member. Null entity.");
+        }
+
         // check if the invitee is already a topic member
         TopicMember existingTopicMember = topicMemberRepository.findByEntityAndTopic(topicMember.getEntity(), topicMember.getTopic());
         if (existingTopicMember != null) {
-            throw new ProcessingResourceException("Entity is already a member of this topic.");
+            return existingTopicMember;
+        }
+
+        // set status of new topic members to pending
+        TopicMemberStatus pendingStatus = new TopicMemberStatus();
+        pendingStatus.setId(TOPIC_MEMBER_STATUS_PENDING);
+
+        topicMember.setStatus(pendingStatus);
+
+        // The default value for the creator of a topic member is the current user
+        // unless an admin set a creator
+        Entity currentEntity = entityService.getAuthenticatedEntity();
+        if(currentEntity.isAdmin() && topicMember.getCreator() != null) {
+            topicMember.setCreator(topicMember.getCreator());
+        } else {
+            topicMember.setCreator(currentEntity);
         }
 
         return topicMemberRepository.save(topicMember);
+    }
+
+    /**
+     * The inviter or invitee can update the topic member request to have the invitee join/leave/whatever the topic.
+     * @param oldTopicMember The old topic member. We pass fields from the new topic member to the old one
+     * @param newTopicMember The new topic member with the updated fields
+     * @return The updated topic member
+     * @throws BusinessLogicException If required fields on the topic member arguments are null
+     */
+    @Override
+    public TopicMember update(TopicMember oldTopicMember, TopicMember newTopicMember) throws BusinessLogicException {
+
+        if(oldTopicMember.getStatus() == null) {
+            throw new BusinessLogicException("Failed to modify topic member. Null topic member status.");
+        }
+
+        if(newTopicMember.getStatus() == null) {
+            throw new BusinessLogicException("Failed to modify topic member. Null topic member status.");
+        }
+
+        if(oldTopicMember.getCreator() == null) {
+            throw new BusinessLogicException("Failed to modify topic member. Null creator.");
+        }
+
+        if(oldTopicMember.getEntity() == null) {
+            throw new BusinessLogicException("Failed to modify topic member. Null topic member entity.");
+        }
+
+        Entity currentEntity = entityService.getAuthenticatedEntity();
+        oldTopicMember.setStatus(newTopicMember.getStatus());
+
+        if(currentEntity.isAdmin() && newTopicMember.getModifier() != null) {
+            oldTopicMember.setModifier(newTopicMember.getModifier());
+        } else {
+            oldTopicMember.setModifier(currentEntity);
+        }
+
+        return topicMemberRepository.save(oldTopicMember);
     }
 
     @Override
@@ -43,7 +114,12 @@ public class TopicMemberServiceImpl implements TopicMemberService {
 
     @Override
     public TopicMember findById(int id) {
-        return topicMemberRepository.findById(id);
+        TopicMember topicMember =  topicMemberRepository.findById(id);
+        if(topicMember == null) {
+            throw new ResourceNotFoundException("No topic member with an id " + id + " exists!");
+        }
+
+        return topicMember;
     }
 
     @Override
@@ -54,5 +130,10 @@ public class TopicMemberServiceImpl implements TopicMemberService {
     @Override
     public TopicMember findByEntityAndTopic(Entity entity, Topic topic) {
         return topicMemberRepository.findByEntityAndTopic(entity, topic);
+    }
+
+    @Override
+    public TopicMember findByEntityAndTopicAndStatus(Entity entity, Topic topic, TopicMemberStatus status) {
+        return topicMemberRepository.findByEntityAndTopicAndStatus(entity, topic, status);
     }
 }

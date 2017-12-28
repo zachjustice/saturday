@@ -9,7 +9,7 @@ import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicContent;
 import saturday.domain.TopicContentRequest;
-import saturday.exceptions.ProcessingResourceException;
+import saturday.exceptions.BusinessLogicException;
 import saturday.repositories.TopicContentRepository;
 
 import java.io.ByteArrayInputStream;
@@ -85,7 +85,7 @@ public class TopicContentServiceImpl implements TopicContentService {
     }
 
     @Override
-    public TopicContent save(TopicContentRequest topicContentRequest) throws IOException, ProcessingResourceException {
+    public TopicContent save(TopicContentRequest topicContentRequest) throws IOException, BusinessLogicException {
         int topicId = topicContentRequest.getTopicId();
         int creatorId = topicContentRequest.getCreatorId();
         String description = topicContentRequest.getDescription();
@@ -109,7 +109,7 @@ public class TopicContentServiceImpl implements TopicContentService {
 
         // Description can be null, but otherwise there's a length limit
         if(description != null && description.length() > 4000) {
-            throw new ProcessingResourceException("Topic Content Description cannot be more than 4000 characters");
+            throw new BusinessLogicException("Topic Content Description cannot be more than 4000 characters");
         }
 
         // date taken associates the topic content with a particular calendar view for the user

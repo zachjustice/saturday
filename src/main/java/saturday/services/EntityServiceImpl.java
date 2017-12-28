@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import saturday.domain.Entity;
 import saturday.domain.Role;
-import saturday.exceptions.ProcessingResourceException;
+import saturday.exceptions.BusinessLogicException;
 import saturday.repositories.EntityRepository;
 import saturday.repositories.RoleRepository;
 
@@ -43,9 +43,9 @@ public class EntityServiceImpl implements EntityService {
      * @return The entity with this email
      */
     @Override
-    public Entity findEntityByEmail(String email) throws ProcessingResourceException {
+    public Entity findEntityByEmail(String email) throws BusinessLogicException {
         if(StringUtils.isEmpty(email)) {
-            throw new ProcessingResourceException("Empty email used while trying to find users by their email");
+            throw new BusinessLogicException("Empty email used while trying to find users by their email");
         }
 
         return entityRepository.findByEmail(email);
@@ -61,13 +61,13 @@ public class EntityServiceImpl implements EntityService {
         return entity;
     }
 
-    public Entity updateEntity(Entity currEntity, Entity updatedEntity) throws ProcessingResourceException {
+    public Entity updateEntity(Entity currEntity, Entity updatedEntity) throws BusinessLogicException {
         if(currEntity == null || updatedEntity == null) {
-            throw new ProcessingResourceException("Null entity argument while update entity.");
+            throw new BusinessLogicException("Null entity argument while update entity.");
         }
 
         if(updatedEntity.getId() != currEntity.getId()) {
-            throw new ProcessingResourceException("Updated entity's id does not match current entity's id.");
+            throw new BusinessLogicException("Updated entity's id does not match current entity's id.");
         }
 
         // only users to change select fields on their entity
@@ -101,23 +101,23 @@ public class EntityServiceImpl implements EntityService {
         return entityRepository.save(currEntity);
     }
 
-    public Entity saveEntity(Entity entity) throws ProcessingResourceException {
+    public Entity saveEntity(Entity entity) throws BusinessLogicException {
         Entity entityWithSameEmail = findEntityByEmail(entity.getEmail());
 
         if(entityWithSameEmail != null) {
-            throw new ProcessingResourceException("An entity with the email '" + entity.getEmail() + "' already exists.");
+            throw new BusinessLogicException("An entity with the email '" + entity.getEmail() + "' already exists.");
         }
 
         if(StringUtils.isEmpty(entity.getPassword()) || entity.getPassword().length() < 8) {
-            throw new ProcessingResourceException("Password must be at least 8 characters.");
+            throw new BusinessLogicException("Password must be at least 8 characters.");
         }
 
         if(StringUtils.isEmpty(entity.getEmail())) {
-            throw new ProcessingResourceException("Email cannot be empty.");
+            throw new BusinessLogicException("Email cannot be empty.");
         }
 
         if(StringUtils.isEmpty(entity.getName())) {
-            throw new ProcessingResourceException("Name cannot be empty.");
+            throw new BusinessLogicException("Name cannot be empty.");
         }
 
         entity.setPassword(bCryptPasswordEncoder.encode(entity.getPassword()));
@@ -137,7 +137,7 @@ public class EntityServiceImpl implements EntityService {
 
         try {
             authenticatedEntity = findEntityByEmail(email);
-        } catch (ProcessingResourceException e) {
+        } catch (BusinessLogicException e) {
             throw new RequestRejectedException("Could not retrieve entity by email for the authenticated entity. " +
                     "The email for the authenticated entity might be null");
         } catch (EmptyResultDataAccessException ex) {

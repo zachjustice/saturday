@@ -11,11 +11,13 @@ import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicContent;
-import saturday.domain.TopicInvite;
 import saturday.exceptions.AccessDeniedException;
+import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.EntityExistsException;
-import saturday.exceptions.ProcessingResourceException;
-import saturday.services.*;
+import saturday.services.EntityServiceImpl;
+import saturday.services.PermissionService;
+import saturday.services.S3Service;
+import saturday.services.TopicContentService;
 import saturday.utils.TokenAuthenticationUtils;
 
 import javax.servlet.http.HttpServletResponse;
@@ -31,7 +33,6 @@ public class EntityController {
 
     private final EntityServiceImpl entityService;
     private final TopicContentService topicContentService;
-    private final TopicInviteService topicInviteService;
     private final PermissionService permissionService;
     private final S3Service s3Service;
 
@@ -45,16 +46,15 @@ public class EntityController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    public EntityController(EntityServiceImpl entityService, TopicContentService topicContentService, TopicInviteService topicInviteService, PermissionService permissionService, S3Service s3Service) {
+    public EntityController(EntityServiceImpl entityService, TopicContentService topicContentService, PermissionService permissionService, S3Service s3Service) {
         this.entityService = entityService;
         this.topicContentService = topicContentService;
-        this.topicInviteService = topicInviteService;
         this.permissionService = permissionService;
         this.s3Service = s3Service;
     }
 
     @RequestMapping(value = "/entities", method = RequestMethod.GET)
-    public ResponseEntity<Entity> findEntityByEmail(@RequestParam(value="email") String email) throws ProcessingResourceException {
+    public ResponseEntity<Entity> findEntityByEmail(@RequestParam(value="email") String email) throws BusinessLogicException {
 
         Entity entity = entityService.findEntityByEmail(email);
 
@@ -84,7 +84,7 @@ public class EntityController {
     public ResponseEntity<Entity> saveEntity(
             @PathVariable(value="id") int id,
             @RequestBody Entity updatedEntity
-    ) throws ProcessingResourceException, AccessDeniedException {
+    ) throws BusinessLogicException, AccessDeniedException {
 
         Entity currEntity = entityService.findEntityById(updatedEntity.getId());
 
@@ -99,7 +99,7 @@ public class EntityController {
     @RequestMapping(value = "/entities/{id}/profile_picture", method = RequestMethod.POST, consumes = "multipart/form-data")
     public ResponseEntity<Entity> uploadProfilePicture(
             @PathVariable(value="id") int id,
-            @RequestParam("picture") MultipartFile picture) throws EntityExistsException, IOException, ProcessingResourceException, AccessDeniedException {
+            @RequestParam("picture") MultipartFile picture) throws EntityExistsException, IOException, BusinessLogicException, AccessDeniedException {
 
         Entity entity = entityService.findEntityById(id);
 
@@ -116,13 +116,13 @@ public class EntityController {
         s3Service.upload(picture, uploadKey);
 
         entity.setPictureUrl(fileUrl);
-        entityService.saveEntity(entity);
+        entityService.updateEntity(entity, entity);// do this better especially
 
         return new ResponseEntity<>(entity, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public ResponseEntity<Entity> createEntity(HttpServletResponse response, @RequestBody Entity entity) throws EntityExistsException, ProcessingResourceException {
+    public ResponseEntity<Entity> createEntity(HttpServletResponse response, @RequestBody Entity entity) throws EntityExistsException, BusinessLogicException {
         logger.info("Registered Entity: " + entity.toString());
 
         // TODO validate fields before saving
@@ -133,29 +133,6 @@ public class EntityController {
         entity.setToken(token);
 
         return new ResponseEntity<>(entity, HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/entities/{id}/topic_invites", method = RequestMethod.GET)
-    public ResponseEntity<List<TopicInvite>> getEntityReceivedTopicInvites(
-            @PathVariable(value="id") int id,
-            @RequestParam(value="getReceived", required = false) Boolean getReceived
-    ) throws AccessDeniedException {
-        Entity entity = entityService.findEntityById(id);
-
-        if(!permissionService.canView(entity)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
-        }
-
-        List<TopicInvite> topicInvites;
-        if(getReceived == null) {
-            topicInvites = topicInviteService.findTopicInvitesByInviteeOrInviter(entity);
-        } else if(getReceived) {
-            topicInvites = topicInviteService.findTopicInvitesByInvitee(entity);
-        } else {
-            topicInvites = topicInviteService.findTopicInvitesByInviter(entity);
-        }
-
-        return new ResponseEntity<>(topicInvites, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/entities/{id}/topics", method = RequestMethod.GET)

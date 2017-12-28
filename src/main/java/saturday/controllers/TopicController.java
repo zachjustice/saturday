@@ -9,11 +9,11 @@ import saturday.domain.Topic;
 import saturday.domain.TopicContent;
 import saturday.domain.TopicMember;
 import saturday.exceptions.AccessDeniedException;
-import saturday.exceptions.ProcessingResourceException;
+import saturday.exceptions.BusinessLogicException;
 import saturday.services.*;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by zachjustice on 7/27/17.
@@ -38,26 +38,33 @@ public class TopicController {
     }
 
     @RequestMapping(value = "/topics", method = RequestMethod.POST)
-    public ResponseEntity<Topic> createTopic(@RequestBody Topic topic) throws ProcessingResourceException {
+    public ResponseEntity<Topic> createTopic(@RequestBody Topic topic) throws BusinessLogicException {
 
         // TODO constraints around topics created per minute, max amount of topics per week / month?
         //      similar to how aws api gateway does rate limiting?
         topic = topicService.saveTopic(topic);
+        // TODO add creator as sole member
 
         return new ResponseEntity<>(topic, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/topics", method = RequestMethod.GET)
-    public ResponseEntity<List<Topic>> findTopicByName(@RequestParam(value = "name") String name) throws ProcessingResourceException, AccessDeniedException {
-        List<Topic> topics = topicService.findTopicByName(name);
+    public ResponseEntity<List<Topic>> findTopicByName(@RequestParam(value = "name") String name) throws BusinessLogicException {
+        List<Topic> matchingTopics = topicService.findTopicByName(name);
+        List<Topic> topics = new ArrayList<>(matchingTopics.size());
 
-        topics = topics.stream().filter(permissionService::canView).collect(Collectors.toList());
+        // for topic search by name make sure only permissable topics are shown
+        for (Topic topic : matchingTopics) {
+            if (permissionService.canView(topic)) {
+                topics.add(topic);
+            }
+        }
 
         return new ResponseEntity<>(topics, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/topics/{id}", method = RequestMethod.GET)
-    public ResponseEntity<Topic> getTopic(@PathVariable(value = "id") int id) throws AccessDeniedException {
+    public ResponseEntity<Topic> getTopic(@PathVariable(value = "id") int id) throws AccessDeniedException, BusinessLogicException {
         Topic topic = topicService.findTopicById(id);
 
         if(!permissionService.canView(topic)) {
@@ -72,7 +79,7 @@ public class TopicController {
     public ResponseEntity<Topic> saveTopic(
             @PathVariable(value = "id") int id,
             @RequestBody Topic topic
-    ) throws ProcessingResourceException, AccessDeniedException {
+    ) throws BusinessLogicException, AccessDeniedException {
         topic = topicService.findTopicById(topic.getId());
 
         if(!permissionService.canModify(topic)) {
@@ -84,7 +91,7 @@ public class TopicController {
     }
 
     @RequestMapping(value = "/topics/{id}/topic_content", method = RequestMethod.GET)
-    public ResponseEntity<List<TopicContent>> getTopicContentByTopic(@PathVariable(value = "id") int id) throws AccessDeniedException {
+    public ResponseEntity<List<TopicContent>> getTopicContentByTopic(@PathVariable(value = "id") int id) throws AccessDeniedException, BusinessLogicException {
         Topic topic = topicService.findTopicById(id);
 
         if(!permissionService.canView(topic)) {
@@ -96,7 +103,7 @@ public class TopicController {
     }
 
     @RequestMapping(value = "topics/{id}/topic_members", method = RequestMethod.GET)
-    public ResponseEntity<List<TopicMember>> getTopicTopicMember(@PathVariable(value = "id") int id) throws AccessDeniedException {
+    public ResponseEntity<List<TopicMember>> getTopicTopicMember(@PathVariable(value = "id") int id) throws AccessDeniedException, BusinessLogicException {
         Topic topic = topicService.findTopicById(id);
 
         if (!permissionService.canView(topic)) {

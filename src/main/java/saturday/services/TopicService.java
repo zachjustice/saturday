@@ -1,7 +1,7 @@
 package saturday.services;
 
 import saturday.domain.Topic;
-import saturday.exceptions.ProcessingResourceException;
+import saturday.exceptions.BusinessLogicException;
 
 import java.util.List;
 
@@ -9,10 +9,10 @@ import java.util.List;
  * Created by zachjustice on 7/26/17.
  */
 public interface TopicService {
-    List<Topic> findTopicByName(String name) throws ProcessingResourceException;
+    List<Topic> findTopicByName(String name) throws BusinessLogicException;
     Topic findTopicById(int id);
 
-    Topic saveTopic(Topic topic) throws ProcessingResourceException;
+    Topic saveTopic(Topic topic) throws BusinessLogicException;
 
     void delete(Topic topic);
 }

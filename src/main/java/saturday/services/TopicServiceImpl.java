@@ -8,7 +8,7 @@ import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import saturday.domain.Topic;
-import saturday.exceptions.ProcessingResourceException;
+import saturday.exceptions.BusinessLogicException;
 import saturday.repositories.TopicRepository;
 
 import java.util.List;
@@ -35,12 +35,12 @@ public class TopicServiceImpl implements TopicService {
      * Find topics with a matching name
      * @param name The name to search by
      * @return List of topics
-     * @throws ProcessingResourceException if the string is empty
+     * @throws BusinessLogicException if the string is empty
      */
     @Override
-    public List<Topic> findTopicByName(String name) throws ProcessingResourceException {
+    public List<Topic> findTopicByName(String name) throws BusinessLogicException {
         if (StringUtils.isEmpty(name)) {
-            throw new ProcessingResourceException("Search by topic name with an empty string.");
+            throw new BusinessLogicException("Search by topic name with an empty string.");
         }
 
         List<Topic> topics = topicRepository.findByName(name);
@@ -64,14 +64,14 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public Topic saveTopic(Topic topic) throws ProcessingResourceException {
+    public Topic saveTopic(Topic topic) throws BusinessLogicException {
 
         if(StringUtils.isEmpty(topic.getName()) || topic.getName().length() > TOPIC_NAME_MAX_LENGTH) {
-            throw new ProcessingResourceException("Invalid topic name. Topic name must exist and be less than " + TOPIC_NAME_MAX_LENGTH + " characters.");
+            throw new BusinessLogicException("Invalid topic name. Topic name must exist and be less than " + TOPIC_NAME_MAX_LENGTH + " characters.");
         }
 
         if(topic.getDescription() != null && topic.getDescription().length() > TOPIC_DESCRIPTION_MAX_LENGTH) {
-            throw new ProcessingResourceException("Invalid topic description. Topic description must be less than " + TOPIC_DESCRIPTION_MAX_LENGTH + " characters.");
+            throw new BusinessLogicException("Invalid topic description. Topic description must be less than " + TOPIC_DESCRIPTION_MAX_LENGTH + " characters.");
         }
 
         topic.setCreator(entityService.getAuthenticatedEntity());

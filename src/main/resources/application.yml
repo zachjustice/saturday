@@ -49,3 +49,5 @@ saturday:
         pending: 1
         rejected: 2
         accepted: 3
+        rescinded: 4
+        left_topic: 5

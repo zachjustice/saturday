@@ -1,9 +1,7 @@
 package saturday.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -17,12 +15,24 @@ public class TopicMember {
     private int id;
 
     @ManyToOne
-    @JoinColumn(name="entity_id", referencedColumnName = "id", nullable=false)
+    @JoinColumn(name="entity_id", referencedColumnName = "id", nullable=false, updatable = false)
     private Entity entity;
 
     @ManyToOne
-    @JoinColumn(name="topic_id", referencedColumnName = "id", nullable=false)
+    @JoinColumn(name="topic_id", referencedColumnName = "id", nullable=false, updatable = false)
     private Topic topic;
+
+    @ManyToOne
+    @JoinColumn(name="status_id", referencedColumnName = "id", nullable = false)
+    private TopicMemberStatus status;
+
+    @ManyToOne
+    @JoinColumn(name="creator_id", referencedColumnName = "id", nullable=false, updatable = false)
+    private Entity creator;
+
+    @ManyToOne
+    @JoinColumn(name="modifier_id", referencedColumnName = "id", nullable=false)
+    private Entity modifier;
 
     @Column(name = "created", insertable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -83,5 +93,29 @@ public class TopicMember {
                 ", created=" + created +
                 ", modified=" + modified +
                 '}';
+    }
+
+    public TopicMemberStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(TopicMemberStatus status) {
+        this.status = status;
+    }
+
+    public Entity getCreator() {
+        return creator;
+    }
+
+    public void setCreator(Entity creator) {
+        this.creator = creator;
+    }
+
+    public Entity getModifier() {
+        return modifier;
+    }
+
+    public void setModifier(Entity modifier) {
+        this.modifier = modifier;
     }
 }
