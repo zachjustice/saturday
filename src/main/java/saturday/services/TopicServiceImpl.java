@@ -4,11 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import saturday.domain.Topic;
 import saturday.exceptions.BusinessLogicException;
+import saturday.exceptions.ResourceNotFoundException;
 import saturday.repositories.TopicRepository;
 
 import java.util.List;
@@ -38,7 +38,7 @@ public class TopicServiceImpl implements TopicService {
      * @throws BusinessLogicException if the string is empty
      */
     @Override
-    public List<Topic> findTopicByName(String name) throws BusinessLogicException {
+    public List<Topic> findTopicByName(String name) throws BusinessLogicException, ResourceNotFoundException {
         if (StringUtils.isEmpty(name)) {
             throw new BusinessLogicException("Search by topic name with an empty string.");
         }
@@ -53,7 +53,7 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public Topic findTopicById(int id) {
+    public Topic findTopicById(int id) throws ResourceNotFoundException {
         Topic topic = topicRepository.findById(id);
 
         if(topic == null) {

@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.firewall.RequestRejectedException;
@@ -13,6 +12,7 @@ import org.springframework.util.StringUtils;
 import saturday.domain.Entity;
 import saturday.domain.Role;
 import saturday.exceptions.BusinessLogicException;
+import saturday.exceptions.ResourceNotFoundException;
 import saturday.repositories.EntityRepository;
 import saturday.repositories.RoleRepository;
 
@@ -51,7 +51,7 @@ public class EntityServiceImpl implements EntityService {
         return entityRepository.findByEmail(email);
     }
 
-    public Entity findEntityById(int id) {
+    public Entity findEntityById(int id) throws ResourceNotFoundException {
         Entity entity = entityRepository.findById(id);
 
         if(entity == null) {

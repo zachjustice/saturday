@@ -14,6 +14,7 @@ import saturday.domain.TopicContent;
 import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.EntityExistsException;
+import saturday.exceptions.ResourceNotFoundException;
 import saturday.services.EntityServiceImpl;
 import saturday.services.PermissionService;
 import saturday.services.S3Service;
@@ -70,7 +71,7 @@ public class EntityController {
     }
 
     @RequestMapping(value = "/entities/{id}", method = RequestMethod.GET)
-    public ResponseEntity<Entity> getEntity(@PathVariable(value="id") int id) {
+    public ResponseEntity<Entity> getEntity(@PathVariable(value="id") int id) throws ResourceNotFoundException {
         Entity entity = entityService.findEntityById(id);
 
         // TODO better way to do this
@@ -84,7 +85,7 @@ public class EntityController {
     public ResponseEntity<Entity> saveEntity(
             @PathVariable(value="id") int id,
             @RequestBody Entity updatedEntity
-    ) throws BusinessLogicException, AccessDeniedException {
+    ) throws BusinessLogicException, AccessDeniedException, ResourceNotFoundException {
 
         Entity currEntity = entityService.findEntityById(updatedEntity.getId());
 
@@ -99,7 +100,7 @@ public class EntityController {
     @RequestMapping(value = "/entities/{id}/profile_picture", method = RequestMethod.POST, consumes = "multipart/form-data")
     public ResponseEntity<Entity> uploadProfilePicture(
             @PathVariable(value="id") int id,
-            @RequestParam("picture") MultipartFile picture) throws EntityExistsException, IOException, BusinessLogicException, AccessDeniedException {
+            @RequestParam("picture") MultipartFile picture) throws ResourceNotFoundException, IOException, BusinessLogicException, AccessDeniedException {
 
         Entity entity = entityService.findEntityById(id);
 
@@ -138,7 +139,7 @@ public class EntityController {
     @RequestMapping(value = "/entities/{id}/topics", method = RequestMethod.GET)
     public ResponseEntity<List<Topic>> getEntityTopics(
             @PathVariable(value="id") int id
-    ) throws AccessDeniedException {
+    ) throws AccessDeniedException, ResourceNotFoundException {
         Entity entity = entityService.findEntityById(id);
 
         if(!permissionService.canView(entity)) {
@@ -151,7 +152,7 @@ public class EntityController {
     @RequestMapping(value = "/entities/{id}/topic_content", method = RequestMethod.GET)
     public ResponseEntity<List<TopicContent>> getEntityTopicContent(
             @PathVariable(value="id") int id
-    ) throws AccessDeniedException {
+    ) throws AccessDeniedException, ResourceNotFoundException {
         Entity entity = entityService.findEntityById(id);
 
         if(!permissionService.canView(entity)) {

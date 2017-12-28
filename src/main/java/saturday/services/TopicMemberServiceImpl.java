@@ -2,13 +2,13 @@ package saturday.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicMember;
 import saturday.domain.TopicMemberStatus;
 import saturday.exceptions.BusinessLogicException;
+import saturday.exceptions.ResourceNotFoundException;
 import saturday.repositories.TopicMemberRepository;
 
 import java.util.List;
@@ -102,7 +102,7 @@ public class TopicMemberServiceImpl implements TopicMemberService {
     }
 
     @Override
-    public TopicMember findById(int id) {
+    public TopicMember findById(int id) throws ResourceNotFoundException {
         TopicMember topicMember =  topicMemberRepository.findById(id);
         if(topicMember == null) {
             throw new ResourceNotFoundException("No topic member with an id " + id + " exists!");

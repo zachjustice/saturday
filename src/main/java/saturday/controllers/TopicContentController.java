@@ -10,6 +10,7 @@ import saturday.domain.TopicContent;
 import saturday.domain.TopicContentRequest;
 import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.BusinessLogicException;
+import saturday.exceptions.ResourceNotFoundException;
 import saturday.services.PermissionService;
 import saturday.services.TopicContentService;
 
@@ -34,7 +35,7 @@ public class TopicContentController {
     @ResponseBody
     public ResponseEntity<TopicContent> createTopicContent(
             @RequestBody TopicContentRequest topicContentRequest
-    ) throws IOException, BusinessLogicException, AccessDeniedException {
+    ) throws IOException, BusinessLogicException, AccessDeniedException, ResourceNotFoundException {
 
         if(!permissionService.canCreate(topicContentRequest)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
@@ -54,7 +55,7 @@ public class TopicContentController {
             @RequestParam("description") String        description,
             @RequestParam("dateTaken")   String        dateTaken,
             @RequestParam("file")        MultipartFile file
-    ) throws IOException, BusinessLogicException, AccessDeniedException {
+    ) throws IOException, BusinessLogicException, AccessDeniedException, ResourceNotFoundException {
 
         Calendar calDateTaken = javax.xml.bind.DatatypeConverter.parseDateTime(dateTaken);
         Date date = calDateTaken.getTime();
@@ -76,7 +77,7 @@ public class TopicContentController {
     }
 
     @RequestMapping(value = "/topic_content/{id}", method = RequestMethod.GET)
-    public ResponseEntity<TopicContent> findTopicByName(@PathVariable(value="id") int id) throws BusinessLogicException, AccessDeniedException {
+    public ResponseEntity<TopicContent> findTopicByName(@PathVariable(value="id") int id) throws BusinessLogicException, AccessDeniedException, ResourceNotFoundException {
 
         TopicContent topicContent = topicContentService.findTopicContentById(id);
 
@@ -91,7 +92,7 @@ public class TopicContentController {
     public ResponseEntity<TopicContent> update(
             @PathVariable(value="id") int id,
             @RequestBody TopicContent newTopicContent
-    ) throws AccessDeniedException {
+    ) throws AccessDeniedException, ResourceNotFoundException {
         TopicContent topicContent = topicContentService.findTopicContentById(id);
 
         if(!permissionService.canModify(topicContent)) {
@@ -103,9 +104,9 @@ public class TopicContentController {
     }
 
     @RequestMapping(value = "/topic_content/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<String> update(
+    public ResponseEntity<String> delete(
             @PathVariable(value="id") int id
-    ) throws AccessDeniedException {
+    ) throws AccessDeniedException, ResourceNotFoundException {
         TopicContent topicContent = topicContentService.findTopicContentById(id);
         if(!permissionService.canDelete(topicContent)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");

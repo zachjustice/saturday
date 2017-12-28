@@ -2,7 +2,6 @@ package saturday.services;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
@@ -10,6 +9,7 @@ import saturday.domain.Topic;
 import saturday.domain.TopicContent;
 import saturday.domain.TopicContentRequest;
 import saturday.exceptions.BusinessLogicException;
+import saturday.exceptions.ResourceNotFoundException;
 import saturday.repositories.TopicContentRepository;
 
 import java.io.ByteArrayInputStream;
@@ -54,7 +54,7 @@ public class TopicContentServiceImpl implements TopicContentService {
      * @return topic content
      */
     @Override
-    public TopicContent findTopicContentById(int id) {
+    public TopicContent findTopicContentById(int id) throws ResourceNotFoundException {
         TopicContent topicContent = topicContentRepository.findById(id);
 
         if(topicContent == null) {
@@ -70,7 +70,7 @@ public class TopicContentServiceImpl implements TopicContentService {
      * @return all topic content for a topic
      */
     @Override
-    public List<TopicContent> findTopicContentByTopicId(int id) {
+    public List<TopicContent> findTopicContentByTopicId(int id) throws ResourceNotFoundException {
         topicService.findTopicById(id); // throws Resource Not Found Exception
         return  topicContentRepository.findByTopicId(id);
     }
@@ -85,7 +85,7 @@ public class TopicContentServiceImpl implements TopicContentService {
     }
 
     @Override
-    public TopicContent save(TopicContentRequest topicContentRequest) throws IOException, BusinessLogicException {
+    public TopicContent save(TopicContentRequest topicContentRequest) throws IOException, BusinessLogicException, ResourceNotFoundException {
         int topicId = topicContentRequest.getTopicId();
         int creatorId = topicContentRequest.getCreatorId();
         String description = topicContentRequest.getDescription();
@@ -164,11 +164,11 @@ public class TopicContentServiceImpl implements TopicContentService {
 
     /**
      * Get an entity's topic content based on the topics they're a part of.
-     * @param entityId The entity for which to fetch topics content
+     * @param entityId The entity for which to fetch topic content
      * @return A list of the entity's topic content
      */
     @Override
-    public List<TopicContent> findByTopicMember(int entityId) {
+    public List<TopicContent> findByTopicMember(int entityId) throws ResourceNotFoundException {
         entityService.findEntityById(entityId); // throws Resource Not Found Exception
 
         return topicContentRepository.findByTopicMember(entityId);

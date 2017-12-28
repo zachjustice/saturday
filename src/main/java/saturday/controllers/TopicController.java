@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import saturday.domain.*;
 import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.BusinessLogicException;
+import saturday.exceptions.ResourceNotFoundException;
 import saturday.services.*;
 
 import java.util.ArrayList;
@@ -64,7 +65,7 @@ public class TopicController {
     }
 
     @RequestMapping(value = "/topics", method = RequestMethod.GET)
-    public ResponseEntity<List<Topic>> findTopicByName(@RequestParam(value = "name") String name) throws BusinessLogicException {
+    public ResponseEntity<List<Topic>> findTopicByName(@RequestParam(value = "name") String name) throws BusinessLogicException, ResourceNotFoundException {
         List<Topic> matchingTopics = topicService.findTopicByName(name);
         List<Topic> topics = new ArrayList<>(matchingTopics.size());
 
@@ -79,7 +80,7 @@ public class TopicController {
     }
 
     @RequestMapping(value = "/topics/{id}", method = RequestMethod.GET)
-    public ResponseEntity<Topic> getTopic(@PathVariable(value = "id") int id) throws AccessDeniedException, BusinessLogicException {
+    public ResponseEntity<Topic> getTopic(@PathVariable(value = "id") int id) throws AccessDeniedException, BusinessLogicException, ResourceNotFoundException {
         Topic topic = topicService.findTopicById(id);
 
         if(!permissionService.canView(topic)) {
@@ -94,7 +95,7 @@ public class TopicController {
     public ResponseEntity<Topic> saveTopic(
             @PathVariable(value = "id") int id,
             @RequestBody Topic topic
-    ) throws BusinessLogicException, AccessDeniedException {
+    ) throws BusinessLogicException, AccessDeniedException, ResourceNotFoundException {
         topic = topicService.findTopicById(topic.getId());
 
         if(!permissionService.canModify(topic)) {
@@ -106,7 +107,7 @@ public class TopicController {
     }
 
     @RequestMapping(value = "/topics/{id}/topic_content", method = RequestMethod.GET)
-    public ResponseEntity<List<TopicContent>> getTopicContentByTopic(@PathVariable(value = "id") int id) throws AccessDeniedException, BusinessLogicException {
+    public ResponseEntity<List<TopicContent>> getTopicContentByTopic(@PathVariable(value = "id") int id) throws AccessDeniedException, BusinessLogicException, ResourceNotFoundException {
         Topic topic = topicService.findTopicById(id);
 
         if(!permissionService.canView(topic)) {
@@ -118,7 +119,7 @@ public class TopicController {
     }
 
     @RequestMapping(value = "topics/{id}/topic_members", method = RequestMethod.GET)
-    public ResponseEntity<List<TopicMember>> getTopicTopicMember(@PathVariable(value = "id") int id) throws AccessDeniedException, BusinessLogicException {
+    public ResponseEntity<List<TopicMember>> getTopicTopicMember(@PathVariable(value = "id") int id) throws AccessDeniedException, BusinessLogicException, ResourceNotFoundException {
         Topic topic = topicService.findTopicById(id);
 
         if (!permissionService.canView(topic)) {
@@ -130,7 +131,7 @@ public class TopicController {
     }
 
     @RequestMapping(value = "topics/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<Topic> delete(@PathVariable(value = "id") int id) throws AccessDeniedException {
+    public ResponseEntity<Topic> delete(@PathVariable(value = "id") int id) throws AccessDeniedException, ResourceNotFoundException {
         Topic topic = topicService.findTopicById(id);
 
         if (!permissionService.canDelete(topic)) {

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import saturday.domain.TopicMember;
 import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.BusinessLogicException;
+import saturday.exceptions.ResourceNotFoundException;
 import saturday.exceptions.TopicMemberNotFoundException;
 import saturday.services.EntityService;
 import saturday.services.PermissionService;
@@ -34,7 +35,7 @@ public class TopicMemberController {
     }
 
     @RequestMapping(value = "/topic_members/{id}", method = RequestMethod.GET)
-    public ResponseEntity<TopicMember> getTopicMember(@PathVariable int id) throws TopicMemberNotFoundException, AccessDeniedException, BusinessLogicException {
+    public ResponseEntity<TopicMember> getTopicMember(@PathVariable int id) throws ResourceNotFoundException, AccessDeniedException, BusinessLogicException {
         TopicMember topicMember = this.topicMemberService.findById(id);
 
         if(!permissionService.canView(topicMember)) {
@@ -58,7 +59,7 @@ public class TopicMemberController {
     public ResponseEntity<TopicMember> update(
             @PathVariable(value = "id") int id,
             @RequestBody TopicMember newTopicMember
-    ) throws AccessDeniedException, BusinessLogicException {
+    ) throws AccessDeniedException, BusinessLogicException, ResourceNotFoundException {
         TopicMember oldTopicMember = topicMemberService.findById(newTopicMember.getId());
         if(!permissionService.canModify(oldTopicMember, newTopicMember)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
@@ -69,7 +70,7 @@ public class TopicMemberController {
     }
 
     @RequestMapping(value = "/topic_members/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<TopicMember> delete(@PathVariable(value = "id") int id) throws AccessDeniedException {
+    public ResponseEntity<TopicMember> delete(@PathVariable(value = "id") int id) throws AccessDeniedException, TopicMemberNotFoundException {
 
         // Instead of deleting topic members, move the status to "rescinded" or "left_topic"
         // so we can avoid repeatedly sending invites
