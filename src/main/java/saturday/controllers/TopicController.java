@@ -2,12 +2,11 @@ package saturday.controllers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import saturday.domain.Topic;
-import saturday.domain.TopicContent;
-import saturday.domain.TopicMember;
+import saturday.domain.*;
 import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.BusinessLogicException;
 import saturday.services.*;
@@ -27,6 +26,9 @@ public class TopicController {
     private final TopicContentService topicContentService;
     private final PermissionService permissionService;
 
+    @Value("${saturday.topic.invite.status.accepted}")
+    private int TOPIC_MEMBER_STATUS_ACCEPTED;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public TopicController(TopicMemberService topicMemberService, TopicService topicService, EntityService entityService, TopicContentService topicContentService, PermissionService permissionService) {
@@ -40,10 +42,23 @@ public class TopicController {
     @RequestMapping(value = "/topics", method = RequestMethod.POST)
     public ResponseEntity<Topic> createTopic(@RequestBody Topic topic) throws BusinessLogicException {
 
-        // TODO constraints around topics created per minute, max amount of topics per week / month?
-        //      similar to how aws api gateway does rate limiting?
+        // TODO AWS API Gateway style rate limiting for topics?
+        // Create a topic and set the current user as the only member
         topic = topicService.saveTopic(topic);
-        // TODO add creator as sole member
+
+        Entity currentEntity = entityService.getAuthenticatedEntity();
+
+        // TODO better way to do this
+        TopicMemberStatus acceptedStatus = new TopicMemberStatus();
+        acceptedStatus.setId(TOPIC_MEMBER_STATUS_ACCEPTED);
+
+        TopicMember topicMember = new TopicMember();
+        topicMember.setTopic(topic);
+        topicMember.setCreator(currentEntity);
+        topicMember.setEntity(currentEntity);
+
+        topicMember.setStatus(acceptedStatus);
+        topicMemberService.save(topicMember);
 
         return new ResponseEntity<>(topic, HttpStatus.OK);
     }

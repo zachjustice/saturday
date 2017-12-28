@@ -51,12 +51,6 @@ public class TopicMemberServiceImpl implements TopicMemberService {
             return existingTopicMember;
         }
 
-        // set status of new topic members to pending
-        TopicMemberStatus pendingStatus = new TopicMemberStatus();
-        pendingStatus.setId(TOPIC_MEMBER_STATUS_PENDING);
-
-        topicMember.setStatus(pendingStatus);
-
         // The default value for the creator of a topic member is the current user
         // unless an admin set a creator
         Entity currentEntity = entityService.getAuthenticatedEntity();
@@ -95,14 +89,9 @@ public class TopicMemberServiceImpl implements TopicMemberService {
             throw new BusinessLogicException("Failed to modify topic member. Null topic member entity.");
         }
 
-        Entity currentEntity = entityService.getAuthenticatedEntity();
+        // Status and the modifier are currently the only thing we need to update on topic members
         oldTopicMember.setStatus(newTopicMember.getStatus());
-
-        if(currentEntity.isAdmin() && newTopicMember.getModifier() != null) {
-            oldTopicMember.setModifier(newTopicMember.getModifier());
-        } else {
-            oldTopicMember.setModifier(currentEntity);
-        }
+        oldTopicMember.setModifier(newTopicMember.getModifier());
 
         return topicMemberRepository.save(oldTopicMember);
     }

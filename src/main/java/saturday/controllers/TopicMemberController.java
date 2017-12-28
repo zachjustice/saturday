@@ -56,7 +56,7 @@ public class TopicMemberController {
 
     @RequestMapping(value = "topic_members/{id}", method = RequestMethod.PUT)
     public ResponseEntity<TopicMember> update(
-            @RequestParam int id,
+            @PathVariable(value = "id") int id,
             @RequestBody TopicMember newTopicMember
     ) throws AccessDeniedException, BusinessLogicException {
         TopicMember oldTopicMember = topicMemberService.findById(newTopicMember.getId());

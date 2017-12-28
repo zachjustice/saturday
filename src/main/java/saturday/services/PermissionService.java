@@ -64,7 +64,9 @@ public class PermissionService {
     }
 
     /**
-     * Check if the auth'ed entity can send invites for a topic
+     * Check if the auth'ed entity can send invites for a topic.
+     * Only admins can send invites that are not in pending.
+     * (e.g. normal users can only create topic members in 'pending')
      * TODO only topic moderators
      * @param topicMember The resource to validate
      * @return Whether the user is allowed to create the topic member
@@ -75,7 +77,22 @@ public class PermissionService {
         }
 
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
-        return authenticatedEntity.isAdmin() || isTopicMember(authenticatedEntity, topicMember.getTopic());
+        if(authenticatedEntity.isAdmin()) {
+            return true;
+        }
+
+        // only topic members can send invites
+        if(!isTopicMember(authenticatedEntity, topicMember.getTopic())) {
+            return false;
+        }
+
+        // Normal topic members can only create topic members in pending mode (e.g. its an invite, and they must accept)
+        if(topicMember.getStatus() != null && topicMember.getStatus().getId() != TOPIC_MEMBER_STATUS_PENDING) {
+            return false;
+        } else {
+            return true;
+        }
+
     }
 
     /**
