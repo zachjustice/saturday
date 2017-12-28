@@ -2,6 +2,7 @@ package saturday.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
@@ -97,8 +98,12 @@ public class TopicMemberServiceImpl implements TopicMemberService {
     }
 
     @Override
-    public void delete(int id) {
-        topicMemberRepository.delete(id);
+    public void delete(int id) throws ResourceNotFoundException {
+        try {
+            topicMemberRepository.delete(id);
+        } catch(EmptyResultDataAccessException ex) {
+            throw new ResourceNotFoundException("No topic member with id " + id + " exists!");
+        }
     }
 
     @Override

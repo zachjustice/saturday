@@ -14,7 +14,7 @@ import java.util.List;
  */
 public interface TopicMemberService {
     TopicMember save(TopicMember topicMember) throws BusinessLogicException;
-    void delete(int id);
+    void delete(int id) throws ResourceNotFoundException;
 
     TopicMember findById(int id) throws ResourceNotFoundException;
     List<TopicMember> findByTopicId(int id);

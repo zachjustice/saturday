@@ -13,7 +13,6 @@ import saturday.domain.Topic;
 import saturday.domain.TopicContent;
 import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.BusinessLogicException;
-import saturday.exceptions.EntityExistsException;
 import saturday.exceptions.ResourceNotFoundException;
 import saturday.services.EntityServiceImpl;
 import saturday.services.PermissionService;
@@ -123,7 +122,7 @@ public class EntityController {
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public ResponseEntity<Entity> createEntity(HttpServletResponse response, @RequestBody Entity entity) throws EntityExistsException, BusinessLogicException {
+    public ResponseEntity<Entity> createEntity(HttpServletResponse response, @RequestBody Entity entity) throws BusinessLogicException {
         logger.info("Registered Entity: " + entity.toString());
 
         // TODO validate fields before saving
