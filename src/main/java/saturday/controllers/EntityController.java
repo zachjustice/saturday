@@ -150,7 +150,9 @@ public class EntityController {
 
     @RequestMapping(value = "/entities/{id}/topic_content", method = RequestMethod.GET)
     public ResponseEntity<List<TopicContent>> getEntityTopicContent(
-            @PathVariable(value="id") int id
+            @PathVariable(value="id") int id,
+            @RequestParam(value="page", defaultValue = "0") int page,
+            @RequestParam(value="page_size", defaultValue = "30") int pageSize
     ) throws AccessDeniedException, ResourceNotFoundException {
         Entity entity = entityService.findEntityById(id);
 
@@ -158,7 +160,7 @@ public class EntityController {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
-        List<TopicContent> entityTopicContent = topicContentService.findByTopicMember(id);
+        List<TopicContent> entityTopicContent = topicContentService.findByTopicMember(id, page, pageSize);
 
         return new ResponseEntity<>(entityTopicContent, HttpStatus.OK);
     }

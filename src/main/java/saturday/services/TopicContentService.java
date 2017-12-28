@@ -14,6 +14,6 @@ public interface TopicContentService {
 
     TopicContent save(TopicContentRequest topicContentRequest) throws IOException, BusinessLogicException, ResourceNotFoundException;
     TopicContent updateTopicContent(TopicContent oldTopicContent, TopicContent newTopicContent);
-    List<TopicContent> findByTopicMember(int entityId) throws ResourceNotFoundException;
+    List<TopicContent> findByTopicMember(int id, int offset, int limit) throws ResourceNotFoundException;
     void delete(TopicContent topicContent);
 }

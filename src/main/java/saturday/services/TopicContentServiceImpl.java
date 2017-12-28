@@ -164,14 +164,19 @@ public class TopicContentServiceImpl implements TopicContentService {
 
     /**
      * Get an entity's topic content based on the topics they're a part of.
-     * @param entityId The entity for which to fetch topic content
+     *
+     * @param entityId the entity id for which to query topic content
+     * @param page how far back to start grabbing topic content. (e.g. get the 100th to 150th topic content items)
+     * @param pageSize how much topic content to get
      * @return A list of the entity's topic content
      */
     @Override
-    public List<TopicContent> findByTopicMember(int entityId) throws ResourceNotFoundException {
+    public List<TopicContent> findByTopicMember(int entityId, int page, int pageSize) throws ResourceNotFoundException {
         entityService.findEntityById(entityId); // throws Resource Not Found Exception
 
-        return topicContentRepository.findByTopicMember(entityId);
+        int offset = page * pageSize;
+        int limit = offset + pageSize;
+        return topicContentRepository.findByTopicMember(entityId, offset, limit);
     }
 
     @Override
