@@ -13,7 +13,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import saturday.filters.JWTAuthenticationFilter;
-import saturday.filters.JWTLoginFilter;
 
 import javax.sql.DataSource;
 
@@ -52,16 +51,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.cors().and().csrf().disable().authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/validate_access_token").permitAll()
                 .antMatchers(HttpMethod.POST, "/validate_access_token").permitAll()
-                .antMatchers(HttpMethod.OPTIONS, "/login").permitAll()
-                .antMatchers(HttpMethod.POST, "/login").permitAll()
+                .antMatchers(HttpMethod.OPTIONS, "/access_token").permitAll()
+                .antMatchers(HttpMethod.PUT, "/access_token").permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/register").permitAll()
                 .antMatchers(HttpMethod.POST, "/register").permitAll()
                 .anyRequest().authenticated()
                 .and()
-                //We filter the api/login requests
-                .addFilterBefore(new JWTLoginFilter(HttpMethod.POST,"/login", authenticationManager()),
-                        UsernamePasswordAuthenticationFilter.class)
-                 //And filter other requests to check the presence of JWT in header
+                 // filter requests to validate JWT in header
                 .addFilterBefore(new JWTAuthenticationFilter(),
                         UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement()

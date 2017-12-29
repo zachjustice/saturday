@@ -15,6 +15,7 @@ import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ResourceNotFoundException;
 import saturday.repositories.EntityRepository;
 import saturday.repositories.RoleRepository;
+import saturday.utils.TokenAuthenticationUtils;
 
 import java.util.Collections;
 import java.util.Date;
@@ -62,12 +63,9 @@ public class EntityServiceImpl implements EntityService {
     }
 
     public Entity updateEntity(Entity currEntity, Entity updatedEntity) throws BusinessLogicException {
+
         if(currEntity == null || updatedEntity == null) {
             throw new BusinessLogicException("Null entity argument while update entity.");
-        }
-
-        if(updatedEntity.getId() != currEntity.getId()) {
-            throw new BusinessLogicException("Updated entity's id does not match current entity's id.");
         }
 
         // only users to change select fields on their entity
@@ -76,13 +74,10 @@ public class EntityServiceImpl implements EntityService {
         Date updatedBirthday = updatedEntity.getBirthday();
         String updatedGender = updatedEntity.getGender();
         String updatedPassword = updatedEntity.getPassword();
+        String updatedToken = updatedEntity.getToken();
 
         if(!StringUtils.isEmpty(updatedName)) {
             currEntity.setName(updatedName);
-        }
-
-        if(!StringUtils.isEmpty(updatedEmail)) {
-            currEntity.setEmail(updatedEmail);
         }
 
         if(updatedBirthday != null) {
@@ -93,9 +88,24 @@ public class EntityServiceImpl implements EntityService {
             currEntity.setGender(updatedGender);
         }
 
+        if(!StringUtils.isEmpty(updatedToken)) {
+            // TODO multiple tokens
+            currEntity.setToken(updatedToken);
+        }
+
         if(!StringUtils.isEmpty(updatedPassword)) {
             // TODO email verification
             currEntity.setPassword(bCryptPasswordEncoder.encode(updatedEntity.getPassword()));
+        }
+
+        if(!StringUtils.isEmpty(updatedEmail)) {
+            currEntity.setEmail(updatedEmail);
+
+            // Need a new token if the email was updated
+            if(StringUtils.isEmpty(updatedToken)) {
+                String token = TokenAuthenticationUtils.createToken(updatedEmail);
+                currEntity.setToken(token);
+            }
         }
 
         return entityRepository.save(currEntity);
@@ -120,8 +130,12 @@ public class EntityServiceImpl implements EntityService {
             throw new BusinessLogicException("Name cannot be empty.");
         }
 
-        entity.setPassword(bCryptPasswordEncoder.encode(entity.getPassword()));
+        String token = TokenAuthenticationUtils.createToken(entity.getEmail());
+
+        entity.setToken(token);
         entity.setIsEnabled(true);
+        entity.setPassword(bCryptPasswordEncoder.encode(entity.getPassword()));
+
         Role authorRole = roleRepository.findByRole("USER");
         entity.setRoles(new HashSet<>(Collections.singletonList(authorRole)));
 

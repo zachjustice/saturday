@@ -1,10 +1,11 @@
 package saturday.utils;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 
@@ -25,14 +26,18 @@ public class TokenAuthenticationUtils {
     private static final Logger logger = LoggerFactory.getLogger(TokenAuthenticationUtils.class);
 
     public static String addAuthentication(HttpServletResponse res, String username) {
-        String JWT = Jwts.builder()
+
+        String token = createToken(username);
+        res.addHeader(HEADER_STRING, TOKEN_PREFIX + " " + token);
+        return token;
+    }
+
+    public static String createToken(String username) {
+        return Jwts.builder()
                 .setSubject(username)
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATIONTIME))
                 .signWith(SignatureAlgorithm.HS512, SECRET)
                 .compact();
-
-        res.addHeader(HEADER_STRING, TOKEN_PREFIX + " " + JWT);
-        return JWT;
     }
 
     public static Authentication getAuthentication(HttpServletRequest request) {
@@ -50,7 +55,7 @@ public class TokenAuthenticationUtils {
                     .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
                     .getBody()
                     .getSubject();
-        } catch(ExpiredJwtException ex) {
+        } catch(ExpiredJwtException | MalformedJwtException ex) {
             user = null;
         }
 

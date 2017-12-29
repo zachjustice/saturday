@@ -12,6 +12,9 @@ import java.io.BufferedReader;
  * Created by zachjustice on 7/29/17.
  */
 public class HTTPUtils {
+    private static final String TOKEN_PREFIX = "Bearer";
+    private static final String HEADER_STRING = "Authorization";
+
     public static JsonObject getPostBodyAsJson(HttpServletRequest req) throws Exception {
         StringBuffer jb = new StringBuffer();
         String line;
@@ -34,6 +37,11 @@ public class HTTPUtils {
         }
 
         return returnedJson;
+    }
+
+
+    public static void addAuthenticationHeader(HttpServletResponse response, String token) {
+        response.addHeader(HEADER_STRING, TOKEN_PREFIX + " " + token);
     }
 
     public static HttpServletResponse setCORSHeaders(HttpServletRequest request, HttpServletResponse response) {

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.BusinessLogicException;
+import saturday.exceptions.ProcessingResourceException;
 import saturday.exceptions.ResourceNotFoundException;
 
 import java.util.HashMap;
@@ -31,13 +32,13 @@ public class ErrorController extends ResponseEntityExceptionHandler {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(BusinessLogicException.class)
+    @ExceptionHandler({BusinessLogicException.class, ProcessingResourceException.class})
     public Map<String, String> handleBadRequestException(Exception e) {
         return getErrorResponse(e);
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(Exception.class) // TODO Exceptions should be 500, and explicitly catch 400 errors
+    @ExceptionHandler(Exception.class)
     public Map<String, String> handleException(Exception e) {
         return getErrorResponse(e);
     }

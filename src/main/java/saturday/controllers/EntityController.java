@@ -18,7 +18,7 @@ import saturday.services.EntityServiceImpl;
 import saturday.services.PermissionService;
 import saturday.services.S3Service;
 import saturday.services.TopicContentService;
-import saturday.utils.TokenAuthenticationUtils;
+import saturday.utils.HTTPUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -53,6 +53,36 @@ public class EntityController {
         this.s3Service = s3Service;
     }
 
+    @RequestMapping(value = "/register", method = RequestMethod.POST)
+    public ResponseEntity<Entity> createEntity(HttpServletResponse response, @RequestBody Entity entity) throws BusinessLogicException {
+
+        entity = entityService.saveEntity(entity);
+
+        // Only add token if the preceding was successful to avoid adding Auth headers to errored requests
+        HTTPUtils.addAuthenticationHeader(response, entity.getToken());
+
+        return new ResponseEntity<>(entity, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/entities/{id}", method = RequestMethod.PUT)
+    public ResponseEntity<Entity> saveEntity(
+            HttpServletResponse response,
+            @PathVariable(value="id") int id,
+            @RequestBody Entity updatedEntity
+    ) throws BusinessLogicException, AccessDeniedException, ResourceNotFoundException {
+
+        Entity currEntity = entityService.findEntityById(updatedEntity.getId());
+
+        if(!permissionService.canView(currEntity)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+        }
+
+        currEntity = entityService.updateEntity(currEntity, updatedEntity);
+        HTTPUtils.addAuthenticationHeader(response, currEntity.getToken());
+
+        return new ResponseEntity<>(currEntity, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/entities", method = RequestMethod.GET)
     public ResponseEntity<Entity> findEntityByEmail(@RequestParam(value="email") String email) throws BusinessLogicException {
 
@@ -80,22 +110,6 @@ public class EntityController {
         return new ResponseEntity<>(entity, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/entities/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<Entity> saveEntity(
-            @PathVariable(value="id") int id,
-            @RequestBody Entity updatedEntity
-    ) throws BusinessLogicException, AccessDeniedException, ResourceNotFoundException {
-
-        Entity currEntity = entityService.findEntityById(updatedEntity.getId());
-
-        if(!permissionService.canView(currEntity)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
-        }
-
-        currEntity = entityService.updateEntity(currEntity, updatedEntity);
-        return new ResponseEntity<>(currEntity, HttpStatus.OK);
-    }
-
     @RequestMapping(value = "/entities/{id}/profile_picture", method = RequestMethod.POST, consumes = "multipart/form-data")
     public ResponseEntity<Entity> uploadProfilePicture(
             @PathVariable(value="id") int id,
@@ -121,20 +135,6 @@ public class EntityController {
         return new ResponseEntity<>(entity, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public ResponseEntity<Entity> createEntity(HttpServletResponse response, @RequestBody Entity entity) throws BusinessLogicException {
-        logger.info("Registered Entity: " + entity.toString());
-
-        // TODO validate fields before saving
-        entity = entityService.saveEntity(entity);
-
-        // Only add token if the preceding was successful to avoid adding Auth headers to errored requests
-        String token = TokenAuthenticationUtils.addAuthentication(response, entity.getEmail());
-        entity.setToken(token);
-
-        return new ResponseEntity<>(entity, HttpStatus.OK);
-    }
-
     @RequestMapping(value = "/entities/{id}/topics", method = RequestMethod.GET)
     public ResponseEntity<List<Topic>> getEntityTopics(
             @PathVariable(value="id") int id
@@ -154,6 +154,7 @@ public class EntityController {
             @RequestParam(value="page", defaultValue = "0") int page,
             @RequestParam(value="page_size", defaultValue = "30") int pageSize
     ) throws AccessDeniedException, ResourceNotFoundException {
+
         Entity entity = entityService.findEntityById(id);
 
         if(!permissionService.canView(entity)) {

@@ -1,8 +1,9 @@
 package saturday.domain;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.Email;
-import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
@@ -20,6 +21,7 @@ public class Entity {
     private int id;
 
     @Column(name = "token")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String token;
 
     @Column(name = "email")
