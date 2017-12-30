@@ -64,8 +64,8 @@ public class Entity {
     @Column(name = "fb_id" )
     private Long fbId ;
 
-    @JsonIgnore
     @Column(name = "fb_access_token" )
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String fbAccessToken;
 
     @JsonIgnore
