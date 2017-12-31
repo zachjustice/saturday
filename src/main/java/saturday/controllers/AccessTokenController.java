@@ -33,15 +33,19 @@ public class AccessTokenController {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final DefaultFacebookClient facebookClient;
 
-    @Value("${spring.social.facebook.app-id")
+    @Value("${spring.social.facebook.app-id}")
     private String FACEBOOK_APP_ID;
-    @Value("${spring.social.facebook.app-secret")
+    @Value("${spring.social.facebook.app-secret}")
     private String FACEBOOK_APP_SECRET;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    public AccessTokenController(EntityServiceImpl entityService, BCryptPasswordEncoder bCryptPasswordEncoder, DefaultFacebookClient facebookClient) {
+    public AccessTokenController(
+            EntityServiceImpl entityService,
+            BCryptPasswordEncoder bCryptPasswordEncoder,
+            DefaultFacebookClient facebookClient
+    ) {
         this.entityService = entityService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.facebookClient = facebookClient;
@@ -53,8 +57,12 @@ public class AccessTokenController {
       [] generate a JWT to send back to the user. JWT is stored in DB
     */
     @RequestMapping(value = "/validate_access_token", method = RequestMethod.POST)
-    public ResponseEntity<Entity> validateAccessToken(HttpServletResponse response, @RequestBody Entity validationEntity) throws BusinessLogicException, AccessDeniedException, ProcessingResourceException {
+    public ResponseEntity<Entity> validateAccessToken(
+            HttpServletResponse response,
+            @RequestBody Entity validationEntity
+    ) throws BusinessLogicException, AccessDeniedException, ProcessingResourceException {
         Entity entity = this.entityService.findEntityByEmail(validationEntity.getEmail());
+        logger.info("fb id: " + FACEBOOK_APP_ID + ", fb token: " + FACEBOOK_APP_SECRET);
         logger.info("Attempt to find existing entity: " + entity);
 
         String fbAccessToken;
@@ -67,7 +75,7 @@ public class AccessTokenController {
 
             fbAccessToken = accessToken.getAccessToken();
         } catch (FacebookOAuthException ex) {
-           throw new AccessDeniedException("Failed to validate facebook auth token. Invalid client id.");
+           throw new AccessDeniedException("Failed to validate facebook auth token. Invalid access token.");
         } catch(FacebookException ex) {
            logger.info(ex.getLocalizedMessage());
            throw new ProcessingResourceException(
