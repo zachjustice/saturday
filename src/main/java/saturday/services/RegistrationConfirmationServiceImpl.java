@@ -32,6 +32,7 @@ public class RegistrationConfirmationServiceImpl implements RegistrationConfirma
         String token = TokenAuthenticationUtils.createToken(recipientEmail, 60 * 24);
 
         SimpleMailMessage message = new SimpleMailMessage(this.templateMessage);
+        message.setSubject("Confirm your email address");
         message.setTo(entity.getEmail());
         message.setText("Confirm your email address with this link " + constructVerificationUrl(token));
 

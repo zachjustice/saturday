@@ -11,31 +11,24 @@ import java.util.Properties;
 @Configuration
 public class EmailSenderConfig {
 
-    @Value("${saturday.ses.smpt-user}")
-    private String AWS_SES_SMPT_USER;
-    @Value("${saturday.ses.smpt-password}")
-    private String AWS_SES_SMPT_PASSWORD;
-    @Value("${saturday.ses.smpt-server}")
-    private String AWS_SES_SMPT_SERVER;
-    @Value("${saturday.ses.smpt-port}")
-    private int AWS_SES_SMPT_PORT;
+    @Value("${spring.mail.username}")
+    private String SPRING_MAIL_USERNAME;
+    @Value("${spring.mail.password}")
+    private String SPRING_MAIL_PASSWORD;
+    @Value("${spring.mail.host}")
+    private String SPRING_MAIL_HOST;
+    @Value("${spring.mail.properties.mail.smtp.port}")
+    private int SPRING_MAIL_SMTP_PORT;
     @Value("${saturday.ses.from-email}")
-    private String AWS_SES_FROM_EMAIL;
+    private String FROM_EMAIL;
 
     @Bean
     public JavaMailSenderImpl getJavaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost(AWS_SES_SMPT_SERVER);
-        mailSender.setPort(AWS_SES_SMPT_PORT);
-        mailSender.setUsername(AWS_SES_SMPT_USER);
-        mailSender.setPassword(AWS_SES_SMPT_PASSWORD);
-
-        Properties props = mailSender.getJavaMailProperties();
-        props.put("mail.transport.protocol", "smtp");
-        props.put("mail.smtp.port", AWS_SES_SMPT_PORT);
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.debug", "true");
+        mailSender.setHost(SPRING_MAIL_HOST);
+        mailSender.setPort(SPRING_MAIL_SMTP_PORT);
+        mailSender.setUsername(SPRING_MAIL_USERNAME);
+        mailSender.setPassword(SPRING_MAIL_PASSWORD);
 
         return mailSender;
     }
@@ -43,7 +36,7 @@ public class EmailSenderConfig {
     @Bean
     public SimpleMailMessage getSimpleMailMessage() {
         SimpleMailMessage templateMessage = new SimpleMailMessage();
-        templateMessage.setFrom(AWS_SES_FROM_EMAIL);
+        templateMessage.setFrom(FROM_EMAIL);
         return templateMessage;
     }
 }
