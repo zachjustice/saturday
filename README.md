@@ -31,14 +31,7 @@ eb deploy
 ```
 
 TODO
-* Topic invites have a accepted/rejected column
-* Adding a topic member first checks if an invite for that member and topic exists
-* * Adding a topic member checks the sender is authenticated as the invitee
-* * Deleting a topic member checks the sender is authenticated as the inviter
-* Endpoint checks permissions
-* s3 bucket and key instead of url
+* Separate table for access tokens
+  * Tokens can be for account confirmation, basic auth, or forgetting your password
+  * Cron job for clearing out old tokens
 
-As a topic owner I can invite someone to a topic I own
-As a topic owner I can revoke a previously issues invite
-As a user, I can accept an invitation to a topic
-As a user, I can delete an invitiation to a topic

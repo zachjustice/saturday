@@ -16,7 +16,7 @@ import java.util.Set;
 public class Entity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // TODO use GenerationType.Sequence
     @Column(name = "id")
     private int id;
 

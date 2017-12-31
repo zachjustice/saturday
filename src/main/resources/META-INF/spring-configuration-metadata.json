@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "saturday.ses.smpt-port",
+      "type": "java.lang.Integer",
+      "description": "Description for saturday.ses.smpt-port."
+    }
+  ]
+}

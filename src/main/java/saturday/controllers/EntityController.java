@@ -13,13 +13,12 @@ import saturday.domain.Topic;
 import saturday.domain.TopicContent;
 import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.BusinessLogicException;
+import saturday.exceptions.ProcessingResourceException;
 import saturday.exceptions.ResourceNotFoundException;
-import saturday.services.EntityServiceImpl;
-import saturday.services.PermissionService;
-import saturday.services.S3Service;
-import saturday.services.TopicContentService;
+import saturday.services.*;
 import saturday.utils.HTTPUtils;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
@@ -35,6 +34,7 @@ public class EntityController {
     private final TopicContentService topicContentService;
     private final PermissionService permissionService;
     private final S3Service s3Service;
+    private final RegistrationConfirmationService registrationConfirmationService;
 
     @Value("${saturday.s3.user-files-bucket}")
     private String bucketName;
@@ -46,11 +46,18 @@ public class EntityController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    public EntityController(EntityServiceImpl entityService, TopicContentService topicContentService, PermissionService permissionService, S3Service s3Service) {
+    public EntityController(
+            EntityServiceImpl entityService,
+            TopicContentService topicContentService,
+            PermissionService permissionService,
+            S3Service s3Service,
+            RegistrationConfirmationService registrationConfirmationService
+    ) {
         this.entityService = entityService;
         this.topicContentService = topicContentService;
         this.permissionService = permissionService;
         this.s3Service = s3Service;
+        this.registrationConfirmationService = registrationConfirmationService;
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
@@ -58,7 +65,14 @@ public class EntityController {
 
         entity = entityService.saveEntity(entity);
 
-        // Only add token if the preceding was successful to avoid adding Auth headers to errored requests
+        // catch since sending the email isn't vital
+        try {
+            registrationConfirmationService.sendEmail(entity);
+        } catch (MessagingException e) {
+            logger.error(e.getMessage());
+        }
+
+        // Only add token if the preceding was successful to avoid adding Auth headers to error'ed requests
         HTTPUtils.addAuthenticationHeader(response, entity.getToken());
 
         return new ResponseEntity<>(entity, HttpStatus.OK);
@@ -69,11 +83,11 @@ public class EntityController {
             HttpServletResponse response,
             @PathVariable(value="id") int id,
             @RequestBody Entity updatedEntity
-    ) throws BusinessLogicException, AccessDeniedException, ResourceNotFoundException {
+    ) throws BusinessLogicException, AccessDeniedException, ResourceNotFoundException, ProcessingResourceException {
 
         Entity currEntity = entityService.findEntityById(updatedEntity.getId());
 
-        if(!permissionService.canView(currEntity)) {
+        if(!permissionService.canAccess(currEntity)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
@@ -113,11 +127,11 @@ public class EntityController {
     @RequestMapping(value = "/entities/{id}/profile_picture", method = RequestMethod.POST, consumes = "multipart/form-data")
     public ResponseEntity<Entity> uploadProfilePicture(
             @PathVariable(value="id") int id,
-            @RequestParam("picture") MultipartFile picture) throws ResourceNotFoundException, IOException, BusinessLogicException, AccessDeniedException {
+            @RequestParam("picture") MultipartFile picture) throws ResourceNotFoundException, IOException, BusinessLogicException, AccessDeniedException, ProcessingResourceException {
 
         Entity entity = entityService.findEntityById(id);
 
-        if(!permissionService.canView(entity)) {
+        if(!permissionService.canAccess(entity)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
@@ -138,10 +152,10 @@ public class EntityController {
     @RequestMapping(value = "/entities/{id}/topics", method = RequestMethod.GET)
     public ResponseEntity<List<Topic>> getEntityTopics(
             @PathVariable(value="id") int id
-    ) throws AccessDeniedException, ResourceNotFoundException {
+    ) throws AccessDeniedException, ResourceNotFoundException, ProcessingResourceException {
         Entity entity = entityService.findEntityById(id);
 
-        if(!permissionService.canView(entity)) {
+        if(!permissionService.canAccess(entity)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
@@ -153,11 +167,11 @@ public class EntityController {
             @PathVariable(value="id") int id,
             @RequestParam(value="page", defaultValue = "0") int page,
             @RequestParam(value="page_size", defaultValue = "30") int pageSize
-    ) throws AccessDeniedException, ResourceNotFoundException {
+    ) throws AccessDeniedException, ResourceNotFoundException, ProcessingResourceException {
 
         Entity entity = entityService.findEntityById(id);
 
-        if(!permissionService.canView(entity)) {
+        if(!permissionService.canAccess(entity)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 

@@ -31,6 +31,13 @@ spring:
       app-secret: ${SATURDAY_FACEBOOK_APP_SECRET}
 
 saturday:
+  application-url: ${SATURDAY_APPLICATION_URL}
+  ses:
+    smpt-user: ${AWS_SES_SMPT_USER}
+    smpt-password: ${AWS_SES_SMPT_PASSWORD}
+    smpt-server: ${AWS_SES_SMPT_SERVER}
+    smpt-port: ${AWS_SES_SMPT_PORT}
+    from-email: ${AWS_SES_FROM_EMAIL}
   s3:
     region: us-east-1
     url:

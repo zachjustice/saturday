@@ -33,9 +33,13 @@ public class TokenAuthenticationUtils {
     }
 
     public static String createToken(String username) {
+        return createToken(username, EXPIRATIONTIME);
+    }
+
+    public static String createToken(String username, long expirationTime) {
         return Jwts.builder()
                 .setSubject(username)
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATIONTIME))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(SignatureAlgorithm.HS512, SECRET)
                 .compact();
     }

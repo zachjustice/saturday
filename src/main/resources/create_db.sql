@@ -49,6 +49,13 @@ START TRANSACTION;
 
   CREATE TRIGGER update_entities_modtime BEFORE UPDATE ON entities FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
+  CREATE TABLE access_tokens(
+    id SERIAL PRIMARY KEY,
+    entity_id INT NOT NULL REFERENCES entities(id),
+    token VARCHAR NOT NULL,
+    expiration_date TIMESTAMP WITHOUT TIME ZONE
+  );
+
   CREATE TABLE roles(
     id SERIAL PRIMARY KEY,
     label VARCHAR(20) NOT NULL,

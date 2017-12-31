@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import saturday.domain.*;
 import saturday.exceptions.BusinessLogicException;
+import saturday.exceptions.ProcessingResourceException;
 
 @Component
 public class PermissionService {
@@ -53,10 +54,20 @@ public class PermissionService {
         return topicMember != null;
     }
 
-    public boolean canView(Entity entity) {
+    /**
+     * Check if the auth'ed entity can access an Entity owned resource.
+     * This check applies to actions for updating the entity, sending confirmation emails, etc.
+     * @param entity The entity to auth against
+     * @return If the entity is allowed access
+     * @throws ProcessingResourceException If the given entity is null
+     */
+    public boolean canAccess(Entity entity) throws ProcessingResourceException {
         if(entity == null) {
             // TODO throw exception?
-           return false;
+            throw new ProcessingResourceException(
+                    "Failed to authenticate permissions. " +
+                    "Entity is null while checking canAccess(Entity)"
+            );
         }
 
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
