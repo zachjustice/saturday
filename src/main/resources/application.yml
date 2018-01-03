@@ -20,7 +20,7 @@ spring:
   # = Spring Security / Queries for AuthenticationManagerBuilder
   # ==============================================================
   queries:
-    users-query: select email, password_hash, is_enabled from entities where email=?
+    users-query: select email, password_hash, is_email_confirmed from entities where email=?
     roles-query: select e.email, r.label from entities e inner join entity_roles er on(e.id=er.entity_id) inner join roles r on(er.role_id=r.id) where e.email=?
   # ==============================================================
   # = Spring Social Facebook for SocialConfig
@@ -66,6 +66,10 @@ saturday:
           prefix: "profile-pictures/"
   timestamp:
     format: "yyyy-MM-dd HH:mm:ss"
+  access-token-type:
+    email-confirmation: 1
+    forgot-password: 2
+    bearer-token: 3
   topic:
     name:
       max_length: 20

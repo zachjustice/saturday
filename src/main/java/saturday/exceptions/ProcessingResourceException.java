@@ -1,6 +1,6 @@
 package saturday.exceptions;
 
-public class ProcessingResourceException extends Exception {
+public class ProcessingResourceException extends RuntimeException {
     public ProcessingResourceException(String message) {
         super(message);
     }

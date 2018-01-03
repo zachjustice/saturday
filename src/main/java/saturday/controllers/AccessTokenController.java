@@ -4,6 +4,8 @@ import com.restfb.DefaultFacebookClient;
 import com.restfb.FacebookClient;
 import com.restfb.exception.FacebookException;
 import com.restfb.exception.FacebookOAuthException;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,15 +14,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import saturday.domain.AccessToken;
 import saturday.domain.Entity;
 import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ProcessingResourceException;
-import saturday.services.EntityServiceImpl;
+import saturday.exceptions.ResourceNotFoundException;
+import saturday.services.AccessTokenService;
+import saturday.services.EntityService;
 import saturday.utils.HTTPUtils;
 import saturday.utils.TokenAuthenticationUtils;
 
@@ -29,7 +31,8 @@ import java.util.concurrent.TimeUnit;
 
 @RestController
 public class AccessTokenController {
-    private final EntityServiceImpl entityService;
+    private final EntityService entityService;
+    private final AccessTokenService accessTokenService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final DefaultFacebookClient facebookClient;
 
@@ -42,20 +45,25 @@ public class AccessTokenController {
 
     @Autowired
     public AccessTokenController(
-            EntityServiceImpl entityService,
+            EntityService entityService,
+            AccessTokenService accessTokenService,
             BCryptPasswordEncoder bCryptPasswordEncoder,
             DefaultFacebookClient facebookClient
     ) {
         this.entityService = entityService;
+        this.accessTokenService = accessTokenService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.facebookClient = facebookClient;
     }
 
-    /*
-      [x] pass user info and access token to /validate_access_token route
-      [] /validate_access_token route validates the access token with server to server REST call using restfb
-      [] generate a JWT to send back to the user. JWT is stored in DB
-    */
+    /**
+     * Validate a facebook access token and exchange the validated token with a saturday access token
+     * If the auth'ed user doesn't exist in our system, create one using the provided data
+     * @param response We attach our token to the http response so the client can retrieve it
+     * @param validationEntity The entity, either created or retrieved, associated with the user
+     * @return The entity associated with the fb token
+     * @throws AccessDeniedException If the fb token fails validation
+     */
     @RequestMapping(value = "/validate_access_token", method = RequestMethod.POST)
     public ResponseEntity<Entity> validateAccessToken(
             HttpServletResponse response,
@@ -103,8 +111,15 @@ public class AccessTokenController {
         return new ResponseEntity<>(entity, HttpStatus.OK);
     }
 
+    /**
+     * Given an entity object populated with an email and password, create a saturday access token.
+     * @param response We attach our token to the http response so the client can retrieve it
+     * @param user The user to auth
+     * @return The auth'ed entity with the token in the header
+     * @throws ProcessingResourceException If the request is invalid or we can't validate the password
+     */
     @RequestMapping(value = "/access_token", method = RequestMethod.PUT)
-    public ResponseEntity<Entity> getToken(HttpServletResponse response, @RequestBody Entity user) throws BusinessLogicException, ProcessingResourceException {
+    public ResponseEntity<Entity> getToken(HttpServletResponse response, @RequestBody Entity user) throws BusinessLogicException, ProcessingResourceException, ResourceNotFoundException {
 
         if(StringUtils.isEmpty(user.getEmail())) {
            throw new ProcessingResourceException("Invalid request. Empty email");
@@ -130,10 +145,44 @@ public class AccessTokenController {
 
         String token = TokenAuthenticationUtils.createToken(actualUser.getEmail());
         user.setToken(token);
-        entityService.updateEntity(actualUser, user);
+        entityService.updateEntity(user);
 
         HTTPUtils.addAuthenticationHeader(response, token);
 
         return new ResponseEntity<>(actualUser, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/email_confirmation", method = RequestMethod.GET)
+    public ResponseEntity<String> confirmEmail(
+            @RequestParam(value="token") String token
+    ) throws ProcessingResourceException, AccessDeniedException, BusinessLogicException, ResourceNotFoundException {
+
+        String email;
+        try {
+            email = TokenAuthenticationUtils.validateToken(token);
+        } catch(ExpiredJwtException ex) {
+            throw new ProcessingResourceException("Failed to confirm email due to expired token.");
+        } catch( MalformedJwtException ex) {
+            throw new ProcessingResourceException("Failed to confirm email due to malformed token.");
+        }
+
+        // query the access token table by token to make sure its still valid
+        AccessToken existing;
+        try{
+            existing = accessTokenService.findByToken(token);
+        } catch (ResourceNotFoundException e) {
+            throw new AccessDeniedException("Access token is not valid.");
+        }
+
+        // delete the access token if its valid
+        accessTokenService.deleteAccessTokenByToken(existing.getToken());
+
+        // update the user's status to reflect the confirmed email
+        Entity entity = entityService.findEntityByEmail(email);
+        entity.setEmailConfirmed(true);
+
+        entityService.updateEntity(entity);
+
+        return new ResponseEntity<>("SUCCESS", HttpStatus.OK);
     }
 }

@@ -16,7 +16,7 @@ import java.util.Set;
 public class Entity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // TODO use GenerationType.Sequence
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
@@ -45,8 +45,8 @@ public class Entity {
     @Column(name = "gender" )
     private String gender;
 
-    @Column(name = "isEnabled")
-    private boolean isEnabled;
+    @Column(name = "isEmailConfirmed")
+    private boolean isEmailConfirmed;
 
     @Column(name = "created", insertable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -131,12 +131,12 @@ public class Entity {
     }
 
 
-    public boolean getIsEnabled() {
-        return isEnabled;
+    public boolean getIsEmailConfirmed() {
+        return isEmailConfirmed;
     }
 
-    public void setIsEnabled(boolean isEnabled) {
-        this.isEnabled = isEnabled;
+    public void setIsEmailConfirmed(boolean isEmailConfirmed ) {
+        this.isEmailConfirmed = isEmailConfirmed;
     }
 
     public Set<Role> getRoles() {
@@ -203,12 +203,12 @@ public class Entity {
         this.token = token;
     }
 
-    public boolean isEnabled() {
-        return isEnabled;
+    public boolean isEmailConfirmed() {
+        return isEmailConfirmed;
     }
 
-    public void setEnabled(boolean enabled) {
-        isEnabled = enabled;
+    public void setEmailConfirmed(boolean emailConfirmed) {
+        isEmailConfirmed = emailConfirmed;
     }
 
     public List<Topic> getTopics() {
@@ -226,7 +226,7 @@ public class Entity {
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", name='" + name + '\'' +
-                ", isEnabled=" + isEnabled +
+                ", isEmailConfirmed=" + isEmailConfirmed +
                 ", created=" + created +
                 ", modified=" + modified +
                 '}';

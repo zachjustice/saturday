@@ -91,7 +91,7 @@ public class EntityController {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
-        currEntity = entityService.updateEntity(currEntity, updatedEntity);
+        currEntity = entityService.updateEntity(updatedEntity);
         HTTPUtils.addAuthenticationHeader(response, currEntity.getToken());
 
         return new ResponseEntity<>(currEntity, HttpStatus.OK);
@@ -144,7 +144,7 @@ public class EntityController {
         s3Service.upload(picture, uploadKey);
 
         entity.setPictureUrl(fileUrl);
-        entityService.updateEntity(entity, entity);// do this better especially
+        entityService.updateEntity(entity);// do this better especially
 
         return new ResponseEntity<>(entity, HttpStatus.OK);
     }

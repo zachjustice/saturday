@@ -12,6 +12,7 @@ import org.springframework.util.StringUtils;
 import saturday.domain.Entity;
 import saturday.domain.Role;
 import saturday.exceptions.BusinessLogicException;
+import saturday.exceptions.ProcessingResourceException;
 import saturday.exceptions.ResourceNotFoundException;
 import saturday.repositories.EntityRepository;
 import saturday.repositories.RoleRepository;
@@ -52,6 +53,7 @@ public class EntityServiceImpl implements EntityService {
         return entityRepository.findByEmail(email);
     }
 
+    @Override
     public Entity findEntityById(int id) throws ResourceNotFoundException {
         Entity entity = entityRepository.findById(id);
 
@@ -62,11 +64,14 @@ public class EntityServiceImpl implements EntityService {
         return entity;
     }
 
-    public Entity updateEntity(Entity currEntity, Entity updatedEntity) throws BusinessLogicException {
+    @Override
+    public Entity updateEntity(Entity updatedEntity) throws ProcessingResourceException, ResourceNotFoundException {
 
-        if(currEntity == null || updatedEntity == null) {
-            throw new BusinessLogicException("Null entity argument while update entity.");
+        if(updatedEntity == null) {
+            throw new ProcessingResourceException("Null entity argument while update entity.");
         }
+
+        Entity currEntity = findEntityById(updatedEntity.getId());
 
         // only users to change select fields on their entity
         String updatedName = updatedEntity.getName();
@@ -133,7 +138,7 @@ public class EntityServiceImpl implements EntityService {
         String token = TokenAuthenticationUtils.createToken(entity.getEmail());
 
         entity.setToken(token);
-        entity.setIsEnabled(true);
+        entity.setIsEmailConfirmed(false);
         entity.setPassword(bCryptPasswordEncoder.encode(entity.getPassword()));
 
         Role authorRole = roleRepository.findByRole("USER");

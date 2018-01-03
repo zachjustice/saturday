@@ -30,7 +30,7 @@ START TRANSACTION;
     created TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
     modified TIMESTAMP WITHOUT TIME ZONE,
     token CHARACTER VARYING,
-    is_enabled BOOLEAN DEFAULT false,
+    is_email_confirmed BOOLEAN DEFAULT false,
 
     -- user info
     name CHARACTER VARYING NOT NULL,
@@ -49,11 +49,17 @@ START TRANSACTION;
 
   CREATE TRIGGER update_entities_modtime BEFORE UPDATE ON entities FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
+  CREATE TABLE access_token_type (
+    id INT PRIMARY KEY,
+    label VARCHAR NOT NULL UNIQUE
+  );
+
   CREATE TABLE access_tokens(
+    -- don't join on entity to prevent attackers from dumping the table and immediately associating users with their token
     id SERIAL PRIMARY KEY,
-    entity_id INT NOT NULL REFERENCES entities(id),
-    token VARCHAR NOT NULL,
-    expiration_date TIMESTAMP WITHOUT TIME ZONE
+    type_id INT NOT NULL REFERENCES access_token_type(id), -- for auditing purposes
+    token VARCHAR NOT NULL UNIQUE, -- don't reuse tokens
+    expiration_date TIMESTAMP WITHOUT TIME ZONE -- null means it won't expire, derived from decrypted token, but kept for auditing
   );
 
   CREATE TABLE roles(
@@ -154,5 +160,12 @@ START TRANSACTION;
     (3, 'ACCEPTED'),
     (4, 'RESCINDED'),
     (5, 'LEFT_TOPIC');
+
+  INSERT INTO
+    access_token_type(id, label)
+  VALUES
+    (1, 'EMAIL_CONFIRMATION'),
+    (2, 'FORGOT_PASSWORD'),
+    (3, 'BEARER_TOKEN');
 
 COMMIT;

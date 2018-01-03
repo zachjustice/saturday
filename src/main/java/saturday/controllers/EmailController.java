@@ -35,8 +35,13 @@ public class EmailController {
         this.permissionService = permissionService;
     }
 
+    /**
+     * Resend the email confirmation email
+     * @param id The id of the entity to send the confirmation email to
+     * @return Success or throw a failure
+     */
     @RequestMapping(value = "entities/{id}/resend_confirmation", method = RequestMethod.POST)
-    public ResponseEntity<String> resendAccountConfirmationEmail(
+    public ResponseEntity<String> resendEmailConfirmationEmail(
             @PathVariable(value="id") int id
     ) throws ProcessingResourceException, AccessDeniedException, ResourceNotFoundException, MessagingException {
 

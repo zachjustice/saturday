@@ -32,6 +32,16 @@ eb deploy
 
 TODO
 * Separate table for access tokens
-  * Tokens can be for account confirmation, basic auth, or forgetting your password
+  * Tokens can be for email confirmation, basic auth, or forgetting your password
   * Cron job for clearing out old tokens
+  
+* Validate the fb access token corresponds to the auth'ed user's email address.
+  * They are the person they say they are
 
+* Use GeneratoryType.SEQUENCE
+* Use obscured ids rather than autoincrementing id?
+
+* Cohesive exception scheme
+  * Runtime exceptions for services?
+  * findResource() methods shouldn't throw ResourceNotFoundExceptions()
+  * ProcessingResourceException vs BussinessLogicException

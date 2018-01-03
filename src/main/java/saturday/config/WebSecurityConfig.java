@@ -51,15 +51,23 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.cors().and().csrf().disable().authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/validate_access_token").permitAll()
                 .antMatchers(HttpMethod.POST, "/validate_access_token").permitAll()
+
                 .antMatchers(HttpMethod.OPTIONS, "/access_token").permitAll()
                 .antMatchers(HttpMethod.PUT, "/access_token").permitAll()
+
+                .antMatchers(HttpMethod.OPTIONS, "/email_confirmation").permitAll()
+                .antMatchers(HttpMethod.GET, "/email_confirmation").permitAll()
+
                 .antMatchers(HttpMethod.OPTIONS, "/register").permitAll()
                 .antMatchers(HttpMethod.POST, "/register").permitAll()
+                // Authenticate everything else
                 .anyRequest().authenticated()
                 .and()
-                 // filter requests to validate JWT in header
-                .addFilterBefore(new JWTAuthenticationFilter(),
-                        UsernamePasswordAuthenticationFilter.class)
+                // validate each request using a JWT in the Authorization header
+                .addFilterBefore(
+                        new JWTAuthenticationFilter(),
+                        UsernamePasswordAuthenticationFilter.class
+                )
                 .sessionManagement()
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }

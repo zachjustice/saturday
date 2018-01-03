@@ -1,22 +1,14 @@
 package saturday.domain;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
-import java.util.Calendar;
-import java.sql.Date;
+import java.util.Date;
 
 @javax.persistence.Entity
 @Table(name = "access_tokens")
 public class AccessToken {
-    private static final int EXPIRATION = 60 * 24;
-
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
-    @OneToOne(targetEntity = Entity.class)
-    @JoinColumn(name = "entity_id", nullable = false)
-    private Entity entity;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     @Column(name = "token")
     private String token;
@@ -24,22 +16,15 @@ public class AccessToken {
     @Column(name = "expiration_date")
     private Date expirationDate;
 
-    private Date calculateExpiryDate(int expiryTimeInMinutes) {
-        if(expiryTimeInMinutes == 0) {
-            expiryTimeInMinutes = EXPIRATION;
-        }
+    @ManyToOne
+    @JoinColumn(name="type_id", referencedColumnName = "id", nullable = false)
+    private AccessTokenType type;
 
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(new Timestamp(cal.getTime().getTime()));
-        cal.add(Calendar.MINUTE, expiryTimeInMinutes);
-        return new Date(cal.getTime().getTime());
-    }
-
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -49,14 +34,6 @@ public class AccessToken {
 
     public void setToken(String token) {
         this.token = token;
-    }
-
-    public Entity getEntity() {
-        return entity;
-    }
-
-    public void setEntity(Entity entity) {
-        this.entity = entity;
     }
 
     public Date getExpirationDate() {
@@ -71,9 +48,16 @@ public class AccessToken {
     public String toString() {
         return "AccessToken{" +
                 "id=" + id +
-                ", entity=" + entity +
                 ", token='" + token + '\'' +
                 ", expirationDate=" + expirationDate +
                 '}';
+    }
+
+    public AccessTokenType getType() {
+        return type;
+    }
+
+    public void setType(AccessTokenType type) {
+        this.type = type;
     }
 }

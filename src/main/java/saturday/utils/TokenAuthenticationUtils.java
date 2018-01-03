@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,9 +38,15 @@ public class TokenAuthenticationUtils {
     }
 
     public static String createToken(String username, long expirationTime) {
+
+        return createToken(username, new Date(System.currentTimeMillis() + expirationTime));
+
+    }
+
+    public static String createToken(String username, Date expirationDate) {
         return Jwts.builder()
                 .setSubject(username)
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
+                .setExpiration(expirationDate)
                 .signWith(SignatureAlgorithm.HS512, SECRET)
                 .compact();
     }
@@ -47,24 +54,28 @@ public class TokenAuthenticationUtils {
     public static Authentication getAuthentication(HttpServletRequest request) {
         String token = request.getHeader(HEADER_STRING);
 
-        if (token == null) {
+        if (StringUtils.isEmpty(token)) {
             return null;
         }
 
-        String user;
+        String email;
         try {
             // parse the filters.
-            user = Jwts.parser()
-                    .setSigningKey(SECRET)
-                    .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
-                    .getBody()
-                    .getSubject();
+            email = validateToken(token);
         } catch(ExpiredJwtException | MalformedJwtException ex) {
-            user = null;
+            email = null;
         }
 
-        return user != null ?
-                new UsernamePasswordAuthenticationToken(user, null, emptyList()) :
+        return email != null ?
+                new UsernamePasswordAuthenticationToken(email, null, emptyList()) :
                 null;
+    }
+
+    public static String validateToken(String token) {
+        return Jwts.parser()
+                .setSigningKey(SECRET)
+                .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
+                .getBody()
+                .getSubject();
     }
 }
