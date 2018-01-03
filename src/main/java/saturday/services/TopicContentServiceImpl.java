@@ -54,7 +54,7 @@ public class TopicContentServiceImpl implements TopicContentService {
      * @return topic content
      */
     @Override
-    public TopicContent findTopicContentById(int id) throws ResourceNotFoundException {
+    public TopicContent findTopicContentById(int id) {
         TopicContent topicContent = topicContentRepository.findById(id);
 
         if(topicContent == null) {
@@ -70,7 +70,7 @@ public class TopicContentServiceImpl implements TopicContentService {
      * @return all topic content for a topic
      */
     @Override
-    public List<TopicContent> findTopicContentByTopicId(int id) throws ResourceNotFoundException {
+    public List<TopicContent> findTopicContentByTopicId(int id) {
         topicService.findTopicById(id); // throws Resource Not Found Exception
         return  topicContentRepository.findByTopicId(id);
     }
@@ -85,7 +85,7 @@ public class TopicContentServiceImpl implements TopicContentService {
     }
 
     @Override
-    public TopicContent save(TopicContentRequest topicContentRequest) throws IOException, BusinessLogicException, ResourceNotFoundException {
+    public TopicContent save(TopicContentRequest topicContentRequest) throws IOException {
         int topicId = topicContentRequest.getTopicId();
         int creatorId = topicContentRequest.getCreatorId();
         String description = topicContentRequest.getDescription();
@@ -171,9 +171,8 @@ public class TopicContentServiceImpl implements TopicContentService {
      * @return A list of the entity's topic content
      */
     @Override
-    public List<TopicContent> findByTopicMember(int entityId, int page, int pageSize) throws ResourceNotFoundException {
-        entityService.findEntityById(entityId); // throws Resource Not Found Exception
-
+    public List<TopicContent> findByTopicMember(int entityId, int page, int pageSize) {
+        entityService.findEntityById(entityId); //
         int offset = page * pageSize;
         int limit = offset + pageSize;
         return topicContentRepository.findByTopicMember(entityId, offset, limit);

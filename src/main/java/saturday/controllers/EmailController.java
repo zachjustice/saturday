@@ -11,13 +11,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import saturday.domain.Entity;
 import saturday.exceptions.AccessDeniedException;
-import saturday.exceptions.ProcessingResourceException;
-import saturday.exceptions.ResourceNotFoundException;
 import saturday.services.EntityService;
 import saturday.services.PermissionService;
 import saturday.services.RegistrationConfirmationService;
-
-import javax.mail.MessagingException;
 
 @RestController
 public class EmailController {
@@ -43,7 +39,7 @@ public class EmailController {
     @RequestMapping(value = "entities/{id}/resend_confirmation", method = RequestMethod.POST)
     public ResponseEntity<String> resendEmailConfirmationEmail(
             @PathVariable(value="id") int id
-    ) throws ProcessingResourceException, AccessDeniedException, ResourceNotFoundException, MessagingException {
+    ) {
 
         Entity entity = entityService.findEntityById(id);
         if(!permissionService.canAccess(entity)) {

@@ -6,19 +6,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicContent;
 import saturday.exceptions.AccessDeniedException;
-import saturday.exceptions.BusinessLogicException;
-import saturday.exceptions.ProcessingResourceException;
-import saturday.exceptions.ResourceNotFoundException;
 import saturday.services.*;
 import saturday.utils.HTTPUtils;
 
-import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
@@ -61,14 +58,14 @@ public class EntityController {
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public ResponseEntity<Entity> createEntity(HttpServletResponse response, @RequestBody Entity entity) throws BusinessLogicException {
+    public ResponseEntity<Entity> createEntity(HttpServletResponse response, @RequestBody Entity entity) {
 
         entity = entityService.saveEntity(entity);
 
         // catch since sending the email isn't vital
         try {
             registrationConfirmationService.sendEmail(entity);
-        } catch (MessagingException e) {
+        } catch (MailException e) {
             logger.error(e.getMessage());
         }
 
@@ -83,7 +80,7 @@ public class EntityController {
             HttpServletResponse response,
             @PathVariable(value="id") int id,
             @RequestBody Entity updatedEntity
-    ) throws BusinessLogicException, AccessDeniedException, ResourceNotFoundException, ProcessingResourceException {
+    ) {
 
         Entity currEntity = entityService.findEntityById(updatedEntity.getId());
 
@@ -98,7 +95,7 @@ public class EntityController {
     }
 
     @RequestMapping(value = "/entities", method = RequestMethod.GET)
-    public ResponseEntity<Entity> findEntityByEmail(@RequestParam(value="email") String email) throws BusinessLogicException {
+    public ResponseEntity<Entity> findEntityByEmail(@RequestParam(value="email") String email) {
 
         Entity entity = entityService.findEntityByEmail(email);
 
@@ -114,7 +111,7 @@ public class EntityController {
     }
 
     @RequestMapping(value = "/entities/{id}", method = RequestMethod.GET)
-    public ResponseEntity<Entity> getEntity(@PathVariable(value="id") int id) throws ResourceNotFoundException {
+    public ResponseEntity<Entity> getEntity(@PathVariable(value="id") int id) {
         Entity entity = entityService.findEntityById(id);
 
         // TODO better way to do this
@@ -127,7 +124,7 @@ public class EntityController {
     @RequestMapping(value = "/entities/{id}/profile_picture", method = RequestMethod.POST, consumes = "multipart/form-data")
     public ResponseEntity<Entity> uploadProfilePicture(
             @PathVariable(value="id") int id,
-            @RequestParam("picture") MultipartFile picture) throws ResourceNotFoundException, IOException, BusinessLogicException, AccessDeniedException, ProcessingResourceException {
+            @RequestParam("picture") MultipartFile picture) throws IOException {
 
         Entity entity = entityService.findEntityById(id);
 
@@ -152,7 +149,7 @@ public class EntityController {
     @RequestMapping(value = "/entities/{id}/topics", method = RequestMethod.GET)
     public ResponseEntity<List<Topic>> getEntityTopics(
             @PathVariable(value="id") int id
-    ) throws AccessDeniedException, ResourceNotFoundException, ProcessingResourceException {
+    ) {
         Entity entity = entityService.findEntityById(id);
 
         if(!permissionService.canAccess(entity)) {
@@ -167,7 +164,7 @@ public class EntityController {
             @PathVariable(value="id") int id,
             @RequestParam(value="page", defaultValue = "0") int page,
             @RequestParam(value="page_size", defaultValue = "30") int pageSize
-    ) throws AccessDeniedException, ResourceNotFoundException, ProcessingResourceException {
+    ) {
 
         Entity entity = entityService.findEntityById(id);
 

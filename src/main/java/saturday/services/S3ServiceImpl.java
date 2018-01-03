@@ -64,7 +64,6 @@ public class S3ServiceImpl implements S3Service {
      * @param multipartFile The file to upload
      * @param uploadKey The s3 key for the file
      * @return PutObjectResult, s3 object describing metadata of the uploaded object
-     * @throws IOException If we fail to get the input stream from the multipart file
      */
     public PutObjectResult upload(MultipartFile multipartFile, String uploadKey) throws IOException {
         InputStream inputStream = multipartFile.getInputStream();
@@ -82,9 +81,8 @@ public class S3ServiceImpl implements S3Service {
      * @param uploadKey s3 key for the file
      * @param metadata Metadata for the file
      * @return PutObjectResult, s3 object of uploaded object's metadata
-     * @throws IOException if we fail to close the input stream
      */
-   public PutObjectResult upload(InputStream inputStream, String uploadKey, ObjectMetadata metadata) throws IOException {
+   public PutObjectResult upload(InputStream inputStream, String uploadKey, ObjectMetadata metadata) {
         PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, uploadKey, inputStream, metadata);
 
         putObjectRequest.setCannedAcl(CannedAccessControlList.PublicRead);
@@ -100,7 +98,6 @@ public class S3ServiceImpl implements S3Service {
      * Download an s3 image by key
      * @param key the key for the s3 object
      * @return The s3 image as a byte array
-     * @throws IOException if IOUtils fails to interpret data
      */
     public ResponseEntity<byte[]> download(String key) throws IOException {
         GetObjectRequest getObjectRequest = new GetObjectRequest(bucketName, key);

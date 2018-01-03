@@ -62,13 +62,12 @@ public class AccessTokenController {
      * @param response We attach our token to the http response so the client can retrieve it
      * @param validationEntity The entity, either created or retrieved, associated with the user
      * @return The entity associated with the fb token
-     * @throws AccessDeniedException If the fb token fails validation
      */
     @RequestMapping(value = "/validate_access_token", method = RequestMethod.POST)
     public ResponseEntity<Entity> validateAccessToken(
             HttpServletResponse response,
             @RequestBody Entity validationEntity
-    ) throws BusinessLogicException, AccessDeniedException, ProcessingResourceException {
+    ) {
         Entity entity = this.entityService.findEntityByEmail(validationEntity.getEmail());
         logger.info("fb id: " + FACEBOOK_APP_ID + ", fb token: " + FACEBOOK_APP_SECRET);
         logger.info("Attempt to find existing entity: " + entity);
@@ -116,7 +115,6 @@ public class AccessTokenController {
      * @param response We attach our token to the http response so the client can retrieve it
      * @param user The user to auth
      * @return The auth'ed entity with the token in the header
-     * @throws ProcessingResourceException If the request is invalid or we can't validate the password
      */
     @RequestMapping(value = "/access_token", method = RequestMethod.PUT)
     public ResponseEntity<Entity> getToken(HttpServletResponse response, @RequestBody Entity user) throws BusinessLogicException, ProcessingResourceException, ResourceNotFoundException {
@@ -155,7 +153,7 @@ public class AccessTokenController {
     @RequestMapping(value = "/email_confirmation", method = RequestMethod.GET)
     public ResponseEntity<String> confirmEmail(
             @RequestParam(value="token") String token
-    ) throws ProcessingResourceException, AccessDeniedException, BusinessLogicException, ResourceNotFoundException {
+    ) {
 
         String email;
         try {

@@ -10,7 +10,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 @SpringBootApplication
 public class Application {
 
-    public static void main(String[] args) throws Throwable {
+    public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
 

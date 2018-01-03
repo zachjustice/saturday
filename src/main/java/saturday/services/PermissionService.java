@@ -37,7 +37,7 @@ public class PermissionService {
      * @param topic The topic
      * @return If the entity is a topic member
      */
-    private boolean isTopicMember(Entity entity, Topic topic) throws BusinessLogicException {
+    private boolean isTopicMember(Entity entity, Topic topic) {
         if(entity == null) {
             throw new BusinessLogicException("Could not authenticate permissions. Entity is null while checking isTopicMember().");
         }
@@ -59,9 +59,8 @@ public class PermissionService {
      * This check applies to actions for updating the entity, sending confirmation emails, etc.
      * @param entity The entity to auth against
      * @return If the entity is allowed access
-     * @throws ProcessingResourceException If the given entity is null
      */
-    public boolean canAccess(Entity entity) throws ProcessingResourceException {
+    public boolean canAccess(Entity entity) {
         if(entity == null) {
             // TODO throw exception?
             throw new ProcessingResourceException(
@@ -82,7 +81,7 @@ public class PermissionService {
      * @param topicMember The resource to validate
      * @return Whether the user is allowed to create the topic member
      */
-    public boolean canCreate(TopicMember topicMember) throws BusinessLogicException {
+    public boolean canCreate(TopicMember topicMember) {
         if(topicMember == null) {
             throw new BusinessLogicException("Failed to authenticate permissions. Topic Member is null while checking canCreate(TopicMember).");
         }
@@ -111,7 +110,7 @@ public class PermissionService {
      * @param topicContent The topic content to perform access validation against
      * @return whether or not the currently auth'ed entity can access this content
      */
-    public boolean canView(TopicContent topicContent) throws BusinessLogicException {
+    public boolean canView(TopicContent topicContent) {
         if(topicContent == null) {
             throw new BusinessLogicException("Null topic content argument while checking permissions.");
         }
@@ -144,7 +143,7 @@ public class PermissionService {
      * @param topic The topic to validate auth'ed user against
      * @return If the auth'ed user has access to the topic
      */
-    public boolean canView(Topic topic) throws BusinessLogicException {
+    public boolean canView(Topic topic) {
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
 
         return authenticatedEntity.isAdmin()
@@ -156,7 +155,7 @@ public class PermissionService {
      * @param topicMember The topic to validate auth'ed user against
      * @return If the auth'ed user has access to the topic
      */
-    public boolean canView(TopicMember topicMember) throws BusinessLogicException {
+    public boolean canView(TopicMember topicMember) {
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
 
         return authenticatedEntity.isAdmin()
@@ -169,7 +168,7 @@ public class PermissionService {
      * @param topicContentRequest TopicContentRequest to auth against
      * @return If the auth'ed user has access to the topic
      */
-    public boolean canCreate(TopicContentRequest topicContentRequest) throws BusinessLogicException {
+    public boolean canCreate(TopicContentRequest topicContentRequest) {
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
         // TODO better way to do this
         Topic topic = new Topic();
@@ -214,9 +213,8 @@ public class PermissionService {
      * @param oldTopicMember The old topic member
      * @param newTopicMember The new topic member object with the applied updates
      * @return If the auth'ed user can modify the topic member
-     * @throws BusinessLogicException if any of the arguments have null (required) fields
      */
-    public boolean canModify(TopicMember oldTopicMember, TopicMember newTopicMember) throws BusinessLogicException {
+    public boolean canModify(TopicMember oldTopicMember, TopicMember newTopicMember) {
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
         if(authenticatedEntity.isAdmin()) {
             return authenticatedEntity.isAdmin();

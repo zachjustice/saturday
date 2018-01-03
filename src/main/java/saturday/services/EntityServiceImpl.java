@@ -45,7 +45,7 @@ public class EntityServiceImpl implements EntityService {
      * @return The entity with this email
      */
     @Override
-    public Entity findEntityByEmail(String email) throws BusinessLogicException {
+    public Entity findEntityByEmail(String email) {
         if(StringUtils.isEmpty(email)) {
             throw new BusinessLogicException("Empty email used while trying to find users by their email");
         }
@@ -54,7 +54,7 @@ public class EntityServiceImpl implements EntityService {
     }
 
     @Override
-    public Entity findEntityById(int id) throws ResourceNotFoundException {
+    public Entity findEntityById(int id) {
         Entity entity = entityRepository.findById(id);
 
         if(entity == null) {
@@ -65,7 +65,7 @@ public class EntityServiceImpl implements EntityService {
     }
 
     @Override
-    public Entity updateEntity(Entity updatedEntity) throws ProcessingResourceException, ResourceNotFoundException {
+    public Entity updateEntity(Entity updatedEntity) {
 
         if(updatedEntity == null) {
             throw new ProcessingResourceException("Null entity argument while update entity.");
@@ -116,7 +116,7 @@ public class EntityServiceImpl implements EntityService {
         return entityRepository.save(currEntity);
     }
 
-    public Entity saveEntity(Entity entity) throws BusinessLogicException {
+    public Entity saveEntity(Entity entity) {
         Entity entityWithSameEmail = findEntityByEmail(entity.getEmail());
 
         if(entityWithSameEmail != null) {

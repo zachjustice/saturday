@@ -4,9 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import saturday.domain.AccessToken;
-import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.DuplicateResourceException;
-import saturday.exceptions.ProcessingResourceException;
 import saturday.exceptions.ResourceNotFoundException;
 import saturday.repositories.AccessTokenRepository;
 
@@ -34,7 +32,7 @@ public class AccessTokenServiceImpl implements AccessTokenService {
      * @return The access token object associated with the raw token
      */
     @Override
-    public AccessToken findByToken(String rawToken) throws ResourceNotFoundException {
+    public AccessToken findByToken(String rawToken) {
         AccessToken token = accessTokenRepository.findByToken(rawToken);
         if(token == null) {
             throw new ResourceNotFoundException("Token does not exist!");
@@ -47,8 +45,6 @@ public class AccessTokenServiceImpl implements AccessTokenService {
      * Persist an access token.
      * @param token The token with is expiry date to be saved
      * @return The saved access token
-     * @throws BusinessLogicException If the token is already being used
-     * @throws ProcessingResourceException If the given token is null
      */
     @Override
     public AccessToken save(AccessToken token) {

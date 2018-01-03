@@ -35,10 +35,9 @@ public class TopicServiceImpl implements TopicService {
      * Find topics with a matching name
      * @param name The name to search by
      * @return List of topics
-     * @throws BusinessLogicException if the string is empty
      */
     @Override
-    public List<Topic> findTopicByName(String name) throws BusinessLogicException, ResourceNotFoundException {
+    public List<Topic> findTopicByName(String name) {
         if (StringUtils.isEmpty(name)) {
             throw new BusinessLogicException("Search by topic name with an empty string.");
         }
@@ -53,7 +52,7 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public Topic findTopicById(int id) throws ResourceNotFoundException {
+    public Topic findTopicById(int id) {
         Topic topic = topicRepository.findById(id);
 
         if(topic == null) {
@@ -64,7 +63,7 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public Topic saveTopic(Topic topic) throws BusinessLogicException {
+    public Topic saveTopic(Topic topic) {
 
         if(StringUtils.isEmpty(topic.getName()) || topic.getName().length() > TOPIC_NAME_MAX_LENGTH) {
             throw new BusinessLogicException("Invalid topic name. Topic name must exist and be less than " + TOPIC_NAME_MAX_LENGTH + " characters.");

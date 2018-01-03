@@ -32,8 +32,6 @@ public class TopicMemberServiceImpl implements TopicMemberService {
      * Topic members can send requests to other users.
      * @param topicMember the new topic member with an initial status of pending
      * @return The created topic member
-     * @throws BusinessLogicException If the topicMember.topic topicMember.entity is null or if the topic member already
-     *      exists
      */
     @Override
     public TopicMember save(TopicMember topicMember) throws BusinessLogicException {
@@ -69,10 +67,9 @@ public class TopicMemberServiceImpl implements TopicMemberService {
      * @param oldTopicMember The old topic member. We pass fields from the new topic member to the old one
      * @param newTopicMember The new topic member with the updated fields
      * @return The updated topic member
-     * @throws BusinessLogicException If required fields on the topic member arguments are null
-     */
+     * @     */
     @Override
-    public TopicMember update(TopicMember oldTopicMember, TopicMember newTopicMember) throws BusinessLogicException {
+    public TopicMember update(TopicMember oldTopicMember, TopicMember newTopicMember) {
 
         if(oldTopicMember.getStatus() == null) {
             throw new BusinessLogicException("Failed to modify topic member. Null topic member status.");
@@ -98,7 +95,7 @@ public class TopicMemberServiceImpl implements TopicMemberService {
     }
 
     @Override
-    public void delete(int id) throws ResourceNotFoundException {
+    public void delete(int id) {
         try {
             topicMemberRepository.delete(id);
         } catch(EmptyResultDataAccessException ex) {
@@ -107,7 +104,7 @@ public class TopicMemberServiceImpl implements TopicMemberService {
     }
 
     @Override
-    public TopicMember findById(int id) throws ResourceNotFoundException {
+    public TopicMember findById(int id) {
         TopicMember topicMember =  topicMemberRepository.findById(id);
         if(topicMember == null) {
             throw new ResourceNotFoundException("No topic member with an id " + id + " exists!");
