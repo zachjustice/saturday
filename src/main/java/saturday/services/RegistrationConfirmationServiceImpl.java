@@ -9,9 +9,6 @@ import org.springframework.stereotype.Service;
 import saturday.domain.AccessToken;
 import saturday.domain.AccessTokenType;
 import saturday.domain.Entity;
-import saturday.utils.TokenAuthenticationUtils;
-
-import java.util.Date;
 
 @Service("registrationConfirmationServiceImpl ")
 public class RegistrationConfirmationServiceImpl implements RegistrationConfirmationService {

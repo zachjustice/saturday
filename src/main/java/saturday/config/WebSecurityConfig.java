@@ -48,17 +48,20 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         http.cors().and().csrf().disable().authorizeRequests()
+                .antMatchers(HttpMethod.OPTIONS, "/register").permitAll()
+                .antMatchers(HttpMethod.POST, "/register").permitAll()
+
                 .antMatchers(HttpMethod.OPTIONS, "/validate_access_token").permitAll()
                 .antMatchers(HttpMethod.POST, "/validate_access_token").permitAll()
 
                 .antMatchers(HttpMethod.OPTIONS, "/access_token").permitAll()
                 .antMatchers(HttpMethod.PUT, "/access_token").permitAll()
 
-                .antMatchers(HttpMethod.OPTIONS, "/email_confirmation").permitAll()
-                .antMatchers(HttpMethod.GET, "/email_confirmation").permitAll()
+                .antMatchers(HttpMethod.OPTIONS, "/send_reset_password_email").permitAll()
+                .antMatchers(HttpMethod.POST, "/send_reset_password_email").permitAll()
 
-                .antMatchers(HttpMethod.OPTIONS, "/register").permitAll()
-                .antMatchers(HttpMethod.POST, "/register").permitAll()
+                .antMatchers(HttpMethod.OPTIONS, "/reset_password").permitAll()
+                .antMatchers(HttpMethod.PUT, "/reset_password").permitAll()
                 // Authenticate everything else
                 .anyRequest().authenticated()
                 .and()

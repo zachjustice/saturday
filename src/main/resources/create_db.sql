@@ -44,7 +44,7 @@ START TRANSACTION;
     fb_id BIGINT UNIQUE, -- NOT NULL,
     fb_access_token CHARACTER VARYING, -- NOT NULL
     CONSTRAINT unique_email UNIQUE(email),
-    CONSTRAINT valid_password_length CHECK(CHAR_LENGTH(password_hash) > 8)
+    CONSTRAINT valid_password_length CHECK(CHAR_LENGTH(password_hash) >= 8)
   );
 
   CREATE TRIGGER update_entities_modtime BEFORE UPDATE ON entities FOR EACH ROW EXECUTE PROCEDURE update_modified_column();

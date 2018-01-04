@@ -49,6 +49,7 @@ spring:
 
 saturday:
   application-url: ${SATURDAY_APPLICATION_URL}
+  password-min-length: 8
   ses:
     from-email: ${AWS_SES_FROM_EMAIL}
   s3:
@@ -68,7 +69,7 @@ saturday:
     format: "yyyy-MM-dd HH:mm:ss"
   access-token-type:
     email-confirmation: 1
-    forgot-password: 2
+    reset-password: 2
     bearer-token: 3
   topic:
     name:

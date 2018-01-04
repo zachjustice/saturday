@@ -38,9 +38,7 @@ public class TokenAuthenticationUtils {
     }
 
     public static String createToken(String username, long expirationTime) {
-
         return createToken(username, new Date(System.currentTimeMillis() + expirationTime));
-
     }
 
     public static String createToken(String username, Date expirationDate) {

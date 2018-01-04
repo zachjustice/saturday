@@ -29,9 +29,10 @@ public class EntityController {
 
     private final EntityServiceImpl entityService;
     private final TopicContentService topicContentService;
-    private final PermissionService permissionService;
     private final S3Service s3Service;
     private final RegistrationConfirmationService registrationConfirmationService;
+    private final ResetPasswordService resetPasswordService;
+    private final PermissionService permissionService;
 
     @Value("${saturday.s3.user-files-bucket}")
     private String bucketName;
@@ -48,13 +49,14 @@ public class EntityController {
             TopicContentService topicContentService,
             PermissionService permissionService,
             S3Service s3Service,
-            RegistrationConfirmationService registrationConfirmationService
-    ) {
+            RegistrationConfirmationService registrationConfirmationService,
+            ResetPasswordService resetPasswordService) {
         this.entityService = entityService;
         this.topicContentService = topicContentService;
         this.permissionService = permissionService;
         this.s3Service = s3Service;
         this.registrationConfirmationService = registrationConfirmationService;
+        this.resetPasswordService = resetPasswordService;
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
@@ -177,4 +179,45 @@ public class EntityController {
         return new ResponseEntity<>(entityTopicContent, HttpStatus.OK);
     }
 
+
+    /**
+     * Resend the email confirmation email
+     * @param id The id of the entity to send the confirmation email to
+     * @return Success or throw a failure
+     */
+    @RequestMapping(value = "entities/{id}/resend_confirmation", method = RequestMethod.POST)
+    public ResponseEntity<String> resendEmailConfirmationEmail(
+            @PathVariable(value="id") int id
+    ) {
+
+        Entity entity = entityService.findEntityById(id);
+        if(!permissionService.canAccess(entity)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+        }
+
+        registrationConfirmationService.sendEmail(entity);
+
+        return new ResponseEntity<>("SUCCESS", HttpStatus.OK);
+    }
+
+    /**
+     * Emails the provided entity with a "Forgot Password" email
+     * @param email The id of the entity to send the confirmation email to
+     * @return Success or throw a failure
+     */
+    @RequestMapping(value = "/send_reset_password_email", method = RequestMethod.POST)
+    public ResponseEntity<String> sendForgotPasswordEmail(
+            @RequestParam(value="email") String email
+    ) {
+        Entity entity = entityService.findEntityByEmail(email);
+        if(entity == null) {
+            // No need to tell people what emails exist and which don't
+            return new ResponseEntity<>("SUCCESS", HttpStatus.OK);
+        }
+
+        // send reset password email
+        resetPasswordService.sendEmail(entity);
+
+        return new ResponseEntity<>("SUCCESS", HttpStatus.OK);
+    }
 }
