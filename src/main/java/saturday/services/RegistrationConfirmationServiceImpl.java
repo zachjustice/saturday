@@ -39,34 +39,21 @@ public class RegistrationConfirmationServiceImpl implements RegistrationConfirma
      */
     @Override
     public void sendEmail(Entity entity) throws MailException {
-        String recipientEmail = entity.getEmail();
-        Date expirationDate = new Date(System.currentTimeMillis() + 60 * 60 * 24 * 1000);
-        String token = TokenAuthenticationUtils.createToken(recipientEmail, expirationDate);
+        AccessTokenType accessTokenType = new AccessTokenType();
+        accessTokenType.setId(ACCESS_TOKEN_TYPE_EMAIL_CONFIRMATION);
+        AccessToken accessToken = accessTokenService.save(entity.getEmail(), 60 * 60 * 24 * 1000, accessTokenType);
 
         SimpleMailMessage message = new SimpleMailMessage(this.templateMessage);
         message.setSubject("Confirm your email address");
         //message.setTo(entity.getEmail());
         message.setTo("success@simulator.amazonses.com");
-        message.setText("Confirm your email address with this link " + constructVerificationUrl(token));
+        message.setText("Confirm your email address with this link " + constructVerificationUrl(accessToken.getToken()));
 
         mailSender.send(message);
-        saveToken(token, expirationDate);
-    }
-
-    private void saveToken(String token, Date expirationDate) {
-        AccessTokenType accessTokenType = new AccessTokenType();
-        accessTokenType.setId(ACCESS_TOKEN_TYPE_EMAIL_CONFIRMATION);
-
-        AccessToken accessToken = new AccessToken();
-        accessToken.setToken(token);
-        accessToken.setExpirationDate(expirationDate);
-        accessToken.setType(accessTokenType);
-
-        accessTokenService.save(accessToken);
     }
 
     /**
-     * Constructs the confirm email link given an access token
+     * Constructs the confirmation email link given an access token
      * @param token A token for email confirmation
      * @return The email confirmation url
      */
