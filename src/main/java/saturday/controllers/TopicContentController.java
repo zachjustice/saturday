@@ -6,27 +6,32 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import saturday.domain.Entity;
 import saturday.domain.TopicContent;
 import saturday.domain.TopicContentRequest;
 import saturday.exceptions.AccessDeniedException;
+import saturday.services.EntityService;
 import saturday.services.PermissionService;
 import saturday.services.TopicContentService;
 
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 @RestController
 public class TopicContentController {
 
     private final TopicContentService topicContentService;
     private final PermissionService permissionService;
+    private final EntityService entityService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public TopicContentController(TopicContentService topicContentService, PermissionService permissionService) {
+    public TopicContentController(TopicContentService topicContentService, PermissionService permissionService, EntityService entityService) {
         this.topicContentService = topicContentService;
         this.permissionService = permissionService;
+        this.entityService = entityService;
     }
 
     @RequestMapping(value = "/topic_content", method = RequestMethod.PUT)
@@ -112,5 +117,30 @@ public class TopicContentController {
 
         topicContentService.delete(topicContent);
         return new ResponseEntity<>("Success", HttpStatus.OK);
+    }
+
+    /**
+     * Get entity's topic content
+     * @param id The entity to retrieve topic content for
+     * @param page when page of results to return
+     * @param pageSize how large of a page to use
+     * @return A list of topic content
+     */
+    @RequestMapping(value = "/entities/{id}/topic_content", method = RequestMethod.GET)
+    public ResponseEntity<List<TopicContent>> getEntityTopicContent(
+            @PathVariable(value="id") int id,
+            @RequestParam(value="page", defaultValue = "0") int page,
+            @RequestParam(value="page_size", defaultValue = "30") int pageSize
+    ) {
+
+        Entity entity = entityService.findEntityById(id);
+
+        if(!permissionService.canAccess(entity)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+        }
+
+        List<TopicContent> entityTopicContent = topicContentService.findByTopicMember(id, page, pageSize);
+
+        return new ResponseEntity<>(entityTopicContent, HttpStatus.OK);
     }
 }

@@ -148,37 +148,6 @@ public class EntityController {
         return new ResponseEntity<>(entity, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/entities/{id}/topics", method = RequestMethod.GET)
-    public ResponseEntity<List<Topic>> getEntityTopics(
-            @PathVariable(value="id") int id
-    ) {
-        Entity entity = entityService.findEntityById(id);
-
-        if(!permissionService.canAccess(entity)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
-        }
-
-        return new ResponseEntity<>(entity.getTopics(), HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/entities/{id}/topic_content", method = RequestMethod.GET)
-    public ResponseEntity<List<TopicContent>> getEntityTopicContent(
-            @PathVariable(value="id") int id,
-            @RequestParam(value="page", defaultValue = "0") int page,
-            @RequestParam(value="page_size", defaultValue = "30") int pageSize
-    ) {
-
-        Entity entity = entityService.findEntityById(id);
-
-        if(!permissionService.canAccess(entity)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
-        }
-
-        List<TopicContent> entityTopicContent = topicContentService.findByTopicMember(id, page, pageSize);
-
-        return new ResponseEntity<>(entityTopicContent, HttpStatus.OK);
-    }
-
 
     /**
      * Resend the email confirmation email
