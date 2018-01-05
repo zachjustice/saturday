@@ -38,11 +38,17 @@ TODO
   
 * Use cookie scheme for auth instead of JWT
   
-* Validate the fb access token corresponds to the auth'ed user's email address.
-  * They are the person they say they are
-
-* Use obscured ids rather than autoincrementing id?
+* Enable personal user photos. 
+    * user_content table
+    * topic_content has a foreign key to user_content.id
+    * let's us backup all user photos without requiring each photo to have a topic
+    
+* Production quality emails
 
 * Cohesive exception scheme
   * find<resource> methods shouldn't throw ResourceNotFoundExceptions()
   * ProcessingResourceException vs BussinessLogicException
+  
+Questions:
+* Use obscured ids rather than autoincrementing id?
+* use /me/<resource> instead of /entities/{id}/<resource>?
