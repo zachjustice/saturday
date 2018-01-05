@@ -2,8 +2,11 @@ package saturday.controllers;
 
 import com.restfb.DefaultFacebookClient;
 import com.restfb.FacebookClient;
+import com.restfb.Parameter;
+import com.restfb.Version;
 import com.restfb.exception.FacebookException;
 import com.restfb.exception.FacebookOAuthException;
+import com.restfb.types.User;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import org.slf4j.Logger;
@@ -63,10 +66,11 @@ public class AccessTokenController {
     }
 
     /**
-     * Validate a facebook access token and exchange the validated token with a saturday access token
-     * If the auth'ed user doesn't exist in our system, create one using the provided data
+     * Validate a facebook access token and exchange the validated token with a saturday access token.
+     * If the auth'ed user doesn't exist in our system, one is created using data from facebook's /me route using
+     * the fb extended access token.
      * @param response We attach our token to the http response so the client can retrieve it
-     * @param validationEntity The entity, either created or retrieved, associated with the user
+     * @param validationEntity The only field we use is fbAccessToken which we use to obtain an extended fb access token
      * @return The entity associated with the fb token
      */
     @RequestMapping(value = "/validate_access_token", method = RequestMethod.POST)
@@ -74,10 +78,6 @@ public class AccessTokenController {
             HttpServletResponse response,
             @RequestBody Entity validationEntity
     ) {
-        Entity entity = this.entityService.findEntityByEmail(validationEntity.getEmail());
-        logger.info("fb id: " + FACEBOOK_APP_ID + ", fb token: " + FACEBOOK_APP_SECRET);
-        logger.info("Attempt to find existing entity: " + entity);
-
         String fbAccessToken;
         try {
             FacebookClient.AccessToken accessToken = facebookClient.obtainExtendedAccessToken(
@@ -97,19 +97,28 @@ public class AccessTokenController {
            );
         }
 
-        // save unregistered users after the fb auth token authenticated
-        // but only if we haven't seen that user yet
+        DefaultFacebookClient facebookClient25 = new DefaultFacebookClient(fbAccessToken, Version.VERSION_2_11);
+        User fbUser = facebookClient25.fetchObject("me", User.class, Parameter.with("fields", "id,email,name,gender"));
+        Entity entity = this.entityService.findEntityByEmail(fbUser.getEmail());
+
         if(entity == null) {
-            entity = this.entityService.saveEntity(validationEntity);
+            // save unregistered users after the validating the fb auth token
+            // but only if we haven't seen this user yet
+            entity = new Entity();
+            entity.setFbAccessToken(fbAccessToken);
+            entity.setEmail(fbUser.getEmail());
+            entity.setName(fbUser.getName());
+            entity.setFbId(new Long(fbUser.getId()));
+
+            entity = this.entityService.saveEntity(entity);
             logger.info("Entity doesn't exist. Created one: " + entity);
+        } else {
+            entity.setFbAccessToken(fbAccessToken);
         }
 
-        // Set fb access token
-        entity.setFbAccessToken(fbAccessToken);
-
-        // make sure entity has saturday-specific tokens
+        // make sure entity has a saturday-specific tokens we can put in the response headers
         if(StringUtils.isEmpty(entity.getToken())) {
-            entity.setToken(TokenAuthenticationUtils.createToken(entity.getEmail()));
+            entity.setToken(TokenAuthenticationUtils.createToken(fbUser.getEmail()));
         }
 
         HTTPUtils.addAuthenticationHeader(response, entity.getToken());
@@ -156,6 +165,12 @@ public class AccessTokenController {
         return new ResponseEntity<>(actualUser, HttpStatus.OK);
     }
 
+    /**
+     * Confirm an email confirmation token. This is the route provided in email confirmation emails.
+     * Delete the email confirmation token after the user has been updated to prevent token reuse.
+     * @param token The email confirmation token sent to the new user's email.
+     * @return If the email confirmation was successful.
+     */
     @RequestMapping(value = "/email_confirmation", method = RequestMethod.GET)
     public ResponseEntity<String> confirmEmail(
             @RequestParam(value="token") String token
@@ -180,19 +195,19 @@ public class AccessTokenController {
         }
 
         // Make sure they're using the correct kind of token
-        // i.e. we don't want people to use a normal auth token to confirm the email
+        // i.e. we don't want people to use a normal auth or password reset token to confirm the email
         if(existing.getType().getId() != ACCESS_TOKEN_TYPE_EMAIL_CONFIRMATION) {
             throw new AccessDeniedException("Access token is invalid.");
         }
-
-        // delete the access token if its valid
-        accessTokenService.deleteAccessTokenByToken(existing.getToken());
 
         // update the user's status to reflect the confirmed email
         Entity entity = entityService.findEntityByEmail(email);
         entity.setEmailConfirmed(true);
 
         entityService.updateEntity(entity);
+
+        // delete the access token after we've updated the user
+        accessTokenService.deleteAccessTokenByToken(existing.getToken());
 
         return new ResponseEntity<>("SUCCESS", HttpStatus.OK);
     }
