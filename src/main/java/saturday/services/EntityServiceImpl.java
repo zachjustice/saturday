@@ -98,7 +98,7 @@ public class EntityServiceImpl implements EntityService {
             currEntity.setToken(updatedToken);
         }
 
-        if(!StringUtils.isEmpty(updatedPassword)) {
+        if(!StringUtils.isEmpty(updatedPassword) && !currEntity.getPassword().equals(updatedPassword)) {
             // TODO email verification
             currEntity.setPassword(bCryptPasswordEncoder.encode(updatedEntity.getPassword()));
         }
