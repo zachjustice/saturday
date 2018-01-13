@@ -6,12 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import saturday.domain.Entity;
 import saturday.domain.TopicMember;
 import saturday.exceptions.AccessDeniedException;
 import saturday.services.EntityService;
 import saturday.services.PermissionService;
 import saturday.services.TopicMemberService;
 import saturday.services.TopicService;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController()
 public class TopicMemberController {
@@ -28,6 +33,25 @@ public class TopicMemberController {
         this.entityService = entityService;
         this.topicService = topicService;
         this.permissionService = permissionService;
+    }
+
+    /**
+     * Retrieve topic invites where the given entity is either the sender or receiver
+     * @param involvedPartyId  The entity which sent or received the invites
+     * @return HashMap of the sent and received topic invites involving the given user
+     */
+    @RequestMapping(value = "/topic_members", method = RequestMethod.GET)
+    public ResponseEntity<Map<String, List<TopicMember>>> getTopicMemberByInvolvedParty(
+            @RequestParam("involved_party") int involvedPartyId
+    ) {
+        Entity involvedParty = entityService.findEntityById(involvedPartyId);
+
+        if(!permissionService.canAccess(involvedParty)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+        }
+
+        Map<String, List<TopicMember>> sentAndReceivedTopicInvites = topicMemberService.getSentAndReceivedTopicInvites(involvedParty);
+        return new ResponseEntity<>(sentAndReceivedTopicInvites, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/topic_members/{id}", method = RequestMethod.GET)

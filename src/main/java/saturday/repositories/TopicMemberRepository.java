@@ -11,8 +11,10 @@ import java.util.List;
 
 @Repository
 public interface TopicMemberRepository extends JpaRepository<TopicMember, Integer> {
-    List<TopicMember> findByTopicId(int id);
     TopicMember findById(int id);
     TopicMember findByEntityAndTopic(Entity entity, Topic topic);
     TopicMember findByEntityAndTopicAndStatus(Entity entity, Topic topic, TopicMemberStatus status);
+
+    List<TopicMember> findByTopicId(int id);
+    List<TopicMember> findAllByCreatorOrEntityAndStatus(Entity creator, Entity entity, TopicMemberStatus status);
 }

@@ -12,7 +12,11 @@ import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ResourceNotFoundException;
 import saturday.repositories.TopicMemberRepository;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service("topicMemberService")
 public class TopicMemberServiceImpl implements TopicMemberService {
@@ -126,5 +130,45 @@ public class TopicMemberServiceImpl implements TopicMemberService {
     @Override
     public TopicMember findByEntityAndTopicAndStatus(Entity entity, Topic topic, TopicMemberStatus status) {
         return topicMemberRepository.findByEntityAndTopicAndStatus(entity, topic, status);
+    }
+
+    /**
+     * Retrieve get and received topic invites
+     * @param involvedParty The party which sent or received the topic invite
+     * @return Map of the form {sent: [TopicMembers], received: [TopicMembers]}
+     */
+    @Override
+    public Map<String, List<TopicMember>> getSentAndReceivedTopicInvites(Entity involvedParty) {
+        TopicMemberStatus pendingStatus = new TopicMemberStatus();
+        pendingStatus.setId(TOPIC_MEMBER_STATUS_PENDING);
+
+        List<TopicMember> topicMembers = topicMemberRepository.findAllByCreatorOrEntityAndStatus(
+                involvedParty,
+                involvedParty,
+                pendingStatus
+        );
+
+        Map<String, List<TopicMember>> sentAndReceivedTopicInvites = topicMembers
+                .stream()
+                .collect(
+                        Collectors.groupingBy(topicMember -> {
+                            if(topicMember.getCreator().getId() == involvedParty.getId()) {
+                                return "sent";
+                            } else {
+                                return "received";
+                            }
+                        })
+                );
+
+        // The returned map should default to having empty sent/received keys
+        if(!sentAndReceivedTopicInvites.containsKey("sent")) {
+            sentAndReceivedTopicInvites.put("sent", new ArrayList<>());
+        }
+
+        if(!sentAndReceivedTopicInvites.containsKey("received")) {
+            sentAndReceivedTopicInvites.put("received", new ArrayList<>());
+        }
+
+        return sentAndReceivedTopicInvites;
     }
 }

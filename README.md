@@ -31,16 +31,21 @@ eb deploy
 ```
 
 TODO
+* Repeatable postman requests
+  * requires delete resource routes
+
+* S3 CORS
+  * Current policy is too permissive
+
 * Separate table for access tokens
+  * Use cookie scheme for auth instead of JWT
   * Cron job for clearing out old tokens
   * move entity.token field to access_tokens
   * logout invalidates token
-  
-* Use cookie scheme for auth instead of JWT
-  
+
 * Enable personal user photos. 
     * user_content table
-    * topic_content has a foreign key to user_content.id
+    * topic_content has references to user_content.id
     * let's us backup all user photos without requiring each photo to have a topic
     
 * Production quality emails
@@ -48,7 +53,11 @@ TODO
 * Cohesive exception scheme
   * find<resource> methods shouldn't throw ResourceNotFoundExceptions()
   * ProcessingResourceException vs BussinessLogicException
-  
+  * Specific Exceptions rather than broad exceptions
+    * Most processing resource exceptions are probably illegal arguments
+    * Let callers handle specific scenarios.
+
 Questions:
 * Use obscured ids rather than autoincrementing id?
 * use /me/<resource> instead of /entities/{id}/<resource>?
+

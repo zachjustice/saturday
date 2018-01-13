@@ -6,6 +6,7 @@ import saturday.domain.TopicMember;
 import saturday.domain.TopicMemberStatus;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zachjustice on 7/26/17.
@@ -20,4 +21,6 @@ public interface TopicMemberService {
     TopicMember findByEntityAndTopicAndStatus(Entity entity, Topic topic, TopicMemberStatus status);
 
     TopicMember update(TopicMember oldTopicMember, TopicMember newTopicMember) ;
+
+    Map<String, List<TopicMember>> getSentAndReceivedTopicInvites(Entity involvedParty);
 }

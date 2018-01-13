@@ -53,15 +53,15 @@ public class EntityServiceImpl implements EntityService {
         return entityRepository.findByEmail(email);
     }
 
+    /**
+     * Find entity by their id
+     * @param id Id of the entity
+     * @return The entity with the given id
+     */
     @Override
     public Entity findEntityById(int id) {
-        Entity entity = entityRepository.findById(id);
 
-        if(entity == null) {
-            throw new ResourceNotFoundException("No entity with the id " + id + " exists!");
-        }
-
-        return entity;
+        return entityRepository.findById(id);
     }
 
     @Override
