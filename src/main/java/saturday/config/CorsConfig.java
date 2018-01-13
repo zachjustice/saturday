@@ -28,9 +28,9 @@ public class CorsConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH")
-                        .allowedOrigins("*") // TODO security implications?
-                        .exposedHeaders("*")
-                        .allowedHeaders("*");
+                        .allowedOrigins("*")
+                        .exposedHeaders("Authorization")
+                        .allowedHeaders("*"); // TODO security implications?
             }
         };
     }
