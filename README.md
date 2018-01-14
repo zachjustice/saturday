@@ -31,6 +31,9 @@ eb deploy
 ```
 
 TODO
+* Email updates when
+  * You receive an invite to a new topic
+  * Your password is changed
 * Repeatable postman requests
   * requires delete resource routes
 

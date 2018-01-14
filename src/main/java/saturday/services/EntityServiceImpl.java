@@ -152,8 +152,6 @@ public class EntityServiceImpl implements EntityService {
         String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         Entity authenticatedEntity;
 
-        logger.info("AUTHED AS " + email);
-
         try {
             authenticatedEntity = findEntityByEmail(email);
         } catch (BusinessLogicException e) {
