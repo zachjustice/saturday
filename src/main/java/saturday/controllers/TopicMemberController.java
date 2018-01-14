@@ -14,7 +14,6 @@ import saturday.services.PermissionService;
 import saturday.services.TopicMemberService;
 import saturday.services.TopicService;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -65,6 +64,11 @@ public class TopicMemberController {
         return new ResponseEntity<>(topicMember, HttpStatus.OK);
     }
 
+    /**
+     * Create a topic member.
+     * @param topicMember The topic member to create
+     * @return The created topic member
+     */
     @RequestMapping(value = "/topic_members", method = RequestMethod.POST)
     public ResponseEntity<TopicMember> saveTopicMember(@RequestBody TopicMember topicMember) {
         if(!permissionService.canCreate(topicMember)) {

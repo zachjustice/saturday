@@ -13,7 +13,6 @@ import saturday.exceptions.ResourceNotFoundException;
 import saturday.repositories.TopicMemberRepository;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,12 +40,17 @@ public class TopicMemberServiceImpl implements TopicMemberService {
     public TopicMember save(TopicMember topicMember) throws BusinessLogicException {
 
         if(topicMember.getTopic() == null) {
-            throw new BusinessLogicException("Failed to create topic member. Null topic.");
+            throw new IllegalArgumentException("Failed to create topic member. Null topic.");
         }
 
         if(topicMember.getEntity() == null) {
-            throw new BusinessLogicException("Failed to create topic member. Null entity.");
+            throw new IllegalArgumentException("Failed to create topic member. Null entity.");
         }
+
+        // new topic members have a status of pending
+        TopicMemberStatus pendingStatus = new TopicMemberStatus();
+        pendingStatus.setId(TOPIC_MEMBER_STATUS_PENDING);
+        topicMember.setStatus(pendingStatus);
 
         // check if the invitee is already a topic member
         TopicMember existingTopicMember = topicMemberRepository.findByEntityAndTopic(topicMember.getEntity(), topicMember.getTopic());
@@ -133,7 +137,7 @@ public class TopicMemberServiceImpl implements TopicMemberService {
     }
 
     /**
-     * Retrieve get and received topic invites
+     * Retrieve get and received topic invites (topic members with a pending status)
      * @param involvedParty The party which sent or received the topic invite
      * @return Map of the form {sent: [TopicMembers], received: [TopicMembers]}
      */
