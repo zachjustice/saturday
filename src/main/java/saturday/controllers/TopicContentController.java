@@ -7,12 +7,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
+import saturday.domain.Topic;
 import saturday.domain.TopicContent;
 import saturday.domain.TopicContentRequest;
 import saturday.exceptions.AccessDeniedException;
 import saturday.services.EntityService;
 import saturday.services.PermissionService;
 import saturday.services.TopicContentService;
+import saturday.services.TopicService;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -25,13 +27,15 @@ public class TopicContentController {
     private final TopicContentService topicContentService;
     private final PermissionService permissionService;
     private final EntityService entityService;
+    private final TopicService topicService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public TopicContentController(TopicContentService topicContentService, PermissionService permissionService, EntityService entityService) {
+    public TopicContentController(TopicContentService topicContentService, PermissionService permissionService, EntityService entityService, TopicService topicService) {
         this.topicContentService = topicContentService;
         this.permissionService = permissionService;
         this.entityService = entityService;
+        this.topicService = topicService;
     }
 
     @RequestMapping(value = "/topic_content", method = RequestMethod.PUT)
@@ -142,5 +146,22 @@ public class TopicContentController {
         List<TopicContent> entityTopicContent = topicContentService.findByTopicMember(id, page, pageSize);
 
         return new ResponseEntity<>(entityTopicContent, HttpStatus.OK);
+    }
+
+    /**
+     * Returns a list of topic content for a topic
+     * @param id the id of the topic
+     * @return list of topic content
+     */
+    @RequestMapping(value = "/topics/{id}/topic_content", method = RequestMethod.GET)
+    public ResponseEntity<List<TopicContent>> getTopicContentByTopic(@PathVariable(value = "id") int id) {
+        Topic topic = topicService.findTopicById(id);
+
+        if(!permissionService.canView(topic)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions");
+        }
+
+        List<TopicContent> topicContentList = topicContentService.findTopicContentByTopicId(id);
+        return new ResponseEntity<>(topicContentList, HttpStatus.OK);
     }
 }

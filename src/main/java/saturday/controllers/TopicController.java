@@ -104,18 +104,6 @@ public class TopicController {
         return new ResponseEntity<>(topic, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/topics/{id}/topic_content", method = RequestMethod.GET)
-    public ResponseEntity<List<TopicContent>> getTopicContentByTopic(@PathVariable(value = "id") int id) {
-        Topic topic = topicService.findTopicById(id);
-
-        if(!permissionService.canView(topic)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions");
-        }
-
-        List<TopicContent> topicContentList = topicContentService.findTopicContentByTopicId(id);
-        return new ResponseEntity<>(topicContentList, HttpStatus.OK);
-    }
-
     @RequestMapping(value = "topics/{id}/topic_members", method = RequestMethod.GET)
     public ResponseEntity<List<TopicMember>> getTopicTopicMember(@PathVariable(value = "id") int id) {
         Topic topic = topicService.findTopicById(id);
