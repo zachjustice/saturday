@@ -3,6 +3,8 @@ select tm.id as "topic_member_id", tm.status_id, t.name as "topic_name", t.id, e
 select * from topic_content;
 select * from entities;
 select * from entity_roles;
+select * from topic_members;
 
 delete from topic_members where creator_id = (select id from entities where email = 'adam@gmail.com');
 delete from topics where creator_id = (select id from entities where email = 'adam@gmail.com');
+

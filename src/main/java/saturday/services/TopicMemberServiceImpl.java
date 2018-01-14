@@ -143,13 +143,11 @@ public class TopicMemberServiceImpl implements TopicMemberService {
      */
     @Override
     public Map<String, List<TopicMember>> getSentAndReceivedTopicInvites(Entity involvedParty) {
-        TopicMemberStatus pendingStatus = new TopicMemberStatus();
-        pendingStatus.setId(TOPIC_MEMBER_STATUS_PENDING);
 
         List<TopicMember> topicMembers = topicMemberRepository.findAllByCreatorOrEntityAndStatus(
-                involvedParty,
-                involvedParty,
-                pendingStatus
+                involvedParty.getId(),
+                involvedParty.getId(),
+                TOPIC_MEMBER_STATUS_PENDING
         );
 
         Map<String, List<TopicMember>> sentAndReceivedTopicInvites = topicMembers
