@@ -1,5 +1,7 @@
 package saturday.services;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import saturday.domain.TopicContent;
 import saturday.domain.TopicContentRequest;
 
@@ -8,7 +10,7 @@ import java.util.List;
 
 public interface TopicContentService {
     TopicContent findTopicContentById(int id);
-    List<TopicContent> findTopicContentByTopicId(int id);
+    Page<TopicContent> findTopicContentByTopicId(Pageable page, int topicId);
 
     TopicContent save(TopicContentRequest topicContentRequest) throws IOException;
     TopicContent updateTopicContent(TopicContent oldTopicContent, TopicContent newTopicContent);

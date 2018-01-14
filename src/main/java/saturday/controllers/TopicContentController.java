@@ -2,6 +2,9 @@ package saturday.controllers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -149,19 +152,22 @@ public class TopicContentController {
     }
 
     /**
-     * Returns a list of topic content for a topic
-     * @param id the id of the topic
+     * Returns a paginated list of topic content for a topic
+     * @param pageable paging and sorting information for the request
      * @return list of topic content
      */
     @RequestMapping(value = "/topics/{id}/topic_content", method = RequestMethod.GET)
-    public ResponseEntity<List<TopicContent>> getTopicContentByTopic(@PathVariable(value = "id") int id) {
-        Topic topic = topicService.findTopicById(id);
+    public ResponseEntity<Page<TopicContent>> getTopicContentByTopic(
+            @PathVariable(value="id") int topicId,
+            Pageable pageable
+    ) {
+        Topic topic = topicService.findTopicById(topicId);
 
         if(!permissionService.canView(topic)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions");
         }
 
-        List<TopicContent> topicContentList = topicContentService.findTopicContentByTopicId(id);
+        Page<TopicContent> topicContentList = topicContentService.findTopicContentByTopicId(pageable, topicId);
         return new ResponseEntity<>(topicContentList, HttpStatus.OK);
     }
 }

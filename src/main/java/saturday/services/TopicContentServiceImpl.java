@@ -2,6 +2,8 @@ package saturday.services;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
@@ -21,6 +23,8 @@ import java.util.UUID;
 
 @Service("topicContentService")
 public class TopicContentServiceImpl implements TopicContentService {
+    @Value("${saturday.page-size-limit}")
+    private int PAGE_SIZE_LIMIT;
     @Value("${saturday.s3.user-files-bucket}")
     private String bucketName;
     @Value("${saturday.s3.url.prefix}")
@@ -66,13 +70,15 @@ public class TopicContentServiceImpl implements TopicContentService {
 
     /**
      * All topic content belongs to a topic which is how users share content with one another.
-     * @param id Primary key of the topic
      * @return all topic content for a topic
      */
     @Override
-    public List<TopicContent> findTopicContentByTopicId(int id) {
-        topicService.findTopicById(id); // throws Resource Not Found Exception
-        return  topicContentRepository.findByTopicId(id);
+    public Page<TopicContent> findTopicContentByTopicId(Pageable page, int topicId) {
+        if(page.getPageSize() > PAGE_SIZE_LIMIT) {
+            throw new IllegalArgumentException("Page size is larger than " + PAGE_SIZE_LIMIT);
+        }
+
+        return topicContentRepository.findAllByTopicId(page, topicId);
     }
 
     @Override
