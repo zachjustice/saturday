@@ -21,6 +21,8 @@ public class ResetPasswordServiceImpl implements ResetPasswordService {
     private int ACCESS_TOKEN_TYPE_RESET_PASSWORD;
     @Value("${saturday.application-url}")
     private String APPLICATION_URL;
+    @Value("${saturday.prod}")
+    private boolean SATURDAY_PROD;
 
     @Autowired
     public ResetPasswordServiceImpl(AccessTokenService accessTokenService, SimpleMailMessage templateMessage, MailSender mailSender) {
@@ -51,7 +53,9 @@ public class ResetPasswordServiceImpl implements ResetPasswordService {
             + "For security, this link is only valid for 24 hours."
         );
 
-        mailSender.send(message);
+        if(SATURDAY_PROD) {
+            mailSender.send(message);
+        }
     }
 
 

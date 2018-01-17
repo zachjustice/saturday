@@ -21,6 +21,8 @@ public class RegistrationConfirmationServiceImpl implements RegistrationConfirma
     private String APPLICATION_URL;
     @Value("${saturday.access-token-type.email-confirmation}")
     private int ACCESS_TOKEN_TYPE_EMAIL_CONFIRMATION;
+    @Value("${saturday.prod}")
+    private boolean SATURDAY_PROD;
 
     @Autowired
     public RegistrationConfirmationServiceImpl(MailSender mailSender, SimpleMailMessage templateMessage, AccessTokenService accessTokenService) {
@@ -46,7 +48,9 @@ public class RegistrationConfirmationServiceImpl implements RegistrationConfirma
         message.setTo("success@simulator.amazonses.com");
         message.setText("Confirm your email address with this link " + constructVerificationUrl(accessToken.getToken()));
 
-        mailSender.send(message);
+        if(SATURDAY_PROD) {
+            mailSender.send(message);
+        }
     }
 
     /**
