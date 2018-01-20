@@ -47,10 +47,13 @@ public class TopicMemberServiceImpl implements TopicMemberService {
             throw new IllegalArgumentException("Failed to create topic member. Null entity.");
         }
 
-        // new topic members have a status of pending
-        TopicMemberStatus pendingStatus = new TopicMemberStatus();
-        pendingStatus.setId(TOPIC_MEMBER_STATUS_PENDING);
-        topicMember.setStatus(pendingStatus);
+        if(topicMember.getStatus() == null) {
+            // new topic members have a default status of pending if no status is provided
+            TopicMemberStatus pendingStatus = new TopicMemberStatus();
+            pendingStatus.setId(TOPIC_MEMBER_STATUS_PENDING);
+            topicMember.setStatus(pendingStatus);
+        }
+
 
         // check if the invitee is already a topic member
         TopicMember existingTopicMember = topicMemberRepository.findByEntityAndTopic(topicMember.getEntity(), topicMember.getTopic());
