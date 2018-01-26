@@ -17,6 +17,7 @@ import saturday.exceptions.ResourceNotFoundException;
 import saturday.repositories.TopicContentRepository;
 import saturday.utils.FileUtils;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -156,7 +157,7 @@ public class TopicContentServiceImpl implements TopicContentService {
         Date dateTaken;
 
         try {
-            dateTaken = FileUtils.getDate(fis);
+            dateTaken = FileUtils.getDate(new BufferedInputStream(fis));
 
             // log failures to parse metadata/exif data
             if (dateTaken == null) {
@@ -226,7 +227,7 @@ public class TopicContentServiceImpl implements TopicContentService {
         Date dateTaken;
 
         try {
-            dateTaken = FileUtils.getDate(file.getInputStream());
+            dateTaken = FileUtils.getDate(new BufferedInputStream(file.getInputStream()));
 
             // log failures to parse metadata/exif data
             if (dateTaken == null) {
