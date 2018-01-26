@@ -97,6 +97,16 @@ public class TopicContentServiceImpl implements TopicContentService {
         return topicContentRepository.save(oldTopicContent);
     }
 
+    /**
+     * Upload user content as base 64 data to a given topic
+     * TODO This and save(file) are very similar. Deduplicate the code.
+     * @param data Base64 encoded file to upload
+     * @param topicId The topic to upload the file to
+     * @param creatorId The creator of the topic content. The authorized user by default.
+     * @param description A description of the uploaded content
+     * @return The saved topic content record
+     * @throws IOException If s3 upload fails to read the file
+     */
     @Override
     public TopicContent save(String data, Integer topicId, Integer creatorId, String description) throws IOException {
         Entity creator;
@@ -141,21 +151,39 @@ public class TopicContentServiceImpl implements TopicContentService {
         topicContent.setTopic(topic);
         topicContent.setS3bucket(bucketName);
         topicContent.setS3key(s3key);
+
+        // get origin date of the photo if its available
+        Date dateTaken;
+
         try {
-            topicContent.setDateTaken(FileUtils.getDate(fis));
+            dateTaken = FileUtils.getDate(fis);
+
+            // log failures to parse metadata/exif data
+            if (dateTaken == null) {
+                logger.error("Failed to retrieve date from exif data for " + s3key + ".");
+                dateTaken = new Date();
+            }
         } catch (ImageProcessingException e) {
-            topicContent.setDateTaken(new Date());
-            logger.error(e.getMessage());
+            dateTaken = new Date();
+            logger.error("Failed to retrieve date from exif data for " + s3key + ". " + e.getMessage());
         }
 
         return topicContentRepository.save(topicContent);
     }
 
+    /**
+     * Upload user content to a given topic
+     * @param file The file to upload
+     * @param topicId The topic to upload the file to
+     * @param creatorId The creator of the topic content. The authorized user by default.
+     * @param description A description of the uploaded content
+     * @return The saved topic content record
+     * @throws IOException If s3 upload fails to read the file
+     */
     @Override
     public TopicContent save(MultipartFile file, Integer topicId, Integer creatorId, String description) throws IOException {
-        Entity creator;
-        Topic topic = topicService.findTopicById(topicId);
 
+        Entity creator;
         // only let the user set the topic content's creator if they're an admin
         if (entityService.getAuthenticatedEntity().isAdmin()) {
             creator = entityService.findEntityById(creatorId);
@@ -163,6 +191,7 @@ public class TopicContentServiceImpl implements TopicContentService {
             creator = entityService.getAuthenticatedEntity();
         }
 
+        Topic topic = topicService.findTopicById(topicId);
         if (topic == null) {
             throw new ResourceNotFoundException("The topic id, " + topicId + ", does not exist");
         }
