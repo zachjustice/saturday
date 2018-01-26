@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,8 +19,6 @@ import saturday.services.TopicContentService;
 import saturday.services.TopicService;
 
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -47,11 +44,16 @@ public class TopicContentController {
             @RequestBody TopicContentRequest topicContentRequest
     ) throws IOException {
 
-        if(!permissionService.canCreate(topicContentRequest)) {
+        if (!permissionService.canCreate(topicContentRequest)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
-        TopicContent topicContent = topicContentService.save(topicContentRequest);
+        TopicContent topicContent = topicContentService.save(
+                topicContentRequest.getData(),
+                topicContentRequest.getTopicId(),
+                topicContentRequest.getCreatorId(),
+                topicContentRequest.getDescription()
+        );
         logger.info("Created TopicContent: " + topicContentRequest.toString());
 
         return new ResponseEntity<>(topicContent, HttpStatus.OK);
@@ -60,38 +62,34 @@ public class TopicContentController {
     @RequestMapping(value = "/topic_content", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<TopicContent> createTopicContent(
-            @RequestParam("creatorId")   Integer       creatorId,
-            @RequestParam("topicId")     Integer       topicId,
-            @RequestParam("description") String        description,
-            @RequestParam("dateTaken")   String        dateTaken,
-            @RequestParam("file")        MultipartFile file
+            @RequestParam("creatorId") Integer creatorId,
+            @RequestParam("topicId") Integer topicId,
+            @RequestParam("description") String description,
+            @RequestParam("file") MultipartFile file
     ) throws IOException {
 
-        Calendar calDateTaken = javax.xml.bind.DatatypeConverter.parseDateTime(dateTaken);
-        Date date = calDateTaken.getTime();
-
+        // TODO get date taken from photo exif
         TopicContentRequest topicContentRequest = new TopicContentRequest();
         topicContentRequest.setCreatorId(creatorId);
         topicContentRequest.setTopicId(topicId);
         topicContentRequest.setDescription(description);
-        topicContentRequest.setDateTaken(date);
         topicContentRequest.setFile(file);
 
-        if(!permissionService.canCreate(topicContentRequest)) {
+        if (!permissionService.canCreate(topicContentRequest)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
-        TopicContent topicContent = topicContentService.save(topicContentRequest);
+        TopicContent topicContent = topicContentService.save(file, topicId, creatorId, description);
 
         return new ResponseEntity<>(topicContent, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/topic_content/{id}", method = RequestMethod.GET)
-    public ResponseEntity<TopicContent> findTopicByName(@PathVariable(value="id") int id) {
+    public ResponseEntity<TopicContent> findTopicByName(@PathVariable(value = "id") int id) {
 
         TopicContent topicContent = topicContentService.findTopicContentById(id);
 
-        if(!permissionService.canView(topicContent)) {
+        if (!permissionService.canView(topicContent)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
@@ -100,12 +98,12 @@ public class TopicContentController {
 
     @RequestMapping(value = "/topic_content/{id}", method = RequestMethod.PUT)
     public ResponseEntity<TopicContent> update(
-            @PathVariable(value="id") int id,
+            @PathVariable(value = "id") int id,
             @RequestBody TopicContent newTopicContent
     ) {
         TopicContent topicContent = topicContentService.findTopicContentById(id);
 
-        if(!permissionService.canModify(topicContent)) {
+        if (!permissionService.canModify(topicContent)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
@@ -115,10 +113,10 @@ public class TopicContentController {
 
     @RequestMapping(value = "/topic_content/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<String> delete(
-            @PathVariable(value="id") int id
+            @PathVariable(value = "id") int id
     ) {
         TopicContent topicContent = topicContentService.findTopicContentById(id);
-        if(!permissionService.canDelete(topicContent)) {
+        if (!permissionService.canDelete(topicContent)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
@@ -128,21 +126,22 @@ public class TopicContentController {
 
     /**
      * Get entity's topic content
-     * @param id The entity to retrieve topic content for
-     * @param page when page of results to return
+     *
+     * @param id       The entity to retrieve topic content for
+     * @param page     when page of results to return
      * @param pageSize how large of a page to use
      * @return A list of topic content
      */
     @RequestMapping(value = "/entities/{id}/topic_content", method = RequestMethod.GET)
     public ResponseEntity<List<TopicContent>> getEntityTopicContent(
-            @PathVariable(value="id") int id,
-            @RequestParam(value="page", defaultValue = "0") int page,
-            @RequestParam(value="page_size", defaultValue = "30") int pageSize
+            @PathVariable(value = "id") int id,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "page_size", defaultValue = "30") int pageSize
     ) {
 
         Entity entity = entityService.findEntityById(id);
 
-        if(!permissionService.canAccess(entity)) {
+        if (!permissionService.canAccess(entity)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
@@ -153,17 +152,18 @@ public class TopicContentController {
 
     /**
      * Returns a paginated list of topic content for a topic
+     *
      * @param pageable paging and sorting information for the request
      * @return list of topic content
      */
     @RequestMapping(value = "/topics/{id}/topic_content", method = RequestMethod.GET)
     public ResponseEntity<Page<TopicContent>> getTopicContentByTopic(
-            @PathVariable(value="id") int topicId,
+            @PathVariable(value = "id") int topicId,
             Pageable pageable
     ) {
         Topic topic = topicService.findTopicById(topicId);
 
-        if(!permissionService.canView(topic)) {
+        if (!permissionService.canView(topic)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions");
         }
 

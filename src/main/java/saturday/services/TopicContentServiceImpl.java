@@ -1,6 +1,9 @@
 package saturday.services;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.drew.imaging.ImageProcessingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,10 +12,10 @@ import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicContent;
-import saturday.domain.TopicContentRequest;
 import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ResourceNotFoundException;
 import saturday.repositories.TopicContentRepository;
+import saturday.utils.FileUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -39,6 +42,8 @@ public class TopicContentServiceImpl implements TopicContentService {
     private final EntityService entityService;
     private final S3Service s3Service;
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     public TopicContentServiceImpl(
             TopicContentRepository topicContentRepository,
             TopicService topicService,
@@ -54,6 +59,7 @@ public class TopicContentServiceImpl implements TopicContentService {
     /**
      * Find topic content by its primary key.
      * Topic Content is how user uploaded content is stored (relevant data in db and then actual file data in s3)
+     *
      * @param id The numeric primary key of the topic content to be retrieved
      * @return topic content
      */
@@ -61,7 +67,7 @@ public class TopicContentServiceImpl implements TopicContentService {
     public TopicContent findTopicContentById(int id) {
         TopicContent topicContent = topicContentRepository.findById(id);
 
-        if(topicContent == null) {
+        if (topicContent == null) {
             throw new ResourceNotFoundException("No topic content with " + id + " exists!");
         }
 
@@ -70,11 +76,12 @@ public class TopicContentServiceImpl implements TopicContentService {
 
     /**
      * All topic content belongs to a topic which is how users share content with one another.
+     *
      * @return all topic content for a topic
      */
     @Override
     public Page<TopicContent> findTopicContentByTopicId(Pageable page, int topicId) {
-        if(page.getPageSize() > PAGE_SIZE_LIMIT) {
+        if (page.getPageSize() > PAGE_SIZE_LIMIT) {
             throw new IllegalArgumentException("Page size is larger than " + PAGE_SIZE_LIMIT);
         }
 
@@ -91,36 +98,78 @@ public class TopicContentServiceImpl implements TopicContentService {
     }
 
     @Override
-    public TopicContent save(TopicContentRequest topicContentRequest) throws IOException {
-        int topicId = topicContentRequest.getTopicId();
-        int creatorId = topicContentRequest.getCreatorId();
-        String description = topicContentRequest.getDescription();
-        MultipartFile file = topicContentRequest.getFile();
-        String data = topicContentRequest.getData();
-        Date dateTaken = topicContentRequest.getDateTaken();
-
+    public TopicContent save(String data, Integer topicId, Integer creatorId, String description) throws IOException {
         Entity creator;
         Topic topic = topicService.findTopicById(topicId);
 
         // only let the user set the topic content's creator if they're an admin
-        if(entityService.getAuthenticatedEntity().isAdmin()) {
+        if (entityService.getAuthenticatedEntity().isAdmin()) {
             creator = entityService.findEntityById(creatorId);
         } else {
             creator = entityService.getAuthenticatedEntity();
         }
 
-        if(topic == null) {
+        if (topic == null) {
             throw new ResourceNotFoundException("The topic id, " + topicId + ", does not exist");
         }
 
         // Description can be null, but otherwise there's a length limit
-        if(description != null && description.length() > 4000) {
+        if (description != null && description.length() > 4000) {
             throw new BusinessLogicException("Topic Content Description cannot be more than 4000 characters");
         }
 
-        // date taken associates the topic content with a particular calendar view for the user
-        if(dateTaken == null) {
-            dateTaken = new Date();
+        // upload after s3 validation.
+        // then insert into db since we have the bucket name and s3 key
+        String uuid = UUID.randomUUID().toString();
+        String s3key = keyPrefix + uuid; // topic-content/{{GUID}}
+
+        // TODO move upload stuff to s3
+        byte[] bI = FileUtils.decodeBase64(data);
+        InputStream fis = new ByteArrayInputStream(bI);
+
+        // generate object metadata based on input stream
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentLength(bI.length);
+        metadata.setContentType("image/jpeg");
+
+        s3Service.upload(fis, s3key, metadata);
+
+        // Create topic content
+        TopicContent topicContent = new TopicContent();
+        topicContent.setDescription(description);
+        topicContent.setCreator(creator);
+        topicContent.setTopic(topic);
+        topicContent.setS3bucket(bucketName);
+        topicContent.setS3key(s3key);
+        try {
+            topicContent.setDateTaken(FileUtils.getDate(fis));
+        } catch (ImageProcessingException e) {
+            topicContent.setDateTaken(new Date());
+            logger.error(e.getMessage());
+        }
+
+        return topicContentRepository.save(topicContent);
+    }
+
+    @Override
+    public TopicContent save(MultipartFile file, Integer topicId, Integer creatorId, String description) throws IOException {
+        Entity creator;
+        Topic topic = topicService.findTopicById(topicId);
+
+        // only let the user set the topic content's creator if they're an admin
+        if (entityService.getAuthenticatedEntity().isAdmin()) {
+            creator = entityService.findEntityById(creatorId);
+        } else {
+            creator = entityService.getAuthenticatedEntity();
+        }
+
+        if (topic == null) {
+            throw new ResourceNotFoundException("The topic id, " + topicId + ", does not exist");
+        }
+
+        // Description can be null, but otherwise there's a length limit
+        if (description != null && description.length() > 4000) {
+            throw new BusinessLogicException("Topic Content Description cannot be more than 4000 characters");
         }
 
         // upload after s3 validation.
@@ -129,29 +178,9 @@ public class TopicContentServiceImpl implements TopicContentService {
         String s3key = keyPrefix + uuid; // topic-content/{{GUID}}
 
         try {
-            if(data != null) {
-                // strip base64 data prefix
-                int i = data.indexOf(",");
-
-                if(i > -1) {
-                    data = data.substring(i + 1);
-                }
-
-                // get input stream for upload
-                byte[] bI = java.util.Base64.getDecoder().decode(data);
-                InputStream fis = new ByteArrayInputStream(bI);
-
-                // generate object metadata based on input stream
-                ObjectMetadata metadata = new ObjectMetadata();
-                metadata.setContentLength(bI.length);
-                metadata.setContentType("image/jpeg");
-
-                s3Service.upload(fis, s3key, metadata);
-            } else {
-                // s3 url key is probably unique - should probably use GUID
-                s3Service.upload(file, s3key);
-            }
-        } catch (IOException e){
+            // s3 url key is probably unique - should probably use GUID
+            s3Service.upload(file, s3key);
+        } catch (IOException e) {
             e.printStackTrace();
             throw new IOException("Failed to upload file: " + e.getMessage());
         }
@@ -163,8 +192,24 @@ public class TopicContentServiceImpl implements TopicContentService {
         topicContent.setTopic(topic);
         topicContent.setS3bucket(bucketName);
         topicContent.setS3key(s3key);
-        topicContent.setDateTaken(dateTaken);
 
+        // get origin date of the photo if its available
+        Date dateTaken;
+
+        try {
+            dateTaken = FileUtils.getDate(file.getInputStream());
+
+            // log failures to parse metadata/exif data
+            if (dateTaken == null) {
+                logger.error("Failed to retrieve date from exif data for " + s3key + ".");
+                dateTaken = new Date();
+            }
+        } catch (ImageProcessingException e) {
+            dateTaken = new Date();
+            logger.error("Failed to retrieve date from exif data for " + s3key + ". " + e.getMessage());
+        }
+
+        topicContent.setDateTaken(dateTaken);
         return topicContentRepository.save(topicContent);
     }
 
@@ -172,7 +217,7 @@ public class TopicContentServiceImpl implements TopicContentService {
      * Get an entity's topic content based on the topics they're a part of.
      *
      * @param entityId the entity id for which to query topic content
-     * @param page how far back to start grabbing topic content. (e.g. get the 100th to 150th topic content items)
+     * @param page     how far back to start grabbing topic content. (e.g. get the 100th to 150th topic content items)
      * @param pageSize how much topic content to get
      * @return A list of the entity's topic content
      */
