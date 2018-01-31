@@ -21,8 +21,6 @@ public class ResetPasswordServiceImpl implements ResetPasswordService {
     private int ACCESS_TOKEN_TYPE_RESET_PASSWORD;
     @Value("${saturday.application-url}")
     private String APPLICATION_URL;
-    @Value("${saturday.prod}")
-    private boolean SATURDAY_PROD;
 
     @Autowired
     public ResetPasswordServiceImpl(AccessTokenService accessTokenService, SimpleMailMessage templateMessage, MailSender mailSender) {
@@ -44,8 +42,7 @@ public class ResetPasswordServiceImpl implements ResetPasswordService {
 
         SimpleMailMessage message = new SimpleMailMessage(this.templateMessage);
         message.setSubject("Reset your password");
-        //message.setTo(entity.getEmail());
-        message.setTo("success@simulator.amazonses.com");
+        message.setTo(entity.getEmail());
         message.setText(
             "Click this link or paste it in your browser to reset your password: \n"
             + constructUrl(accessToken.getToken())
@@ -53,9 +50,7 @@ public class ResetPasswordServiceImpl implements ResetPasswordService {
             + "For security, this link is only valid for 24 hours."
         );
 
-        if(SATURDAY_PROD) {
-            mailSender.send(message);
-        }
+        mailSender.send(message);
     }
 
 

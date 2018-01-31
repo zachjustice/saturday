@@ -51,7 +51,6 @@ saturday:
   application-url: ${SATURDAY_APPLICATION_URL}
   password-min-length: 8
   page-size-limit: 99
-  prod: ${SATURDAY_PROD}
   ses:
     from-email: ${AWS_SES_FROM_EMAIL}
   s3:
