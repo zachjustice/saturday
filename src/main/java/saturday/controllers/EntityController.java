@@ -10,15 +10,12 @@ import org.springframework.mail.MailException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
-import saturday.domain.Topic;
-import saturday.domain.TopicContent;
 import saturday.exceptions.AccessDeniedException;
 import saturday.services.*;
 import saturday.utils.HTTPUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
 
 /**

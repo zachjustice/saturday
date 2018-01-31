@@ -46,7 +46,7 @@ TODO
   * move entity.token field to access_tokens
   * logout invalidates token
 
-* Enable personal user photos. 
+* Enable personal user photos? 
     * user_content table
     * topic_content has references to user_content.id
     * let's us backup all user photos without requiring each photo to have a topic
@@ -59,6 +59,10 @@ TODO
   * Specific Exceptions rather than broad exceptions
     * Most processing resource exceptions are probably illegal arguments
     * Let callers handle specific scenarios.
+    
+    
+##### BUGS
+* emailConfirmed + isEmailConfirmed both on user object
 
 Questions:
 * Use obscured ids rather than autoincrementing id?

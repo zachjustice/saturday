@@ -1,5 +1,7 @@
 package saturday.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
@@ -21,6 +23,8 @@ public class ResetPasswordServiceImpl implements ResetPasswordService {
     private int ACCESS_TOKEN_TYPE_RESET_PASSWORD;
     @Value("${saturday.application-url}")
     private String APPLICATION_URL;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     public ResetPasswordServiceImpl(AccessTokenService accessTokenService, SimpleMailMessage templateMessage, MailSender mailSender) {
@@ -50,6 +54,7 @@ public class ResetPasswordServiceImpl implements ResetPasswordService {
             + "For security, this link is only valid for 24 hours."
         );
 
+        logger.info("Sending password reset email.");
         mailSender.send(message);
     }
 

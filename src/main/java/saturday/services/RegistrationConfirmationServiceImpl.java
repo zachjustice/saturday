@@ -1,5 +1,7 @@
 package saturday.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
@@ -21,6 +23,8 @@ public class RegistrationConfirmationServiceImpl implements RegistrationConfirma
     private String APPLICATION_URL;
     @Value("${saturday.access-token-type.email-confirmation}")
     private int ACCESS_TOKEN_TYPE_EMAIL_CONFIRMATION;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     public RegistrationConfirmationServiceImpl(MailSender mailSender, SimpleMailMessage templateMessage, AccessTokenService accessTokenService) {
@@ -46,6 +50,7 @@ public class RegistrationConfirmationServiceImpl implements RegistrationConfirma
 
         message.setTo(entity.getEmail());
 
+        logger.info("Sending registration confirmation email.");
         mailSender.send(message);
     }
 
