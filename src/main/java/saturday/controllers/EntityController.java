@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
 import saturday.exceptions.AccessDeniedException;
+import saturday.publishers.SaturdayEventPublisher;
 import saturday.services.*;
 import saturday.utils.HTTPUtils;
 
@@ -30,6 +31,7 @@ public class EntityController {
     private final RegistrationConfirmationService registrationConfirmationService;
     private final ResetPasswordService resetPasswordService;
     private final PermissionService permissionService;
+    private final SaturdayEventPublisher saturdayEventPublisher;
 
     @Value("${saturday.s3.user-files-bucket}")
     private String bucketName;
@@ -47,13 +49,14 @@ public class EntityController {
             PermissionService permissionService,
             S3Service s3Service,
             RegistrationConfirmationService registrationConfirmationService,
-            ResetPasswordService resetPasswordService) {
+            ResetPasswordService resetPasswordService, SaturdayEventPublisher saturdayEventPublisher) {
         this.entityService = entityService;
         this.topicContentService = topicContentService;
         this.permissionService = permissionService;
         this.s3Service = s3Service;
         this.registrationConfirmationService = registrationConfirmationService;
         this.resetPasswordService = resetPasswordService;
+        this.saturdayEventPublisher = saturdayEventPublisher;
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
@@ -182,7 +185,9 @@ public class EntityController {
         }
 
         // send reset password email
-        resetPasswordService.sendEmail(entity);
+        logger.info("begin publish");
+        saturdayEventPublisher.publishResetPasswordEvent(entity);
+        logger.info("end publish");
 
         return new ResponseEntity<>("SUCCESS", HttpStatus.OK);
     }

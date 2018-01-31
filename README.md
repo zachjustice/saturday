@@ -31,9 +31,8 @@ eb deploy
 ```
 
 TODO
-* Email updates when
-  * You receive an invite to a new topic
-  * Your password is changed
+* Gradle build scripts for ebs deploys
+
 * Repeatable postman requests
   * requires delete resource routes
 
@@ -46,20 +45,12 @@ TODO
   * move entity.token field to access_tokens
   * logout invalidates token
 
-* Enable personal user photos? 
-    * user_content table
-    * topic_content has references to user_content.id
-    * let's us backup all user photos without requiring each photo to have a topic
-    
-* Production quality emails
-
 * Cohesive exception scheme
   * find<resource> methods shouldn't throw ResourceNotFoundExceptions()
   * ProcessingResourceException vs BussinessLogicException
   * Specific Exceptions rather than broad exceptions
     * Most processing resource exceptions are probably illegal arguments
     * Let callers handle specific scenarios.
-    
     
 ##### BUGS
 * emailConfirmed + isEmailConfirmed both on user object

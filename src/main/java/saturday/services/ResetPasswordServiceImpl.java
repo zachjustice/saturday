@@ -12,6 +12,8 @@ import saturday.domain.AccessToken;
 import saturday.domain.AccessTokenType;
 import saturday.domain.Entity;
 
+import java.util.concurrent.TimeUnit;
+
 @Service("resetPasswordService")
 public class ResetPasswordServiceImpl implements ResetPasswordService {
 
@@ -54,10 +56,15 @@ public class ResetPasswordServiceImpl implements ResetPasswordService {
             + "For security, this link is only valid for 24 hours."
         );
 
-        logger.info("Sending password reset email.");
-        mailSender.send(message);
+        logger.info("Attempting to send password reset email.");
+        try {
+            TimeUnit.SECONDS.sleep(10);
+            mailSender.send(message);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        logger.info("Sent password reset email.");
     }
-
 
     /**
      * Constructs the reset password link given an access token
