@@ -6,13 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.MailException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
 import saturday.exceptions.AccessDeniedException;
 import saturday.publishers.SaturdayEventPublisher;
-import saturday.services.*;
+import saturday.services.EntityServiceImpl;
+import saturday.services.PermissionService;
+import saturday.services.RegistrationConfirmationService;
+import saturday.services.S3Service;
 import saturday.utils.HTTPUtils;
 
 import javax.servlet.http.HttpServletResponse;
@@ -26,10 +28,8 @@ import java.util.UUID;
 public class EntityController {
 
     private final EntityServiceImpl entityService;
-    private final TopicContentService topicContentService;
     private final S3Service s3Service;
     private final RegistrationConfirmationService registrationConfirmationService;
-    private final ResetPasswordService resetPasswordService;
     private final PermissionService permissionService;
     private final SaturdayEventPublisher saturdayEventPublisher;
 
@@ -45,17 +45,14 @@ public class EntityController {
     @Autowired
     public EntityController(
             EntityServiceImpl entityService,
-            TopicContentService topicContentService,
             PermissionService permissionService,
             S3Service s3Service,
             RegistrationConfirmationService registrationConfirmationService,
-            ResetPasswordService resetPasswordService, SaturdayEventPublisher saturdayEventPublisher) {
+            SaturdayEventPublisher saturdayEventPublisher) {
         this.entityService = entityService;
-        this.topicContentService = topicContentService;
         this.permissionService = permissionService;
         this.s3Service = s3Service;
         this.registrationConfirmationService = registrationConfirmationService;
-        this.resetPasswordService = resetPasswordService;
         this.saturdayEventPublisher = saturdayEventPublisher;
     }
 
@@ -63,13 +60,7 @@ public class EntityController {
     public ResponseEntity<Entity> createEntity(HttpServletResponse response, @RequestBody Entity entity) {
 
         entity = entityService.saveEntity(entity);
-
-        // catch since sending the email isn't vital
-        try {
-            registrationConfirmationService.sendEmail(entity);
-        } catch (MailException e) {
-            logger.error(e.getMessage());
-        }
+        saturdayEventPublisher.publishRegistrationEvent(entity);
 
         // Only add token if the preceding was successful to avoid adding Auth headers to error'ed requests
         HTTPUtils.addAuthenticationHeader(response, entity.getToken());
@@ -80,13 +71,13 @@ public class EntityController {
     @RequestMapping(value = "/entities/{id}", method = RequestMethod.PUT)
     public ResponseEntity<Entity> saveEntity(
             HttpServletResponse response,
-            @PathVariable(value="id") int id,
+            @PathVariable(value = "id") int id,
             @RequestBody Entity updatedEntity
     ) {
 
         Entity currEntity = entityService.findEntityById(updatedEntity.getId());
 
-        if(!permissionService.canAccess(currEntity)) {
+        if (!permissionService.canAccess(currEntity)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
@@ -97,11 +88,11 @@ public class EntityController {
     }
 
     @RequestMapping(value = "/entities", method = RequestMethod.GET)
-    public ResponseEntity<Entity> findEntityByEmail(@RequestParam(value="email") String email) {
+    public ResponseEntity<Entity> findEntityByEmail(@RequestParam(value = "email") String email) {
 
         Entity entity = entityService.findEntityByEmail(email);
 
-        if(entity == null) {
+        if (entity == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
@@ -113,7 +104,7 @@ public class EntityController {
     }
 
     @RequestMapping(value = "/entities/{id}", method = RequestMethod.GET)
-    public ResponseEntity<Entity> getEntity(@PathVariable(value="id") int id) {
+    public ResponseEntity<Entity> getEntity(@PathVariable(value = "id") int id) {
         Entity entity = entityService.findEntityById(id);
 
         // TODO better way to do this
@@ -125,12 +116,12 @@ public class EntityController {
 
     @RequestMapping(value = "/entities/{id}/profile_picture", method = RequestMethod.POST, consumes = "multipart/form-data")
     public ResponseEntity<Entity> uploadProfilePicture(
-            @PathVariable(value="id") int id,
+            @PathVariable(value = "id") int id,
             @RequestParam("picture") MultipartFile picture) throws IOException {
 
         Entity entity = entityService.findEntityById(id);
 
-        if(!permissionService.canAccess(entity)) {
+        if (!permissionService.canAccess(entity)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
@@ -151,16 +142,17 @@ public class EntityController {
 
     /**
      * Resend the email confirmation email
+     *
      * @param id The id of the entity to send the confirmation email to
      * @return Success or throw a failure
      */
     @RequestMapping(value = "entities/{id}/resend_confirmation", method = RequestMethod.POST)
     public ResponseEntity<String> resendEmailConfirmationEmail(
-            @PathVariable(value="id") int id
+            @PathVariable(value = "id") int id
     ) {
 
         Entity entity = entityService.findEntityById(id);
-        if(!permissionService.canAccess(entity)) {
+        if (!permissionService.canAccess(entity)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
@@ -171,15 +163,16 @@ public class EntityController {
 
     /**
      * Emails the provided entity with a "Forgot Password" email
+     *
      * @param email The id of the entity to send the confirmation email to
      * @return Success or throw a failure
      */
     @RequestMapping(value = "/send_reset_password_email", method = RequestMethod.POST)
     public ResponseEntity<String> sendForgotPasswordEmail(
-            @RequestParam(value="email") String email
+            @RequestParam(value = "email") String email
     ) {
         Entity entity = entityService.findEntityByEmail(email);
-        if(entity == null) {
+        if (entity == null) {
             // No need to tell people what emails exist and which don't
             return new ResponseEntity<>("SUCCESS", HttpStatus.OK);
         }
