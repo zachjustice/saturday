@@ -2,6 +2,7 @@ package saturday.controllers;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
+import org.springframework.mail.MailException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,8 +22,8 @@ public class RegistrationConfirmationController {
     }
 
     @RequestMapping(value = "/registration_confirmation", method = RequestMethod.GET)
-    public String greeting(
-            @RequestParam(value="token") String token,
+    public String registrationConfirmation(
+            @RequestParam(value = "token") String token,
             Model model
     ) {
         Entity entity = null;
@@ -31,15 +32,32 @@ public class RegistrationConfirmationController {
         try {
             entity = registrationConfirmationService.validateRegistrationConfirmationToken(token);
         } catch (ExpiredJwtException ex) {
-            error = "Oops, looks your token is too old!";
+            error = "Confirmation emails are only valid for 24 hours.";
         } catch (MalformedJwtException ex) {
-            error = "Oops, we couldn't confirm your email! " +
-                    "Make sure to copy and paste the whole link into your browser.";
+            error = "Make sure to click 'Confirm your Email' or copy and paste the whole link into your browser.";
         } catch (AccessDeniedException ex) {
-            error = "Oops, we couldn't confirm your email!";
+            error = "Invalid token.";
         }
 
         model.addAttribute("entity", entity);
+        model.addAttribute("error", error);
+        return "registrationConfirmation";
+    }
+
+    @RequestMapping(value = "/send_confirmation_email", method = RequestMethod.GET)
+    public String sendConfirmationEmail(
+            @RequestParam(value = "token") String token,
+            Model model
+    ) {
+        String error = null;
+
+        try {
+            // Get email from token
+            // entity = registrationConfirmationService.sendEmail(email);
+        } catch (MailException ex) {
+            error = "Invalid token.";
+        }
+
         model.addAttribute("error", error);
         return "registrationConfirmation";
     }

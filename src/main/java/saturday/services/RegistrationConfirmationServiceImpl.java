@@ -47,6 +47,19 @@ public class RegistrationConfirmationServiceImpl implements RegistrationConfirma
         this.entityService = entityService;
     }
 
+
+    /**
+     * Sends an email asking the user to confirm their email address.
+     *
+     * @param email The email of the entity to whom we send the email
+     * @throws MailException if there is a problem sending the email
+     */
+    @Override
+    public void sendEmail(String email) throws MailException {
+        Entity entity =entityService.findEntityByEmail(email);
+        sendEmail(entity);
+    }
+
     /**
      * Sends an email asking the user to confirm their email address.
      *
@@ -69,7 +82,7 @@ public class RegistrationConfirmationServiceImpl implements RegistrationConfirma
 
         String confirmationEmailBody = confirmationEmailTemplate.toString().replace(
                 CONFIRMATON_URL_PLACEHOLDER,
-                constructVerificationUrl(accessToken.getToken())
+                constructVerificationUrl(accessToken.getToken(), entity.getEmail())
         );
 
         emailService.sendEmail(CONFIRMATON_EMAIL_SUBJECT, entity.getEmail(), FROM_EMAIL, confirmationEmailBody);
@@ -126,7 +139,7 @@ public class RegistrationConfirmationServiceImpl implements RegistrationConfirma
      * @param token A token for email confirmation
      * @return The email confirmation url
      */
-    private String constructVerificationUrl(String token) {
-        return APPLICATION_URL + "/registration_confirmation?token=" + token;
+    private String constructVerificationUrl(String token, String email) {
+        return APPLICATION_URL + "/registration_confirmation?token=" + token +"&email=" + email;
     }
 }

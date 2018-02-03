@@ -872,7 +872,7 @@
                                                     style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;"
                                                     valign="top">
 
-                                                    <h1 style="text-align: center;" th:if="${entity != null}">Your Email is Confirmed!</h1>
+                                                    <h1 style="text-align: center;" th:if="${error == null}">Email Sent!</h1>
                                                     <h1 style="text-align: center;" th:if="${error != null}">Oops!</h1>
 
                                                     <div style="text-align: center;">&nbsp;</div>
@@ -917,20 +917,19 @@
                                                     valign="top">
 
                                                     <!-- success -->
-                                                    <p style="text-align: center;" th:if="${entity != null}"
-                                                       th:text="'Thanks for joining, ' + ${entity.getName()} + '!'"></p>
+                                                    <p style="text-align: center;" th:if="${error == null}"
+                                                        th:text="'An email has been sent to ' + ${email} + '.">
+                                                    </p>
+                                                    <p>
+                                                        Click the link inside to confirm your email address.
+                                                    </p>
 
                                                     <!-- error -->
-                                                    <p style="text-align: center;" th:if="${error != null}">We couldn't confirm your email address.</p>
-                                                    <p style="text-align: center;" th:if="${error != null}" th:text="${error}"></p>
-                                                    <br />
-                                                    <p style="text-align: center;">
-                                                        <a
-                                                                th:if="${error != null}"
-                                                                th:href="@{'/send_confirmation_email?email=' + ${email}}"
-                                                        >
-                                                            You can also click this link to resend the account confirmation email.
-                                                        </a>
+                                                    <p style="text-align: center;" th:if="${error != null}">
+                                                        There was a problem sending your account confirmation email.
+                                                    </p>
+                                                    <p style="text-align: center;" th:if="${error != null}">
+                                                        You can try sending the account confirmation email again, or email us at <a href="mailto:help@zachsolutions.com">help@zachsolutions.com</a>
                                                     </p>
 
                                                 </td>
