@@ -166,53 +166,6 @@ public class AccessTokenController {
     }
 
     /**
-     * Confirm an email confirmation token. This is the route provided in email confirmation emails.
-     * Delete the email confirmation token after the user has been updated to prevent token reuse.
-     * @param token The email confirmation token sent to the new user's email.
-     * @return If the email confirmation was successful.
-     */
-    @RequestMapping(value = "/email_confirmation", method = RequestMethod.GET)
-    public ResponseEntity<String> confirmEmail(
-            @RequestParam(value="token") String token
-    ) {
-
-        String email;
-        try {
-            email = TokenAuthenticationUtils.validateToken(token);
-        } catch(ExpiredJwtException ex) {
-            throw new AccessDeniedException("Failed to confirm email due to expired token.");
-        } catch( MalformedJwtException ex) {
-            throw new AccessDeniedException("Failed to confirm email due to malformed token.");
-        }
-
-        // query the access token table by token to make sure its still valid
-        // (i.e. its not being reused)
-        AccessToken existing;
-        try{
-            existing = accessTokenService.findByToken(token);
-        } catch (ResourceNotFoundException e) {
-            throw new AccessDeniedException("Access token is not valid.");
-        }
-
-        // Make sure they're using the correct kind of token
-        // i.e. we don't want people to use a normal auth or password reset token to confirm the email
-        if(existing.getType().getId() != ACCESS_TOKEN_TYPE_EMAIL_CONFIRMATION) {
-            throw new AccessDeniedException("Access token is invalid.");
-        }
-
-        // update the user's status to reflect the confirmed email
-        Entity entity = entityService.findEntityByEmail(email);
-        entity.setEmailConfirmed(true);
-
-        entityService.updateEntity(entity);
-
-        // delete the access token after we've updated the user
-        accessTokenService.deleteAccessTokenByToken(existing.getToken());
-
-        return new ResponseEntity<>("SUCCESS", HttpStatus.OK);
-    }
-
-    /**
      * Reset a user's password provided a valid access token and password
      * @param token The reset password token
      * @param updatedEntity The entity object which holds the updated password

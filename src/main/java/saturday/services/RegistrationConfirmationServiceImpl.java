@@ -1,5 +1,7 @@
 package saturday.services;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +12,10 @@ import org.springframework.stereotype.Service;
 import saturday.domain.AccessToken;
 import saturday.domain.AccessTokenType;
 import saturday.domain.Entity;
+import saturday.exceptions.AccessDeniedException;
+import saturday.exceptions.ResourceNotFoundException;
 import saturday.utils.FileUtils;
+import saturday.utils.TokenAuthenticationUtils;
 
 import java.io.IOException;
 
@@ -19,6 +24,7 @@ public class RegistrationConfirmationServiceImpl implements RegistrationConfirma
 
     private final EmailService emailService;
     private final AccessTokenService accessTokenService;
+    private final EntityService entityService;
 
     @Value("${saturday.application-url}")
     private String APPLICATION_URL;
@@ -35,9 +41,10 @@ public class RegistrationConfirmationServiceImpl implements RegistrationConfirma
     private static final String CONFIRMATON_URL_PLACEHOLDER = "{{CONFIRMATION_URL}}";
 
     @Autowired
-    public RegistrationConfirmationServiceImpl(EmailService emailService, AccessTokenService accessTokenService) {
+    public RegistrationConfirmationServiceImpl(EmailService emailService, AccessTokenService accessTokenService, EntityService entityService) {
         this.emailService = emailService;
         this.accessTokenService = accessTokenService;
+        this.entityService = entityService;
     }
 
     /**
@@ -69,12 +76,57 @@ public class RegistrationConfirmationServiceImpl implements RegistrationConfirma
     }
 
     /**
+     * Validate a token used for registration confirmation
+     * Throws exception if the token is invalid
+     * @param token The token to validate
+     * @return the Entity for the token if the token is valid
+     * @throws ExpiredJwtException If the token is expired
+     * @throws MalformedJwtException If the token is malformed
+     * @throws AccessDeniedException if the token is:
+     *   - if the token is not found in the db
+     *   - if the token is not a registration token
+     */
+    @Override
+    public Entity validateRegistrationConfirmationToken(String token) {
+        String email = TokenAuthenticationUtils.validateToken(token);
+
+        // Check if the user has already confirmed their email address
+        Entity entity = entityService.findEntityByEmail(email);
+        if(entity.isEmailConfirmed()) {
+            return entity;
+        }
+
+        // query the access token table by token to make sure its still valid
+        // (i.e. its not being reused)
+        AccessToken existing;
+        try {
+            existing = accessTokenService.findByToken(token);
+        } catch (ResourceNotFoundException e) {
+            throw new AccessDeniedException("Access token is not valid.");
+        }
+
+        // Make sure they're using the correct kind of token
+        // i.e. we don't want people to use a normal auth or password reset token to confirm the email
+        if (existing.getType().getId() != ACCESS_TOKEN_TYPE_EMAIL_CONFIRMATION) {
+            throw new AccessDeniedException("Access token is invalid.");
+        }
+
+        // update the user's status to reflect the confirmed email
+        entity.setEmailConfirmed(true);
+        entityService.updateEntity(entity);
+
+        // delete the access token after we've updated the user
+        accessTokenService.deleteAccessTokenByToken(existing.getToken());
+        return entity;
+    }
+
+    /**
      * Constructs the confirmation email link given an access token
      *
      * @param token A token for email confirmation
      * @return The email confirmation url
      */
     private String constructVerificationUrl(String token) {
-        return APPLICATION_URL + "/email_confirmation?token=" + token;
+        return APPLICATION_URL + "/registration_confirmation?token=" + token;
     }
 }

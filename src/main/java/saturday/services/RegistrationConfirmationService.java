@@ -5,4 +5,6 @@ import saturday.domain.Entity;
 
 public interface RegistrationConfirmationService {
     void sendEmail(Entity entity) throws MailException;
+
+    Entity validateRegistrationConfirmationToken(String token);
 }

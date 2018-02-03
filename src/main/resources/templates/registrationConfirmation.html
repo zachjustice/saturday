@@ -1,5 +1,5 @@
 <!doctype html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
+<html xmlns:th="http://www.thymeleaf.org" xmlns:v="urn:schemas-microsoft-com:vml"
       xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
     <!-- NAME: 1 COLUMN -->
@@ -11,9 +11,9 @@
         </o:OfficeDocumentSettings>
     </xml>
     <![endif]-->
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Activate your Mom Diary Account</title>
 
     <style type="text/css">
@@ -799,7 +799,7 @@
 </head>
 <body>
 <!--*|IF:MC_PREVIEW_TEXT|*-->
-<!--[if !gte mso 9]><!----><span class="mcnPreviewText"
+<!--[if !gte mso 9]--><span class="mcnPreviewText"
                                  style="display:none; font-size:0px; line-height:0px; max-height:0px; max-width:0px; opacity:0; overflow:hidden; visibility:hidden; mso-hide:all;">Let's get started. Active your account by clicking the button below.</span>
 <!--<![endif]-->
 <!--*.|END:IF|*-->
@@ -872,7 +872,7 @@
                                                     style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;"
                                                     valign="top">
 
-                                                    <h1 style="text-align: center;">Thank you for Registering!</h1>
+                                                    <h1 style="text-align: center;">Your Email is Confirmed!</h1>
 
                                                     <div style="text-align: center;">&nbsp;</div>
 
@@ -892,32 +892,6 @@
                                 </tr>
                                 </tbody>
                             </table>
-                            <table class="mcnButtonBlock" style="min-width:100%;" width="100%" cellspacing="0"
-                                   cellpadding="0" border="0">
-                                <tbody class="mcnButtonBlockOuter">
-                                <tr>
-                                    <td style="padding-top:0; padding-right:18px; padding-bottom:18px; padding-left:18px;"
-                                        class="mcnButtonBlockInner" valign="top" align="center">
-                                        <table class="mcnButtonContentContainer"
-                                               style="border-collapse: separate !important;border-radius: 3px;background-color: #2BAADF;"
-                                               cellspacing="0" cellpadding="0" border="0">
-                                            <tbody>
-                                            <tr>
-                                                <td class="mcnButtonContent"
-                                                    style="font-family: Arial; font-size: 16px; padding: 15px;"
-                                                    valign="middle" align="center">
-                                                    <a class="mcnButton " title="Confirm your Email"
-                                                       href="{{CONFIRMATION_URL}}" target="_blank"
-                                                       style="font-weight: bold;letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;">Confirm
-                                                        your Email</a>
-                                                </td>
-                                            </tr>
-                                            </tbody>
-                                        </table>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
                             <table class="mcnTextBlock" style="min-width:100%;" width="100%" cellspacing="0"
                                    cellpadding="0" border="0">
                                 <tbody class="mcnTextBlockOuter">
@@ -933,7 +907,7 @@
                                         <td valign="top" width="600" style="width:600px;">
                                         <![endif]-->
                                         <table style="max-width:100%; min-width:100%;" class="mcnTextContentContainer"
-                                               width="100%" cellspacing="0" cellpadding="0" border="0" align="left">
+                                               width="100%" cellspacing="0" cellpadding="0" border="0" align="center">
                                             <tbody>
                                             <tr>
 
@@ -941,9 +915,11 @@
                                                     style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;"
                                                     valign="top">
 
-                                                    <p style="text-align: center;">With Mom Diary, you can share what
-                                                        matters with the people that matter.<br>
-                                                        Get started now.</p>
+                                                    <p style="text-align: center;" th:if="${entity != null and !entity.isEmailConfirmed()}"
+                                                       th:text="'Thank you for joining, ' + ${entity.getName()} + '!'"></p>
+                                                    <p style="text-align: center;" th:if="${entity != null and entity.isEmailConfirmed()}"
+                                                       th:text="'Thanks for joining! Your email has already been confirmed.'"></p>
+                                                    <p style="text-align: center;" th:if="${entity == null}" th:text="${error}"></p>
 
                                                 </td>
                                             </tr>
@@ -1033,7 +1009,7 @@
                                                                                                                         style="display:block;"
                                                                                                                         class=""
                                                                                                                         width="24"
-                                                                                                                        height="24"></a>
+                                                                                                                        height="24" /></a>
                                                                                                             </td>
 
 
@@ -1094,7 +1070,7 @@
                                                                                                                         style="display:block;"
                                                                                                                         class=""
                                                                                                                         width="24"
-                                                                                                                        height="24"></a>
+                                                                                                                        height="24" /></a>
                                                                                                             </td>
 
 
@@ -1155,7 +1131,7 @@
                                                                                                                         style="display:block;"
                                                                                                                         class=""
                                                                                                                         width="24"
-                                                                                                                        height="24"></a>
+                                                                                                                        height="24" /></a>
                                                                                                             </td>
 
 
@@ -1243,9 +1219,9 @@
                                                     style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;"
                                                     valign="top">
 
-                                                    <em>Copyright © 2018 MOMDIARY LLC, All rights reserved.</em><br>
-                                                    <br>
-                                                    Want to change how you receive these emails?<br>
+                                                    <em>Copyright © 2018 MOMDIARY LLC, All rights reserved.</em><br />
+                                                    <br />
+                                                    Want to change how you receive these emails?<br />
                                                     You can <a href="">update your preferences</a> or <a href="">unsubscribe
                                                     from this list</a>.
                                                 </td>
