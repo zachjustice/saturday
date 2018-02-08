@@ -90,12 +90,18 @@ public class TopicContentServiceImpl implements TopicContentService {
     }
 
     @Override
-    public TopicContent updateTopicContent(TopicContent oldTopicContent, TopicContent newTopicContent) {
-        // can only update description and date taken for now
-        oldTopicContent.setDescription(newTopicContent.getDescription());
-        oldTopicContent.setDateTaken(newTopicContent.getDateTaken());
+    public TopicContent updateTopicContent(TopicContent newTopicContent) {
+        TopicContent topicContent = findTopicContentById(newTopicContent.getId());
 
-        return topicContentRepository.save(oldTopicContent);
+        if(topicContent == null) {
+            throw new ResourceNotFoundException("No topic content with the id " + newTopicContent.getId() + " exists!");
+        }
+
+        topicContent.setDescription(newTopicContent.getDescription());
+        topicContent.setDateTaken(newTopicContent.getDateTaken());
+        topicContent.setTopic(newTopicContent.getTopic());
+
+        return topicContentRepository.save(topicContent);
     }
 
     /**

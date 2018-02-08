@@ -101,13 +101,13 @@ public class TopicContentController {
             @PathVariable(value = "id") int id,
             @RequestBody TopicContent newTopicContent
     ) {
-        TopicContent topicContent = topicContentService.findTopicContentById(id);
+        TopicContent topicContent = topicContentService.findTopicContentById(newTopicContent.getId());
 
         if (!permissionService.canModify(topicContent)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
-        topicContent = topicContentService.updateTopicContent(topicContent, newTopicContent);
+        topicContent = topicContentService.updateTopicContent(newTopicContent);
         return new ResponseEntity<>(topicContent, HttpStatus.OK);
     }
 
