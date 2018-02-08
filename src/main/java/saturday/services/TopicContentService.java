@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.TopicContent;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 public interface TopicContentService {
@@ -17,7 +18,7 @@ public interface TopicContentService {
 
     TopicContent updateTopicContent(TopicContent newTopicContent);
 
-    TopicContent save(MultipartFile file, Integer topicId, Integer creatorId, String description) throws IOException;
+    TopicContent save(MultipartFile file, Integer topicId, Integer creatorId, String description, Date dateTaken) throws IOException;
 
     TopicContent save(String data, Integer topicId, Integer creatorId, String description) throws IOException;
 

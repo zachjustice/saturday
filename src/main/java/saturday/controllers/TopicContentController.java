@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
@@ -19,7 +20,12 @@ import saturday.services.TopicContentService;
 import saturday.services.TopicService;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 @RestController
 public class TopicContentController {
@@ -65,10 +71,10 @@ public class TopicContentController {
             @RequestParam("creatorId") Integer creatorId,
             @RequestParam("topicId") Integer topicId,
             @RequestParam("description") String description,
-            @RequestParam("file") MultipartFile file
-    ) throws IOException {
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("dateTaken") String dateTaken
+    ) throws IOException, ParseException {
 
-        // TODO get date taken from photo exif
         TopicContentRequest topicContentRequest = new TopicContentRequest();
         topicContentRequest.setCreatorId(creatorId);
         topicContentRequest.setTopicId(topicId);
@@ -79,7 +85,13 @@ public class TopicContentController {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
-        TopicContent topicContent = topicContentService.save(file, topicId, creatorId, description);
+        Date date = null;
+        if(!StringUtils.isEmpty(dateTaken)) {
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+            date = format.parse(dateTaken);
+        }
+
+        TopicContent topicContent = topicContentService.save(file, topicId, creatorId, description, date);
 
         return new ResponseEntity<>(topicContent, HttpStatus.OK);
     }

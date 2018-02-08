@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
@@ -184,11 +185,13 @@ public class TopicContentServiceImpl implements TopicContentService {
      * @param topicId The topic to upload the file to
      * @param creatorId The creator of the topic content. The authorized user by default.
      * @param description A description of the uploaded content
+     * @param dateTaken
      * @return The saved topic content record
      * @throws IOException If s3 upload fails to read the file
      */
     @Override
-    public TopicContent save(MultipartFile file, Integer topicId, Integer creatorId, String description) throws IOException {
+    public TopicContent save(MultipartFile file, Integer topicId, Integer creatorId, String description, Date dateTaken) throws IOException {
+
 
         Entity creator;
         // only let the user set the topic content's creator if they're an admin
@@ -230,19 +233,19 @@ public class TopicContentServiceImpl implements TopicContentService {
         topicContent.setS3key(s3key);
 
         // get origin date of the photo if its available
-        Date dateTaken;
+        if(dateTaken == null) {
+            try {
+                dateTaken = FileUtils.getDate(new BufferedInputStream(file.getInputStream()));
 
-        try {
-            dateTaken = FileUtils.getDate(new BufferedInputStream(file.getInputStream()));
-
-            // log failures to parse metadata/exif data
-            if (dateTaken == null) {
-                logger.error("Failed to retrieve date from exif data for " + s3key + ".");
+                // log failures to parse metadata/exif data
+                if (dateTaken == null) {
+                    logger.error("Failed to retrieve date from exif data for " + s3key + ".");
+                    dateTaken = new Date();
+                }
+            } catch (ImageProcessingException e) {
                 dateTaken = new Date();
+                logger.error("Failed to retrieve date from exif data for " + s3key + ". " + e.getMessage());
             }
-        } catch (ImageProcessingException e) {
-            dateTaken = new Date();
-            logger.error("Failed to retrieve date from exif data for " + s3key + ". " + e.getMessage());
         }
 
         topicContent.setDateTaken(dateTaken);
