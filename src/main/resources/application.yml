@@ -1,6 +1,9 @@
 server:
   port: 5000
 
+# ===============================
+# = SPRING
+# ===============================
 spring:
   http:
     multipart:
@@ -47,10 +50,19 @@ spring:
             enable: true
             required: true
 
+# ===============================
+# = SPECIFIC TO THIS APP
+# ===============================
 saturday:
+  # Date and time formatting
+  timestamp:
+    format: "yyyy-MM-dd HH:mm:ss"
+  date:
+    format: "yyyy-MM-dd"
+
+
+  # AWS service configurations
   application-url: ${SATURDAY_APPLICATION_URL}
-  password-min-length: 8
-  page-size-limit: 99
   ses:
     from-email: ${AWS_SES_FROM_EMAIL}
   s3:
@@ -66,12 +78,16 @@ saturday:
       profile_picture:
         key:
           prefix: "profile-pictures/"
-  timestamp:
-    format: "yyyy-MM-dd HH:mm:ss"
+
+  # DB foreign key constants
   access-token-type:
     email-confirmation: 1
     reset-password: 2
     bearer-token: 3
+
+  # DB foreign key constants and column restrictions
+  password-min-length: 8
+  page-size-limit: 99
   topic:
     name:
       max_length: 20

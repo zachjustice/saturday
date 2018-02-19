@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import saturday.domain.TopicContent;
 
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -17,6 +18,7 @@ public interface TopicContentRepository extends PagingAndSortingRepository<Topic
     void delete(int id);
 
     Page<TopicContent> findAllByTopicId(Pageable page, int topicId);
+    List<TopicContent> findTopicContentByTopicIdAndDateTakenBetweenOrderByDateTakenDesc(int topicId, Date start, Date end);
 
     @Query(
         value = "select * from topic_content tc where tc.topic_id in (select tm.topic_id from topic_members tm where tm.entity_id = :entityId) OFFSET :offset LIMIT :limit",

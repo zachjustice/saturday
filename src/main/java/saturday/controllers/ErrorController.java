@@ -48,6 +48,7 @@ public class ErrorController extends ResponseEntityExceptionHandler {
         response.put("Status", "failure");
         response.put("message", e.getMessage());
 
+        e.printStackTrace();
         return response;
     }
 }

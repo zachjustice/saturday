@@ -2,8 +2,9 @@ package saturday.controllers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
@@ -26,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 @RestController
 public class TopicContentController {
@@ -37,6 +39,7 @@ public class TopicContentController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    @Autowired
     public TopicContentController(TopicContentService topicContentService, PermissionService permissionService, EntityService entityService, TopicService topicService) {
         this.topicContentService = topicContentService;
         this.permissionService = permissionService;
@@ -163,15 +166,15 @@ public class TopicContentController {
     }
 
     /**
-     * Returns a paginated list of topic content for a topic
+     * Returns a list of topic content for a topic
      *
-     * @param pageable paging and sorting information for the request
      * @return list of topic content
      */
     @RequestMapping(value = "/topics/{id}/topic_content", method = RequestMethod.GET)
-    public ResponseEntity<Page<TopicContent>> getTopicContentByTopic(
+    public ResponseEntity<Map<String, List<TopicContent>>> getTopicContentByTopic(
             @PathVariable(value = "id") int topicId,
-            Pageable pageable
+            @RequestParam(value = "start") @DateTimeFormat(pattern="yyyy-MM-dd") Date start,
+            @RequestParam(value = "end") @DateTimeFormat(pattern="yyyy-MM-dd") Date end
     ) {
         Topic topic = topicService.findTopicById(topicId);
 
@@ -179,7 +182,7 @@ public class TopicContentController {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions");
         }
 
-        Page<TopicContent> topicContentList = topicContentService.findTopicContentByTopicId(pageable, topicId);
+        Map<String, List<TopicContent>> topicContentList = topicContentService.findTopicContentByTopicIdGroupedByDateTaken(start, end, topicId);
         return new ResponseEntity<>(topicContentList, HttpStatus.OK);
     }
 }

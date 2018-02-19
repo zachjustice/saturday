@@ -2,13 +2,13 @@ package saturday.services;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.drew.imaging.ImageProcessingException;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
@@ -22,9 +22,9 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service("topicContentService")
 public class TopicContentServiceImpl implements TopicContentService {
@@ -38,6 +38,8 @@ public class TopicContentServiceImpl implements TopicContentService {
     private String keyPrefix;
     @Value("${saturday.timestamp.format}")
     private String timestampFormat;
+    @Value("${saturday.date.format}")
+    private String dateFormat;
 
     private final TopicContentRepository topicContentRepository;
     private final TopicService topicService;
@@ -77,6 +79,42 @@ public class TopicContentServiceImpl implements TopicContentService {
     }
 
     /**
+     * Returns a map where the key is a date and the value is a list of topic content taken on that date
+     *  { dateTaken = [TopicContent...], ... }
+     *
+     * @return all topic content for a topic
+     */
+    @Override
+    public Map<String, List<TopicContent>> findTopicContentByTopicIdGroupedByDateTaken(Date start, Date end, int topicId) {
+
+        Map<DateTime, List<TopicContent>> topicContentByDateTaken = topicContentRepository
+                .findTopicContentByTopicIdAndDateTakenBetweenOrderByDateTakenDesc(topicId, start, end)
+                .stream()
+                .collect(Collectors.groupingBy((topicContent) -> {
+                    DateTime dateTime = new DateTime(topicContent.getDateTaken().getTime());
+                    return dateTime.withTimeAtStartOfDay();
+                }));
+
+        LinkedHashMap<String, List<TopicContent>> orderedTopicContentByDate = new LinkedHashMap<>();
+
+        // first date in the map should be the most recent. (we start getting photos in January and end getting photos
+        // February- currDate/feb is after startDate/jan)
+        for(DateTime currDate = new DateTime(end); currDate.isAfter(start.getTime()); currDate = currDate.plusDays(-1)) {
+            SimpleDateFormat format = new SimpleDateFormat(dateFormat);
+            String dateFormatted = format.format(currDate.toDate());
+
+            List<TopicContent> topicContentForDay = topicContentByDateTaken.get(currDate);
+            if (topicContentForDay == null) {
+                topicContentForDay = new ArrayList<>();
+            }
+
+            orderedTopicContentByDate.put(dateFormatted, topicContentForDay);
+        }
+
+        return orderedTopicContentByDate;
+    }
+
+    /**
      * All topic content belongs to a topic which is how users share content with one another.
      *
      * @return all topic content for a topic
@@ -94,7 +132,7 @@ public class TopicContentServiceImpl implements TopicContentService {
     public TopicContent updateTopicContent(TopicContent newTopicContent) {
         TopicContent topicContent = findTopicContentById(newTopicContent.getId());
 
-        if(topicContent == null) {
+        if (topicContent == null) {
             throw new ResourceNotFoundException("No topic content with the id " + newTopicContent.getId() + " exists!");
         }
 
@@ -108,9 +146,10 @@ public class TopicContentServiceImpl implements TopicContentService {
     /**
      * Upload user content as base 64 data to a given topic
      * TODO This and save(file) are very similar. Deduplicate the code.
-     * @param data Base64 encoded file to upload
-     * @param topicId The topic to upload the file to
-     * @param creatorId The creator of the topic content. The authorized user by default.
+     *
+     * @param data        Base64 encoded file to upload
+     * @param topicId     The topic to upload the file to
+     * @param creatorId   The creator of the topic content. The authorized user by default.
      * @param description A description of the uploaded content
      * @return The saved topic content record
      * @throws IOException If s3 upload fails to read the file
@@ -181,9 +220,10 @@ public class TopicContentServiceImpl implements TopicContentService {
 
     /**
      * Upload user content to a given topic
-     * @param file The file to upload
-     * @param topicId The topic to upload the file to
-     * @param creatorId The creator of the topic content. The authorized user by default.
+     *
+     * @param file        The file to upload
+     * @param topicId     The topic to upload the file to
+     * @param creatorId   The creator of the topic content. The authorized user by default.
      * @param description A description of the uploaded content
      * @param dateTaken
      * @return The saved topic content record
@@ -233,7 +273,7 @@ public class TopicContentServiceImpl implements TopicContentService {
         topicContent.setS3key(s3key);
 
         // get origin date of the photo if its available
-        if(dateTaken == null) {
+        if (dateTaken == null) {
             try {
                 dateTaken = FileUtils.getDate(new BufferedInputStream(file.getInputStream()));
 
