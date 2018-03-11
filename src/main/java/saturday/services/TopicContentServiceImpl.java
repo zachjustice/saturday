@@ -17,6 +17,7 @@ import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ResourceNotFoundException;
 import saturday.repositories.TopicContentRepository;
 import saturday.utils.FileUtils;
+import saturday.utils.MimeTypes;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -254,7 +255,8 @@ public class TopicContentServiceImpl implements TopicContentService {
         // upload after s3 validation.
         // then insert into db since we have the bucket name and s3 key
         String uuid = UUID.randomUUID().toString();
-        String s3key = keyPrefix + uuid; // topic-content/{{GUID}}
+        String fileExtension = MimeTypes.getFileExtention(file.getContentType());
+        String s3key = keyPrefix + uuid + fileExtension; // topic-content/{{GUID}}
 
         try {
             // s3 url key is probably unique - should probably use GUID
