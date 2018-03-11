@@ -256,7 +256,7 @@ public class TopicContentServiceImpl implements TopicContentService {
         // then insert into db since we have the bucket name and s3 key
         String uuid = UUID.randomUUID().toString();
         String fileExtension = MimeTypes.getFileExtention(file.getContentType());
-        String s3key = keyPrefix + uuid + fileExtension; // topic-content/{{GUID}}
+        String s3key = keyPrefix + uuid + "." + fileExtension; // topic-content/{{GUID}}
 
         try {
             // s3 url key is probably unique - should probably use GUID
