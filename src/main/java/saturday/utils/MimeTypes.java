@@ -91,6 +91,7 @@ public class MimeTypes {
     public static final String MIME_AUDIO_BASIC         = "audio/basic";
     public static final String MIME_AUDIO_MIDI          = "audio/midi";
     public static final String MIME_AUDIO_MPEG          = "audio/mpeg";
+    public static final String MIME_AUDIO_MP4          = "audio/mp4";
     public static final String MIME_AUDIO_X_AIFF        = "audio/x-aiff";
     public static final String MIME_AUDIO_X_MPEGURL       = "audio/x-mpegurl";
     public static final String MIME_AUDIO_X_PN_REALAUDIO    = "audio/x-pn-realaudio";
@@ -225,6 +226,7 @@ public class MimeTypes {
                 put(MIME_IMAGE_PNG, "png");
                 put(MIME_AUDIO_BASIC, "au");
                 put(MIME_AUDIO_X_WAV, "wav");
+                put(MIME_AUDIO_MP4, "m4a");
                 put(MIME_VIDEO_QUICKTIME, "mov");
                 put(MIME_VIDEO_MPEG, "mpeg");
                 put(MIME_APPLICATION_MSWORD, "doc");
