@@ -17,6 +17,7 @@ import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ResourceNotFoundException;
 import saturday.repositories.TopicContentRepository;
 import saturday.utils.FileUtils;
+import saturday.utils.MimeTypes;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -97,7 +98,7 @@ public class TopicContentServiceImpl implements TopicContentService {
 
         LinkedHashMap<String, List<TopicContent>> orderedTopicContentByDate = new LinkedHashMap<>();
 
-        // first date in the map should be the most recent. (we start getting photos in January and end getting photos
+        // first date in the map should be the earliest. (we start getting photos in January and end getting photos
         // February- currDate/feb is after startDate/jan)
         for(DateTime currDate = new DateTime(end); currDate.isAfter(start.getTime()); currDate = currDate.plusDays(-1)) {
             SimpleDateFormat format = new SimpleDateFormat(dateFormat);
@@ -254,7 +255,8 @@ public class TopicContentServiceImpl implements TopicContentService {
         // upload after s3 validation.
         // then insert into db since we have the bucket name and s3 key
         String uuid = UUID.randomUUID().toString();
-        String s3key = keyPrefix + uuid; // topic-content/{{GUID}}
+        String fileExtension = MimeTypes.getFileExtention(file.getContentType());
+        String s3key = keyPrefix + uuid + "." + fileExtension; // topic-content/{{GUID}}
 
         try {
             // s3 url key is probably unique - should probably use GUID

@@ -1,9 +1,6 @@
 package saturday.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
@@ -53,6 +50,10 @@ public class TopicContent {
 
     public String getS3url() {
         return "https://s3.amazonaws.com/" + getS3bucket() + "/" + getS3key();
+    }
+
+    public String getThumbnailUrl() {
+        return "https://s3.amazonaws.com/" + getS3bucket() + "/resized-" + getS3key();
     }
 
     public int getId() {
