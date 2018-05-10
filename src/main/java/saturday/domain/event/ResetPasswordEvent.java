@@ -1,6 +1,7 @@
-package saturday.domain;
+package saturday.domain.event;
 
 import org.springframework.context.ApplicationEvent;
+import saturday.domain.Entity;
 
 public class ResetPasswordEvent extends ApplicationEvent {
 

@@ -60,6 +60,11 @@ saturday:
   date:
     format: "yyyy-MM-dd"
 
+  # ===============================
+  # = SPECIFIC TO THIS APP
+  # ===============================
+  oneSignal:
+    url: "https://onesignal.com/api/v1/notifications"
 
   # AWS service configurations
   application-url: ${SATURDAY_APPLICATION_URL}

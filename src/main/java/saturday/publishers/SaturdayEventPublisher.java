@@ -6,9 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import saturday.domain.Entity;
-import saturday.domain.RegistrationEvent;
-import saturday.domain.ResetPasswordEvent;
+import saturday.domain.*;
+import saturday.domain.event.RegistrationEvent;
+import saturday.domain.event.ResetPasswordEvent;
+import saturday.domain.event.TopicMemberInviteEvent;
 
 @Component
 public class SaturdayEventPublisher {
@@ -32,5 +33,11 @@ public class SaturdayEventPublisher {
     public void publishResetPasswordEvent(final Entity entity) {
         ResetPasswordEvent resetPasswordEvent = new ResetPasswordEvent(this, entity);
         applicationEventPublisher.publishEvent(resetPasswordEvent);
+    }
+
+    @Async
+    public void publishInviteEvent(final TopicMember invitedTopicMember) {
+        TopicMemberInviteEvent inviteEvent = new TopicMemberInviteEvent(this, invitedTopicMember);
+        applicationEventPublisher.publishEvent(inviteEvent);
     }
 }
