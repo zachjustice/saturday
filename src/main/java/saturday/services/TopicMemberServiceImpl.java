@@ -108,7 +108,7 @@ public class TopicMemberServiceImpl implements TopicMemberService {
     @Override
     public void delete(int id) {
         try {
-            topicMemberRepository.delete(id);
+            topicMemberRepository.deleteById(id);
         } catch(EmptyResultDataAccessException ex) {
             throw new ResourceNotFoundException("No topic member with id " + id + " exists!");
         }

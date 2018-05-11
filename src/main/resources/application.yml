@@ -5,7 +5,7 @@ server:
 # = SPRING
 # ===============================
 spring:
-  http:
+  servlet:
     multipart:
       maxFileSize: 100MB
       maxRequestSize: 100MB
@@ -63,8 +63,12 @@ saturday:
   # ===============================
   # = SPECIFIC TO THIS APP
   # ===============================
-  oneSignal:
-    url: "https://onesignal.com/api/v1/notifications"
+  one-signal:
+    app.id: ${ONESIGNAL_APP_ID}
+    rest:
+      api:
+        url: "https://onesignal.com/api/v1/notifications"
+        key: ${ONESIGNAL_REST_API_KEY}
 
   # AWS service configurations
   application-url: ${SATURDAY_APPLICATION_URL}
