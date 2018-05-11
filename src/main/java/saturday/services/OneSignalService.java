@@ -34,8 +34,7 @@ public class OneSignalService implements NotificationService {
 
     @Override
     public void send(TopicMember invitedTopicMember) {
-
-        OneSignalNotification notification = buildNotification(invitedTopicMember.getTopic());
+        OneSignalNotification notification = buildNotification(invitedTopicMember);
 
         HttpHeaders headers = HTTPUtils.createHeaders(oneSignalRestApiKey);
         HttpEntity<OneSignalNotification> request = new HttpEntity<>(notification, headers);
@@ -43,18 +42,28 @@ public class OneSignalService implements NotificationService {
         restTemplate.exchange(oneSignalUrl, HttpMethod.POST, request, OneSignalResponse.class);
     }
 
-    private OneSignalNotification buildNotification(Topic topic) {
+    private OneSignalNotification buildNotification(TopicMember invitedTopicMember) {
+
+        if (invitedTopicMember == null) {
+            throw new IllegalArgumentException("Null argument: invitedTopicMember.");
+        }
+
+        if (invitedTopicMember.getEntity() == null) {
+            throw new IllegalArgumentException("TopicMember.entity is null.");
+        }
 
         OneSignalFilter filter = new OneSignalFilter();
         filter.setField("tag");
         filter.setKey("saturday_entity_id");
         filter.setRelation("=");
-        filter.setValue("=");
+        filter.setValue(String.valueOf(invitedTopicMember.getEntity().getId()));
 
         OneSignalFilters filters = new OneSignalFilters();
         filters.getFilters().add(filter);
 
+        Topic topic = invitedTopicMember.getTopic();
         String message = "You've been invited to join a new group!";
+
         if (topic != null && !StringUtils.isEmpty(topic.getName())) {
             String topicName = topic.getName();
             message = "You've been invited to join " + topicName + "!";
