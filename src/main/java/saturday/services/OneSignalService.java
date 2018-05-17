@@ -1,5 +1,7 @@
 package saturday.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -7,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import saturday.domain.Topic;
 import saturday.domain.TopicMember;
@@ -18,12 +21,14 @@ import saturday.utils.HTTPUtils;
 public class OneSignalService implements NotificationService {
 
     private final RestTemplate restTemplate;
-    @Value("saturday.one-signal.rest.api.url")
+    @Value("${saturday.one-signal.rest.api.url}")
     private String oneSignalUrl;
-    @Value("saturday.one-signal.app.id")
+    @Value("${saturday.one-signal.app.id}")
     private String oneSignalAppId;
-    @Value("saturday.one-signal.rest.api.key")
+    @Value("${saturday.one-signal.rest.api.key}")
     private String oneSignalRestApiKey;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     public OneSignalService(
@@ -35,11 +40,14 @@ public class OneSignalService implements NotificationService {
     @Override
     public void send(TopicMember invitedTopicMember) {
         OneSignalNotification notification = buildNotification(invitedTopicMember);
-
         HttpHeaders headers = HTTPUtils.createHeaders(oneSignalRestApiKey);
         HttpEntity<OneSignalNotification> request = new HttpEntity<>(notification, headers);
 
-        restTemplate.exchange(oneSignalUrl, HttpMethod.POST, request, OneSignalResponse.class);
+        try {
+            restTemplate.exchange(oneSignalUrl, HttpMethod.POST, request, OneSignalResponse.class);
+        } catch (RestClientException ex) {
+            logger.error(ex.getLocalizedMessage());
+        }
     }
 
     private OneSignalNotification buildNotification(TopicMember invitedTopicMember) {
@@ -58,9 +66,6 @@ public class OneSignalService implements NotificationService {
         filter.setRelation("=");
         filter.setValue(String.valueOf(invitedTopicMember.getEntity().getId()));
 
-        OneSignalFilters filters = new OneSignalFilters();
-        filters.getFilters().add(filter);
-
         Topic topic = invitedTopicMember.getTopic();
         String message = "You've been invited to join a new group!";
 
@@ -75,7 +80,7 @@ public class OneSignalService implements NotificationService {
         OneSignalNotification notification = new OneSignalNotification();
         notification.setAppId(oneSignalAppId);
         notification.setContents(contents);
-        notification.setFilters(filters);
+        notification.getFilters().add(filter);
 
         return notification;
     }

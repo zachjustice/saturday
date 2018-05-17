@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import saturday.domain.Entity;
 import saturday.domain.TopicMember;
 import saturday.exceptions.AccessDeniedException;
+import saturday.publishers.SaturdayEventPublisher;
 import saturday.services.EntityService;
 import saturday.services.PermissionService;
 import saturday.services.TopicMemberService;
@@ -21,17 +22,22 @@ import java.util.Map;
 public class TopicMemberController {
     private final TopicMemberService topicMemberService;
     private final EntityService entityService;
-    private final TopicService topicService;
     private final PermissionService permissionService;
+    private final SaturdayEventPublisher saturdayEventPublisher;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    public TopicMemberController(TopicMemberService topicMemberService, EntityService entityService, TopicService topicService, PermissionService permissionService) {
+    public TopicMemberController(
+            TopicMemberService topicMemberService,
+            EntityService entityService,
+            PermissionService permissionService,
+            SaturdayEventPublisher saturdayEventPublisher
+    ) {
         this.topicMemberService = topicMemberService;
         this.entityService = entityService;
-        this.topicService = topicService;
         this.permissionService = permissionService;
+        this.saturdayEventPublisher = saturdayEventPublisher;
     }
 
     /**
@@ -76,6 +82,7 @@ public class TopicMemberController {
         }
 
         topicMember = topicMemberService.save(topicMember);
+        this.saturdayEventPublisher.publishInviteEvent(topicMember);
         return new ResponseEntity<>(topicMember, HttpStatus.OK);
     }
 

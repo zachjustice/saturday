@@ -1,5 +1,6 @@
 package saturday.domain.oneSignal;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -7,6 +8,10 @@ public class OneSignalFilters {
     private List<OneSignalFilter> filters;
 
     public List<OneSignalFilter> getFilters() {
+        if (filters == null) {
+            filters = new ArrayList<>();
+        }
+
         return filters;
     }
 

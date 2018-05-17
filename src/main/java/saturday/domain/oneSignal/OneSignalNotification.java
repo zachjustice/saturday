@@ -2,12 +2,14 @@ package saturday.domain.oneSignal;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class OneSignalNotification {
     private String appId;
     private OneSignalContents contents;
-    private OneSignalFilters filters;
+    private List<OneSignalFilter> filters;
 
     @JsonProperty("app_id")
     public String getAppId() {
@@ -27,11 +29,14 @@ public class OneSignalNotification {
         this.contents = contents;
     }
 
-    public OneSignalFilters getFilters() {
+    public List<OneSignalFilter> getFilters() {
+        if (filters == null) {
+            filters = new ArrayList<>();
+        }
         return filters;
     }
 
-    public void setFilters(OneSignalFilters filters) {
+    public void setFilters(List<OneSignalFilter>  filters) {
         this.filters = filters;
     }
 
