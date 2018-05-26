@@ -313,6 +313,6 @@ public class TopicContentServiceImpl implements TopicContentService {
     @Override
     public void delete(TopicContent topicContent) {
         s3Service.delete(topicContent.getS3bucket(), topicContent.getS3key());
-        topicContentRepository.delete(topicContent.getId());
+        topicContentRepository.deleteById(topicContent.getId());
     }
 }

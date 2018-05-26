@@ -15,7 +15,7 @@ import java.util.List;
 @Repository
 public interface TopicContentRepository extends PagingAndSortingRepository<TopicContent, Integer> {
     TopicContent findById(int id);
-    void delete(int id);
+    void deleteById(int id);
 
     Page<TopicContent> findAllByTopicId(Pageable page, int topicId);
     List<TopicContent> findTopicContentByTopicIdAndDateTakenBetweenOrderByDateTakenDesc(int topicId, Date start, Date end);

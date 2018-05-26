@@ -5,6 +5,12 @@ server:
 # = SPRING
 # ===============================
 spring:
+  jpa:
+    properties:
+      hibernate:
+        temp:
+          use_jdbc_metadata_defaults: false
+    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
   servlet:
     multipart:
       maxFileSize: 100MB
@@ -18,7 +24,8 @@ spring:
     url: jdbc:postgresql://${SATURDAY_HOST}:${SATURDAY_PORT}/${SATURDAY_DB_NAME}
     username: ${SATURDAY_USERNAME}
     password: ${SATURDAY_PASSWORD}
-    validationQuery: SELECT 1;
+    tomcat:
+      validationQuery: SELECT 1;
   # ==============================================================
   # = Spring Security / Queries for AuthenticationManagerBuilder
   # ==============================================================

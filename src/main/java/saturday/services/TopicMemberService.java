@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public interface TopicMemberService {
     TopicMember save(TopicMember topicMember) ;
-    void delete(int id) ;
+    void deleteById(int id) ;
 
     TopicMember findById(int id) ;
     List<TopicMember> findByTopicId(int id);

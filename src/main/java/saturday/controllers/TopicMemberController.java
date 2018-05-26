@@ -109,7 +109,7 @@ public class TopicMemberController {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
-        topicMemberService.delete(id);
+        topicMemberService.deleteById(id);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
