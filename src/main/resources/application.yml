@@ -5,18 +5,6 @@ server:
 # = SPRING
 # ===============================
 spring:
-  jpa:
-    properties:
-      hibernate:
-        temp:
-          use_jdbc_metadata_defaults: false
-    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
-  servlet:
-    multipart:
-      maxFileSize: 100MB
-      maxRequestSize: 100MB
-  mvc:
-    dispatch-options-request: true
   # ===============================
   # = DATA SOURCE
   # ===============================
@@ -26,19 +14,12 @@ spring:
     password: ${SATURDAY_PASSWORD}
     tomcat:
       validationQuery: SELECT 1;
-  # ==============================================================
-  # = Spring Security / Queries for AuthenticationManagerBuilder
-  # ==============================================================
-  queries:
-    users-query: select email, password_hash, is_email_confirmed from entities where email=?
-    roles-query: select e.email, r.label from entities e inner join entity_roles er on(e.id=er.entity_id) inner join roles r on(er.role_id=r.id) where e.email=?
-  # ==============================================================
-  # = Spring Social Facebook for SocialConfig
-  # ==============================================================
-  social:
-    facebook:
-      app-id: ${SATURDAY_FACEBOOK_APP_ID}
-      app-secret: ${SATURDAY_FACEBOOK_APP_SECRET}
+  jpa:
+    properties:
+      hibernate:
+        temp:
+          use_jdbc_metadata_defaults: false
+    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
   # ==============================================================
   # = Spring Java Mail Sender for EmailSenderConfig
   # ==============================================================
@@ -56,6 +37,25 @@ spring:
           starttls:
             enable: true
             required: true
+  mvc:
+    dispatch-options-request: true
+  servlet:
+    multipart:
+      maxFileSize: 100MB
+      maxRequestSize: 100MB
+  # ==============================================================
+  # = Spring Security / Queries for AuthenticationManagerBuilder
+  # ==============================================================
+  queries:
+    users-query: select email, password_hash, is_email_confirmed from entities where email=?
+    roles-query: select e.email, r.label from entities e inner join entity_roles er on(e.id=er.entity_id) inner join roles r on(er.role_id=r.id) where e.email=?
+  # ==============================================================
+  # = Spring Social Facebook for SocialConfig
+  # ==============================================================
+  social:
+    facebook:
+      app-id: ${SATURDAY_FACEBOOK_APP_ID}
+      app-secret: ${SATURDAY_FACEBOOK_APP_SECRET}
 
 # ===============================
 # = SPECIFIC TO THIS APP
