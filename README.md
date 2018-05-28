@@ -30,6 +30,40 @@ To redeploy
 eb deploy
 ```
 
+To setup the jenkins server
+* Create a JenkinsAccess role for EC2 services (Role Type 'EC2') with the 'AWSCodePipelineCustomActionAccess' policy
+* Setup an ec2 instance with ports 80 and 22 accessible from your ip address 
+* Attach the JenkinsAccess role you just created to the new EC2 instance
+* Setup the jenkins build server on the EC2 instance with the following commands
+```
+# install java 8 and maven 3.5
+wget http://www-eu.apache.org/dist/maven/maven-3/3.5.3/binaries/apache-maven-3.5.3-bin.tar.gz -C /opt/
+sudo tar xzvf apache-maven-3.3.3-bin.tar.gz -C /opt/ 
+rm apache-maven-3.3.3-bin.tar.gz
+
+sudo yum install java-1.8.0
+sudo yum remove java-1.7.0-openjdk
+
+# setup jenkins
+sudo wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat/jenkins.repo
+sudo rpm --import https://jenkins-ci.org/redhat/jenkins-ci.org.key
+sudo yum install -y jenkins
+
+# confirm jenkins is started
+sudo service jenkins status
+
+# start jenkins if its stopped
+sudo service jenkins start
+
+```
+
+Jenkins has a default port of TCP/8080, but we’ll use iptables to redirect port 80 to port 8080 and allow local connections.
+
+```
+sudo iptables -A PREROUTING -t nat -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 8080
+sudo iptables -t nat -I OUTPUT -p tcp -o lo --dport 80 -j REDIRECT --to-ports 8080
+```
+
 TODO
 * Gradle build scripts for ebs deploys
 
