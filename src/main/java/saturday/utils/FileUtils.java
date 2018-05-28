@@ -16,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
 
@@ -30,8 +31,9 @@ public class FileUtils {
      */
     public static StringBuilder toStringBuilder(Resource resource) throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
+        Path path = Paths.get(resource.getURI());
 
-        try (BufferedReader r = Files.newBufferedReader(Paths.get(resource.getURI()), StandardCharsets.UTF_8)) {
+        try (BufferedReader r = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
             r.lines().forEach(stringBuilder::append);
         }
 

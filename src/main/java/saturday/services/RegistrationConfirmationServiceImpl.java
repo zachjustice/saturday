@@ -2,11 +2,14 @@ package saturday.services;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import saturday.domain.AccessToken;
@@ -14,10 +17,17 @@ import saturday.domain.AccessTokenType;
 import saturday.domain.Entity;
 import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.ResourceNotFoundException;
-import saturday.utils.FileUtils;
 import saturday.utils.TokenAuthenticationUtils;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 @Service("registrationConfirmationServiceImpl ")
 public class RegistrationConfirmationServiceImpl implements RegistrationConfirmationService {
@@ -30,8 +40,6 @@ public class RegistrationConfirmationServiceImpl implements RegistrationConfirma
     private String APPLICATION_URL;
     @Value("${saturday.access-token-type.email-confirmation}")
     private int ACCESS_TOKEN_TYPE_EMAIL_CONFIRMATION;
-    @Value("classpath:templates/confirm_email.html")
-    private Resource confirmationEmailResource;
     @Value("${saturday.ses.from-email}")
     private String FROM_EMAIL;
 
@@ -72,15 +80,18 @@ public class RegistrationConfirmationServiceImpl implements RegistrationConfirma
         accessTokenType.setId(ACCESS_TOKEN_TYPE_EMAIL_CONFIRMATION);
         AccessToken accessToken = accessTokenService.save(entity.getEmail(), 60 * 60 * 24 * 1000, accessTokenType);
 
-        StringBuilder confirmationEmailTemplate;
+        String confirmationEmailTemplate;
+        ClassPathResource cpr = new ClassPathResource("templates/confirm_email.html");
         try {
-            confirmationEmailTemplate = FileUtils.toStringBuilder(confirmationEmailResource);
+            InputStream inputStream = cpr.getInputStream();
+            confirmationEmailTemplate = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+            inputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
             return;
         }
 
-        String confirmationEmailBody = confirmationEmailTemplate.toString().replace(
+        String confirmationEmailBody = confirmationEmailTemplate.replace(
                 CONFIRMATON_URL_PLACEHOLDER,
                 constructVerificationUrl(accessToken.getToken(), entity.getEmail())
         );
