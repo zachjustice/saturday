@@ -83,7 +83,7 @@ public class PermissionService {
      */
     public boolean canCreate(TopicMember topicMember) {
         if(topicMember == null) {
-            throw new BusinessLogicException("Failed to authenticate permissions. Topic Member is null while checking canCreate(TopicMember).");
+            throw new BusinessLogicException("Failed to authenticate permissions. Topic Member is null.");
         }
 
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
