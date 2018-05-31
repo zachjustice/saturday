@@ -13,25 +13,25 @@ import org.springframework.web.bind.annotation.RequestParam;
 import saturday.domain.Entity;
 import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.BusinessLogicException;
-import saturday.services.RegistrationConfirmationService;
+import saturday.services.ConfirmEmailService;
 
 @Controller
-public class RegistrationConfirmationController {
+public class ConfirmEmailController {
 
-    private final RegistrationConfirmationService registrationConfirmationService;
+    private final ConfirmEmailService confirmEmailService;
 
-    public RegistrationConfirmationController(RegistrationConfirmationService registrationConfirmationService) {
-        this.registrationConfirmationService = registrationConfirmationService;
+    public ConfirmEmailController(ConfirmEmailService confirmEmailService) {
+        this.confirmEmailService = confirmEmailService;
     }
 
-    @RequestMapping(value = "/registration_confirmation", method = RequestMethod.PUT)
-    public ResponseEntity<Entity> registrationConfirmation(
+    @RequestMapping(value = "/confirm_email", method = RequestMethod.PUT)
+    public ResponseEntity<Entity> confirmEmail(
             @RequestParam(value = "token") String token
     ) {
         Entity entity;
 
         try {
-            entity = registrationConfirmationService.validateRegistrationConfirmationToken(token);
+            entity = confirmEmailService.validateConfirmEmailToken(token);
         } catch (ExpiredJwtException ex) {
             String error = "Confirmation emails are only valid for 24 hours.";
             throw new BusinessLogicException(error);
@@ -55,7 +55,7 @@ public class RegistrationConfirmationController {
 
         try {
             // Get email from token
-            // entity = registrationConfirmationService.sendEmail(email);
+            // entity = confirmEmailService.sendEmail(email);
         } catch (MailException ex) {
             error = "Invalid token.";
         }

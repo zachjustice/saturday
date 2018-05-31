@@ -22,8 +22,8 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-@Service("registrationConfirmationServiceImpl ")
-public class RegistrationConfirmationServiceImpl implements RegistrationConfirmationService {
+@Service("confirmEmailServiceImpl")
+public class ConfirmEmailServiceImpl implements ConfirmEmailService {
 
     private final EmailService emailService;
     private final AccessTokenService accessTokenService;
@@ -42,12 +42,11 @@ public class RegistrationConfirmationServiceImpl implements RegistrationConfirma
     private static final String CONFIRMATON_URL_PLACEHOLDER = "{{CONFIRMATION_URL}}";
 
     @Autowired
-    public RegistrationConfirmationServiceImpl(EmailService emailService, AccessTokenService accessTokenService, EntityService entityService) {
+    public ConfirmEmailServiceImpl(EmailService emailService, AccessTokenService accessTokenService, EntityService entityService) {
         this.emailService = emailService;
         this.accessTokenService = accessTokenService;
         this.entityService = entityService;
     }
-
 
     /**
      * Sends an email asking the user to confirm their email address.
@@ -104,7 +103,7 @@ public class RegistrationConfirmationServiceImpl implements RegistrationConfirma
      *   - if the token is not a registration token
      */
     @Override
-    public Entity validateRegistrationConfirmationToken(String token) {
+    public Entity validateConfirmEmailToken(String token) {
         String email = TokenAuthenticationUtils.validateToken(token);
 
         // Check if the user has already confirmed their email address
@@ -146,6 +145,6 @@ public class RegistrationConfirmationServiceImpl implements RegistrationConfirma
     private String constructVerificationUrl(String token, String email) {
         String base64token = Base64.getEncoder().encodeToString(token.getBytes());
         String base64email = Base64.getEncoder().encodeToString(email.getBytes());
-        return SATURDAY_CLIENT_URL + "/registration_confirmation?t=" + base64token +"&e=" + base64email;
+        return SATURDAY_CLIENT_URL + "/confirm_email?t=" + base64token +"&e=" + base64email;
     }
 }

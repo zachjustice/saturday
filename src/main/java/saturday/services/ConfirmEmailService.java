@@ -3,10 +3,10 @@ package saturday.services;
 import org.springframework.mail.MailException;
 import saturday.domain.Entity;
 
-public interface RegistrationConfirmationService {
+public interface ConfirmEmailService {
     void sendEmail(String email) throws MailException;
 
     void sendEmail(Entity entity) throws MailException;
 
-    Entity validateRegistrationConfirmationToken(String token);
+    Entity validateConfirmEmailToken(String token);
 }

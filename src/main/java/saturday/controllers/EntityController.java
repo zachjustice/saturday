@@ -11,9 +11,9 @@ import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
 import saturday.exceptions.AccessDeniedException;
 import saturday.publishers.SaturdayEventPublisher;
+import saturday.services.ConfirmEmailService;
 import saturday.services.EntityServiceImpl;
 import saturday.services.PermissionService;
-import saturday.services.RegistrationConfirmationService;
 import saturday.services.S3Service;
 import saturday.utils.HTTPUtils;
 
@@ -29,7 +29,7 @@ public class EntityController {
 
     private final EntityServiceImpl entityService;
     private final S3Service s3Service;
-    private final RegistrationConfirmationService registrationConfirmationService;
+    private final ConfirmEmailService confirmEmailService;
     private final PermissionService permissionService;
     private final SaturdayEventPublisher saturdayEventPublisher;
 
@@ -47,12 +47,12 @@ public class EntityController {
             EntityServiceImpl entityService,
             PermissionService permissionService,
             S3Service s3Service,
-            RegistrationConfirmationService registrationConfirmationService,
+            ConfirmEmailService confirmEmailService,
             SaturdayEventPublisher saturdayEventPublisher) {
         this.entityService = entityService;
         this.permissionService = permissionService;
         this.s3Service = s3Service;
-        this.registrationConfirmationService = registrationConfirmationService;
+        this.confirmEmailService = confirmEmailService;
         this.saturdayEventPublisher = saturdayEventPublisher;
     }
 
@@ -156,7 +156,7 @@ public class EntityController {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
-        registrationConfirmationService.sendEmail(entity);
+        confirmEmailService.sendEmail(entity);
 
         return new ResponseEntity<>("SUCCESS", HttpStatus.OK);
     }
