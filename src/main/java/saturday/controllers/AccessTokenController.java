@@ -167,37 +167,28 @@ public class AccessTokenController {
 
     /**
      * Reset a user's password provided a valid access token and password
-     * @param token The reset password token
+     * @param rawToken The reset password token
      * @param updatedEntity The entity object which holds the updated password
      * @return Success if the password was updated correctly
      */
     @RequestMapping(value = "/reset_password", method = RequestMethod.PUT)
     public ResponseEntity<String> resetPassword(
-            @RequestParam(value="token") String token,
+            @RequestParam(value="token") String rawToken,
             @RequestBody Entity updatedEntity
     ) {
 
-        String email;
-        try {
-            email = TokenAuthenticationUtils.validateToken(token);
-        } catch(ExpiredJwtException ex) {
-            throw new AccessDeniedException("Failed to reset password due to expired token.");
-        } catch( MalformedJwtException ex) {
-            throw new AccessDeniedException("Failed to reset password due to malformed token.");
-        }
-
         // query the access token table by token to make sure the token is still valid
         // (i.e. hasn't already been used)
-        AccessToken existing;
+        AccessToken existingAccessToken;
         try{
-            existing = accessTokenService.findByToken(token);
+            existingAccessToken = accessTokenService.findByToken(rawToken);
         } catch (ResourceNotFoundException e) {
             throw new AccessDeniedException("Access token is invalid.");
         }
 
         // Make sure they're using the correct kind of token
         // i.e. use a normal auth token to reset the password
-        if(existing.getType().getId() != ACCESS_TOKEN_TYPE_RESET_PASSWORD) {
+        if(existingAccessToken.getType().getId() != ACCESS_TOKEN_TYPE_RESET_PASSWORD) {
             throw new AccessDeniedException("Access token is invalid.");
         }
 
@@ -206,18 +197,19 @@ public class AccessTokenController {
             throw new IllegalArgumentException("Password field must be at least " + PASSWORD_MIN_LENGTH + " characters.");
         }
 
-        // update the user's status to the new password
-        Entity entity = entityService.findEntityByEmail(email);
+        Entity entity = existingAccessToken.getEntity();
+
         if(entity == null) {
-            logger.error("Attempted to reset password. The token was valid but the user, " + email + ", no longer exists.");
+            logger.error("Attempted to reset password. Token was valid but the entity was null: " + existingAccessToken);
             throw new ResourceNotFoundException("Unable to reset password.");
         }
 
+        // update the user's status to the new password
         entity.setPassword(updatedEntity.getPassword());
         entityService.updateEntity(entity);
 
         // delete the access token if its valid and we've successfully updated the user
-        accessTokenService.deleteAccessTokenByToken(existing.getToken());
+        accessTokenService.deleteAccessTokenByToken(existingAccessToken.getToken());
 
         return new ResponseEntity<>("SUCCESS", HttpStatus.OK);
     }

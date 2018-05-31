@@ -24,6 +24,8 @@ public class CustomSpringEventListener {
         this.notificationService = notificationService;
     }
 
+    // Note, break out these listeners if it becomes too large.
+    // Or just move it to AWS Kinesis + Lambda or something
     @Async
     @EventListener
     public void onApplicationEvent(RegistrationEvent event) {

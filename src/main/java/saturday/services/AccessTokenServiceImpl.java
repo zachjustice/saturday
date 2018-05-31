@@ -1,20 +1,26 @@
 package saturday.services;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import saturday.domain.AccessToken;
 import saturday.domain.AccessTokenType;
+import saturday.domain.Entity;
 import saturday.exceptions.DuplicateResourceException;
 import saturday.exceptions.ResourceNotFoundException;
 import saturday.repositories.AccessTokenRepository;
 import saturday.utils.TokenAuthenticationUtils;
 
+import java.security.SecureRandom;
 import java.util.Date;
+import java.util.Random;
 
 @Service("accessTokenService")
 public class AccessTokenServiceImpl implements AccessTokenService {
     private final AccessTokenRepository accessTokenRepository;
+    @Value("${saturday.access-token-type.reset-password}")
+    private int ACCESS_TOKEN_TYPE_RESET_PASSWORD;
 
     public AccessTokenServiceImpl(AccessTokenRepository accessTokenRepository) {
         this.accessTokenRepository = accessTokenRepository;
@@ -39,7 +45,7 @@ public class AccessTokenServiceImpl implements AccessTokenService {
     public AccessToken findByToken(String rawToken) {
         AccessToken token = accessTokenRepository.findByToken(rawToken);
         if(token == null) {
-            throw new ResourceNotFoundException("Token does not exist!");
+            throw new ResourceNotFoundException("Token, " + rawToken + ", does not exist!");
         }
 
         return token;
@@ -53,17 +59,38 @@ public class AccessTokenServiceImpl implements AccessTokenService {
      * @return The saved access token
      */
     @Override
-    public AccessToken save(String email, int expirationTimeFromNow, AccessTokenType accessTokenType) {
-        if(expirationTimeFromNow <= 0) {
+    public AccessToken save(Entity entity, int expirationTimeFromNow, AccessTokenType accessTokenType) {
+        if (entity == null) {
+            throw new IllegalArgumentException("Error persisting access token. Null entity.");
+        }
+
+        if (StringUtils.isEmpty(entity.getEmail().trim())) {
+            throw new IllegalArgumentException("Error persisting access token. Empty email.");
+        }
+
+        if (expirationTimeFromNow <= 0) {
             throw new IllegalArgumentException("Error persisting access token. ExpirationTimeFromNow must be greater than 0.");
+        }
+
+        if (accessTokenType == null) {
+            throw new IllegalArgumentException("Error persisting access token. Null accessTokenType.");
         }
 
         Date expirationDate = new Date(System.currentTimeMillis() + expirationTimeFromNow);
 
+        String token;
+        if (accessTokenType.getId() == ACCESS_TOKEN_TYPE_RESET_PASSWORD) {
+            int forgotPasswordCodeLength = 5;
+            token = getRandomLetters(forgotPasswordCodeLength);
+        } else {
+            token = TokenAuthenticationUtils.createToken(entity.getEmail(), expirationDate);
+        }
+
         AccessToken accessToken = new AccessToken();
         accessToken.setType(accessTokenType);
         accessToken.setExpirationDate(expirationDate);
-        accessToken.setToken(TokenAuthenticationUtils.createToken(email, expirationDate));
+        accessToken.setToken(token);
+        accessToken.setEntity(entity);
 
         return accessTokenRepository.save(accessToken);
     }
@@ -98,5 +125,23 @@ public class AccessTokenServiceImpl implements AccessTokenService {
         }
 
         return accessTokenRepository.save(token);
+    }
+
+    /**
+     * Constructs a string of random letters with a length specified by the {@code num} argument
+     * @param num How long the returned string should be
+     * @return A string of random letters
+     */
+    private String getRandomLetters(int num) {
+        Random random = new SecureRandom();
+        String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        StringBuilder randomLetters = new StringBuilder(num);
+
+
+        for (int i = 0; i < num; i++) {
+            randomLetters.append(alphabet.charAt(random.nextInt(alphabet.length())));
+        }
+
+        return randomLetters.toString();
     }
 }

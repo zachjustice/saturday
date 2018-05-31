@@ -6,14 +6,16 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.drew.metadata.exif.ExifInteropDirectory;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
-import com.drew.metadata.file.FileTypeDirectory;
 import com.drew.metadata.iptc.IptcDirectory;
 import com.drew.metadata.png.PngDirectory;
+import org.apache.commons.io.IOUtils;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -121,5 +123,14 @@ public class FileUtils {
 
         // get input stream for upload
         return java.util.Base64.getDecoder().decode(data);
+    }
+
+    public static String classpathResourceToString(ClassPathResource cpr) throws IOException {
+        String resourceAsString;
+        InputStream inputStream = cpr.getInputStream();
+        resourceAsString = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+        inputStream.close();
+
+        return resourceAsString;
     }
 }

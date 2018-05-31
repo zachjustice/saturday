@@ -173,7 +173,7 @@ public class EntityController {
     ) {
         Entity entity = entityService.findEntityByEmail(email);
         if (entity == null) {
-            // No need to tell people what emails exist and which don't
+            // No need to tell people what emails exist and which don't (?)
             return new ResponseEntity<>("SUCCESS", HttpStatus.OK);
         }
 

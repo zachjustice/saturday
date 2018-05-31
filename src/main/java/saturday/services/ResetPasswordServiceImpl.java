@@ -4,37 +4,39 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 import saturday.domain.AccessToken;
 import saturday.domain.AccessTokenType;
 import saturday.domain.Entity;
+import saturday.utils.FileUtils;
+
+import java.io.IOException;
 
 @Service("resetPasswordService")
 public class ResetPasswordServiceImpl implements ResetPasswordService {
 
     private final AccessTokenService accessTokenService;
-    private final SimpleMailMessage templateMessage;
-    private final MailSender mailSender;
+    private final EmailService emailService;
 
     @Value("${saturday.access-token-type.reset-password}")
     private int ACCESS_TOKEN_TYPE_RESET_PASSWORD;
     @Value("${saturday.client-url}")
     private String SATURDAY_CLIENT_URL;
+    @Value("${saturday.ses.from-email}")
+    private String FROM_EMAIL;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     public ResetPasswordServiceImpl(
             AccessTokenService accessTokenService,
-            SimpleMailMessage templateMessage,
-            MailSender mailSender
+            EmailService emailService
     ) {
         this.accessTokenService = accessTokenService;
-        this.templateMessage = templateMessage;
-        this.mailSender = mailSender;
+        this.emailService = emailService;
     }
 
     /**
@@ -46,27 +48,26 @@ public class ResetPasswordServiceImpl implements ResetPasswordService {
     public void sendEmail(Entity entity) throws MailException {
         AccessTokenType accessTokenType = new AccessTokenType();
         accessTokenType.setId(ACCESS_TOKEN_TYPE_RESET_PASSWORD);
-        AccessToken accessToken = accessTokenService.save(entity.getEmail(), 60 * 60 * 24 * 1000, accessTokenType);
+        AccessToken accessToken = accessTokenService.save(entity, 60 * 60 * 24 * 1000, accessTokenType);
 
-        SimpleMailMessage message = new SimpleMailMessage(this.templateMessage);
-        message.setSubject("Reset your password");
-        message.setTo(entity.getEmail());
-        message.setText(
-            "Click this link or paste it in your browser to reset your password: \n"
-            + constructUrl(accessToken.getToken())
-            + "\n"
-            + "For security, this link is only valid for 24 hours."
-        );
+        String forgotPasswordEmailTemplate;
+        try {
+            ClassPathResource cpr = new ClassPathResource("templates/forgot_password.html");
+            forgotPasswordEmailTemplate = FileUtils.classpathResourceToString(cpr);
+        } catch (IOException e) {
+            logger.error("Failed to send reset password email for entity " + entity, e);
+            return;
+        }
 
-        mailSender.send(message);
-    }
+        String forgotPasswordEmailBody = forgotPasswordEmailTemplate
+                .replace(
+                        "{{NAME}}",
+                        entity.getName()
+                ).replace(
+                        "{{FORGOT_PASSWORD_CODE}}",
+                        accessToken.getToken()
+                );
 
-    /**
-     * Constructs the reset password link given an access token
-     * @param token A token to reset the password
-     * @return The email confirmation url
-     */
-    private String constructUrl(String token) {
-        return SATURDAY_CLIENT_URL + "reset_password?token=" + token;
+        emailService.sendEmail("MomDiary Account Recovery", entity.getEmail(), FROM_EMAIL, forgotPasswordEmailBody);
     }
 }

@@ -47,20 +47,9 @@ public class ConfirmEmailController {
     }
 
     @RequestMapping(value = "/send_confirmation_email", method = RequestMethod.GET)
-    public String sendConfirmationEmail(
-            @RequestParam(value = "token") String token,
-            Model model
+    public void sendConfirmationEmail(
+            @RequestParam(value = "token") String token
     ) {
-        String error = null;
-
-        try {
-            // Get email from token
-            // entity = confirmEmailService.sendEmail(email);
-        } catch (MailException ex) {
-            error = "Invalid token.";
-        }
-
-        model.addAttribute("error", error);
-        return "registrationConfirmation";
+        // TODO
     }
 }

@@ -2,7 +2,6 @@ package saturday.services;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +14,10 @@ import saturday.domain.AccessTokenType;
 import saturday.domain.Entity;
 import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.ResourceNotFoundException;
+import saturday.utils.FileUtils;
 import saturday.utils.TokenAuthenticationUtils;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 @Service("confirmEmailServiceImpl")
@@ -70,16 +68,14 @@ public class ConfirmEmailServiceImpl implements ConfirmEmailService {
     public void sendEmail(Entity entity) throws MailException {
         AccessTokenType accessTokenType = new AccessTokenType();
         accessTokenType.setId(ACCESS_TOKEN_TYPE_EMAIL_CONFIRMATION);
-        AccessToken accessToken = accessTokenService.save(entity.getEmail(), 60 * 60 * 24 * 1000, accessTokenType);
+        AccessToken accessToken = accessTokenService.save(entity, 60 * 60 * 24 * 1000, accessTokenType);
 
         String confirmationEmailTemplate;
         ClassPathResource cpr = new ClassPathResource("templates/confirm_email.html");
         try {
-            InputStream inputStream = cpr.getInputStream();
-            confirmationEmailTemplate = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-            inputStream.close();
+            confirmationEmailTemplate = FileUtils.classpathResourceToString(cpr);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Failed to send account confirmation email for entity " + entity, e);
             return;
         }
 

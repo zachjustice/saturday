@@ -55,10 +55,10 @@ START TRANSACTION;
   );
 
   CREATE TABLE access_tokens(
-    -- don't join on entity to prevent attackers from dumping the table and immediately associating users with their token
     id SERIAL PRIMARY KEY,
-    type_id INT NOT NULL REFERENCES access_token_type(id), -- for auditing purposes
-    token VARCHAR NOT NULL UNIQUE, -- don't reuse tokens
+    entity_id INT NOT NULL REFERENCES entities(id),
+    type_id INT NOT NULL REFERENCES access_token_type(id),
+    token VARCHAR NOT NULL,
     expiration_date TIMESTAMP WITHOUT TIME ZONE -- null means it won't expire, derived from decrypted token, but kept for auditing
   );
 
