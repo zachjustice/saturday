@@ -178,9 +178,7 @@ public class EntityController {
         }
 
         // send reset password email
-        logger.info("begin publish");
         saturdayEventPublisher.publishResetPasswordEvent(entity);
-        logger.info("end publish");
 
         return new ResponseEntity<>("SUCCESS", HttpStatus.OK);
     }

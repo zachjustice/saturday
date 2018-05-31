@@ -67,6 +67,6 @@ public class ResetPasswordServiceImpl implements ResetPasswordService {
      * @return The email confirmation url
      */
     private String constructUrl(String token) {
-        return SATURDAY_CLIENT_URL + "/reset_password?token=" + token;
+        return SATURDAY_CLIENT_URL + "reset_password?token=" + token;
     }
 }

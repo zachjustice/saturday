@@ -145,6 +145,6 @@ public class ConfirmEmailServiceImpl implements ConfirmEmailService {
     private String constructVerificationUrl(String token, String email) {
         String base64token = Base64.getEncoder().encodeToString(token.getBytes());
         String base64email = Base64.getEncoder().encodeToString(email.getBytes());
-        return SATURDAY_CLIENT_URL + "/confirm_email?t=" + base64token +"&e=" + base64email;
+        return SATURDAY_CLIENT_URL + "confirm_email?t=" + base64token +"&e=" + base64email;
     }
 }
