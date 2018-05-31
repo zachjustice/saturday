@@ -8,8 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import saturday.domain.AccessToken;
@@ -19,15 +17,10 @@ import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.ResourceNotFoundException;
 import saturday.utils.TokenAuthenticationUtils;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.Base64;
 
 @Service("registrationConfirmationServiceImpl ")
 public class RegistrationConfirmationServiceImpl implements RegistrationConfirmationService {
@@ -36,8 +29,8 @@ public class RegistrationConfirmationServiceImpl implements RegistrationConfirma
     private final AccessTokenService accessTokenService;
     private final EntityService entityService;
 
-    @Value("${saturday.application-url}")
-    private String APPLICATION_URL;
+    @Value("${saturday.client-url}")
+    private String SATURDAY_CLIENT_URL;
     @Value("${saturday.access-token-type.email-confirmation}")
     private int ACCESS_TOKEN_TYPE_EMAIL_CONFIRMATION;
     @Value("${saturday.ses.from-email}")
@@ -151,6 +144,8 @@ public class RegistrationConfirmationServiceImpl implements RegistrationConfirma
      * @return The email confirmation url
      */
     private String constructVerificationUrl(String token, String email) {
-        return APPLICATION_URL + "/registration_confirmation?token=" + token +"&email=" + email;
+        String base64token = Base64.getEncoder().encodeToString(token.getBytes());
+        String base64email = Base64.getEncoder().encodeToString(email.getBytes());
+        return SATURDAY_CLIENT_URL + "/registration_confirmation?t=" + base64token +"&e=" + base64email;
     }
 }

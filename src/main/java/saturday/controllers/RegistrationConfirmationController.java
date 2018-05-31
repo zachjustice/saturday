@@ -2,6 +2,8 @@ package saturday.controllers;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import saturday.domain.Entity;
 import saturday.exceptions.AccessDeniedException;
+import saturday.exceptions.BusinessLogicException;
 import saturday.services.RegistrationConfirmationService;
 
 @Controller
@@ -21,27 +24,26 @@ public class RegistrationConfirmationController {
         this.registrationConfirmationService = registrationConfirmationService;
     }
 
-    @RequestMapping(value = "/registration_confirmation", method = RequestMethod.GET)
-    public String registrationConfirmation(
-            @RequestParam(value = "token") String token,
-            Model model
+    @RequestMapping(value = "/registration_confirmation", method = RequestMethod.PUT)
+    public ResponseEntity<Entity> registrationConfirmation(
+            @RequestParam(value = "token") String token
     ) {
-        Entity entity = null;
-        String error = null;
+        Entity entity;
 
         try {
             entity = registrationConfirmationService.validateRegistrationConfirmationToken(token);
         } catch (ExpiredJwtException ex) {
-            error = "Confirmation emails are only valid for 24 hours.";
+            String error = "Confirmation emails are only valid for 24 hours.";
+            throw new BusinessLogicException(error);
         } catch (MalformedJwtException ex) {
-            error = "Make sure to click 'Confirm your Email' or copy and paste the whole link into your browser.";
+            String error = "Make sure to click 'Confirm your Email' or copy and paste the whole link into your browser.";
+            throw new BusinessLogicException(error);
         } catch (AccessDeniedException ex) {
-            error = "Invalid token.";
+            String error = "Invalid token.";
+            throw new AccessDeniedException(error);
         }
 
-        model.addAttribute("entity", entity);
-        model.addAttribute("error", error);
-        return "registrationConfirmation";
+        return new ResponseEntity<>(entity, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/send_confirmation_email", method = RequestMethod.GET)

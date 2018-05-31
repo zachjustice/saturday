@@ -12,8 +12,6 @@ import saturday.domain.AccessToken;
 import saturday.domain.AccessTokenType;
 import saturday.domain.Entity;
 
-import java.util.concurrent.TimeUnit;
-
 @Service("resetPasswordService")
 public class ResetPasswordServiceImpl implements ResetPasswordService {
 
@@ -23,13 +21,17 @@ public class ResetPasswordServiceImpl implements ResetPasswordService {
 
     @Value("${saturday.access-token-type.reset-password}")
     private int ACCESS_TOKEN_TYPE_RESET_PASSWORD;
-    @Value("${saturday.application-url}")
-    private String APPLICATION_URL;
+    @Value("${saturday.client-url}")
+    private String SATURDAY_CLIENT_URL;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    public ResetPasswordServiceImpl(AccessTokenService accessTokenService, SimpleMailMessage templateMessage, MailSender mailSender) {
+    public ResetPasswordServiceImpl(
+            AccessTokenService accessTokenService,
+            SimpleMailMessage templateMessage,
+            MailSender mailSender
+    ) {
         this.accessTokenService = accessTokenService;
         this.templateMessage = templateMessage;
         this.mailSender = mailSender;
@@ -56,14 +58,7 @@ public class ResetPasswordServiceImpl implements ResetPasswordService {
             + "For security, this link is only valid for 24 hours."
         );
 
-        logger.info("Attempting to send password reset email.");
-        try {
-            TimeUnit.SECONDS.sleep(10);
-            mailSender.send(message);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        logger.info("Sent password reset email.");
+        mailSender.send(message);
     }
 
     /**
@@ -72,6 +67,6 @@ public class ResetPasswordServiceImpl implements ResetPasswordService {
      * @return The email confirmation url
      */
     private String constructUrl(String token) {
-        return APPLICATION_URL + "/reset_password?token=" + token;
+        return SATURDAY_CLIENT_URL + "/reset_password?token=" + token;
     }
 }

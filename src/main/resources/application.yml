@@ -78,7 +78,7 @@ saturday:
         key: ${ONESIGNAL_REST_API_KEY}
 
   # AWS service configurations
-  application-url: ${SATURDAY_APPLICATION_URL}
+  client-url: ${SATURDAY_CLIENT_URL}
   ses:
     from-email: ${AWS_SES_FROM_EMAIL}
   s3:
