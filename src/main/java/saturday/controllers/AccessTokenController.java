@@ -7,8 +7,6 @@ import com.restfb.Version;
 import com.restfb.exception.FacebookException;
 import com.restfb.exception.FacebookOAuthException;
 import com.restfb.types.User;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +15,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import saturday.domain.AccessToken;
 import saturday.domain.Entity;
 import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ProcessingResourceException;
 import saturday.exceptions.ResourceNotFoundException;
+import saturday.exceptions.UnauthorizedUserException;
 import saturday.services.AccessTokenService;
 import saturday.services.EntityService;
 import saturday.utils.HTTPUtils;
@@ -150,10 +153,10 @@ public class AccessTokenController {
                 TimeUnit.SECONDS.sleep(1);
             } catch (InterruptedException e) {
                 logger.error("Interrupted sleep");
-                throw new ProcessingResourceException("Invalid password or email.");
+                throw new UnauthorizedUserException("Invalid password or email.");
             }
 
-            throw new ProcessingResourceException("Invalid password or email.");
+            throw new UnauthorizedUserException("Invalid password or email.");
         }
 
         String token = TokenAuthenticationUtils.createToken(actualUser.getEmail());
