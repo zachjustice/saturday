@@ -73,7 +73,7 @@ public class EntityServiceImpl implements EntityService {
 
         Entity currEntity = findEntityById(updatedEntity.getId());
 
-        // only users to change select fields on their entity
+        // allows users to change select fields on their entity
         String updatedName = updatedEntity.getName();
         String updatedEmail = updatedEntity.getEmail();
         Date updatedBirthday = updatedEntity.getBirthday();
@@ -98,7 +98,7 @@ public class EntityServiceImpl implements EntityService {
             currEntity.setToken(updatedToken);
         }
 
-        if(!StringUtils.isEmpty(updatedPassword) && !currEntity.getPassword().equals(updatedPassword)) {
+        if(!StringUtils.isEmpty(updatedPassword)) {
             // TODO email verification
             currEntity.setPassword(bCryptPasswordEncoder.encode(updatedEntity.getPassword()));
         }
