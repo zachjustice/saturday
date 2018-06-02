@@ -5,10 +5,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-import saturday.exceptions.AccessDeniedException;
-import saturday.exceptions.BusinessLogicException;
-import saturday.exceptions.ProcessingResourceException;
-import saturday.exceptions.ResourceNotFoundException;
+import saturday.exceptions.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +19,12 @@ public class ErrorController extends ResponseEntityExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(ResourceNotFoundException.class)
     public Map<String, String> handleResourceNotFoundException(ResourceNotFoundException e) {
+        return getErrorResponse(e);
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(UnauthorizedUserException.class)
+    public Map<String, String> handleUnauthorizedException(Exception e) {
         return getErrorResponse(e);
     }
 
