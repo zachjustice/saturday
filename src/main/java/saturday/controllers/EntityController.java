@@ -81,7 +81,7 @@ public class EntityController {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
-        currEntity = entityService.updateEntity(updatedEntity);
+        currEntity = entityService.updateEntity(updatedEntity, true);
         HTTPUtils.addAuthenticationHeader(response, currEntity.getToken());
 
         return new ResponseEntity<>(currEntity, HttpStatus.OK);

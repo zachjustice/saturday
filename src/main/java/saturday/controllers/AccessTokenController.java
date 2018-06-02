@@ -208,7 +208,7 @@ public class AccessTokenController {
         }
 
         // update the user's status to the new password
-        entity.setPassword(updatedEntity.getPassword());
+        entity.setPassword(bCryptPasswordEncoder.encode(updatedEntity.getPassword()));
         entityService.updateEntity(entity);
 
         // delete the access token if its valid and we've successfully updated the user

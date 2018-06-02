@@ -10,6 +10,7 @@ public interface EntityService {
     Entity findEntityById(int id) ;
 
     Entity updateEntity(Entity updatedEntity);
+    Entity updateEntity(Entity updatedEntity, boolean setPassword);
     Entity saveEntity(Entity entity) ;
     Entity getAuthenticatedEntity();
 }

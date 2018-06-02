@@ -13,7 +13,6 @@ import saturday.domain.Entity;
 import saturday.domain.Role;
 import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ProcessingResourceException;
-import saturday.exceptions.ResourceNotFoundException;
 import saturday.repositories.EntityRepository;
 import saturday.repositories.RoleRepository;
 import saturday.utils.TokenAuthenticationUtils;
@@ -66,6 +65,11 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public Entity updateEntity(Entity updatedEntity) {
+        return updateEntity(updatedEntity, false);
+    }
+
+    @Override
+    public Entity updateEntity(Entity updatedEntity, boolean setPassword) {
 
         if(updatedEntity == null) {
             throw new ProcessingResourceException("Null entity argument while update entity.");
@@ -98,9 +102,9 @@ public class EntityServiceImpl implements EntityService {
             currEntity.setToken(updatedToken);
         }
 
-        if(!StringUtils.isEmpty(updatedPassword) && !currEntity.getPassword().equals(updatedPassword)) {
+        if(!StringUtils.isEmpty(updatedPassword) && setPassword) {
             // TODO email verification
-            currEntity.setPassword(bCryptPasswordEncoder.encode(updatedEntity.getPassword()));
+            currEntity.setPassword(bCryptPasswordEncoder.encode(updatedPassword));
         }
 
         if(!StringUtils.isEmpty(updatedEmail)) {
