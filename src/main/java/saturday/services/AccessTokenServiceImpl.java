@@ -80,8 +80,8 @@ public class AccessTokenServiceImpl implements AccessTokenService {
 
         String token;
         if (accessTokenType.getId() == ACCESS_TOKEN_TYPE_RESET_PASSWORD) {
-            int forgotPasswordCodeLength = 5;
-            token = getRandomLetters(forgotPasswordCodeLength);
+            int forgotPasswordCodeLength = 9;
+            token = getRandomLettersAndDigits(forgotPasswordCodeLength);
         } else {
             token = TokenAuthenticationUtils.createToken(entity.getEmail(), expirationDate);
         }
@@ -128,20 +128,20 @@ public class AccessTokenServiceImpl implements AccessTokenService {
     }
 
     /**
-     * Constructs a string of random letters with a length specified by the {@code num} argument
+     * Constructs a string of random capitalized letters and digits with a length specified by the {@code num} argument
      * @param num How long the returned string should be
      * @return A string of random letters
      */
-    private String getRandomLetters(int num) {
+    private String getRandomLettersAndDigits(int num) {
         Random random = new SecureRandom();
-        String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        StringBuilder randomLetters = new StringBuilder(num);
+        String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuilder randomLettersAndDigits = new StringBuilder(num);
 
 
         for (int i = 0; i < num; i++) {
-            randomLetters.append(alphabet.charAt(random.nextInt(alphabet.length())));
+            randomLettersAndDigits.append(alphabet.charAt(random.nextInt(alphabet.length())));
         }
 
-        return randomLetters.toString();
+        return randomLettersAndDigits.toString();
     }
 }
