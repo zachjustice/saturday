@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.MailException;
-import org.springframework.mail.MailSender;
 import org.springframework.stereotype.Service;
 import saturday.domain.AccessToken;
 import saturday.domain.AccessTokenType;
@@ -65,9 +64,14 @@ public class ResetPasswordServiceImpl implements ResetPasswordService {
                         entity.getName()
                 ).replace(
                         "{{FORGOT_PASSWORD_CODE}}",
-                        accessToken.getToken()
+                        formatResetPasswordToken(accessToken.getToken())
                 );
 
         emailService.sendEmail("MomDiary Account Recovery", entity.getEmail(), FROM_EMAIL, forgotPasswordEmailBody);
+    }
+
+    private String formatResetPasswordToken(String token) {
+        String[] tokenBrokenIntoThrees = token.split("(?<=\\G...)");
+        return String.join("-", tokenBrokenIntoThrees);
     }
 }

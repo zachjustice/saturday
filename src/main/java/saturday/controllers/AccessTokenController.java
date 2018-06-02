@@ -209,7 +209,7 @@ public class AccessTokenController {
         entityService.updateEntity(entity);
 
         // delete the access token if its valid and we've successfully updated the user
-        // disable the access token to prevent re-use
+        // TODO disable the access token to prevent re-use
         accessTokenService.deleteAccessTokenByToken(existingAccessToken.getToken());
 
         return new ResponseEntity<>("SUCCESS", HttpStatus.OK);
