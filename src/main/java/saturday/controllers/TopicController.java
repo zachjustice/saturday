@@ -47,7 +47,6 @@ public class TopicController {
 
         Entity currentEntity = entityService.getAuthenticatedEntity();
 
-        // TODO better way to do this
         TopicMemberStatus acceptedStatus = new TopicMemberStatus();
         acceptedStatus.setId(TOPIC_MEMBER_STATUS_ACCEPTED);
 

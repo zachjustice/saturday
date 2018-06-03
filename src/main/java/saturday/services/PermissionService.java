@@ -23,6 +23,8 @@ public class PermissionService {
     private int TOPIC_MEMBER_STATUS_RESCINDED;
     @Value("${saturday.topic.invite.status.left_topic}")
     private int TOPIC_MEMBER_STATUS_LEFT_TOPIC;
+    @Value("${saturday.topic.role.admin}")
+    private int TOPIC_ROLE_ADMIN;
 
     @Autowired
     public PermissionService(EntityService entityService, TopicMemberService topicMemberService, TopicService topicService) {
@@ -303,5 +305,31 @@ public class PermissionService {
             // everything else is not allowed
             return false;
         }
+    }
+
+    /**
+     * Check whether the authenticated entity can update the given topicRolePermission
+     * Only site and topic admins can update a topic's permissions settings
+     * @param topicRolePermission
+     * @return If the auth'ed user can modify the topic role permission
+     */
+    public boolean canModify(TopicRolePermission topicRolePermission) {
+        Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
+        if (authenticatedEntity.isAdmin()) {
+            return authenticatedEntity.isAdmin();
+        }
+
+        // if the user is an admin they can update the permission's setting
+        TopicMember topicMember = topicMemberService.findByEntityAndTopic(authenticatedEntity, topicRolePermission.getTopic());
+
+        if (topicMember == null) {
+            return false;
+        }
+
+        if (topicMember.getTopicRole().getId() != TOPIC_ROLE_ADMIN) {
+            return false;
+        }
+
+        return true;
     }
 }

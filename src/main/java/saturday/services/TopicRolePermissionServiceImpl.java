@@ -14,6 +14,7 @@ public class TopicRolePermissionServiceImpl implements TopicRolePermissionServic
         this.topicRolePermissionRepository = topicRolePermissionRepository;
     }
 
+    @Override
     public TopicRolePermission save(TopicRolePermission topicRolePermission) {
 
         if (topicRolePermission.getTopic() == null) {
