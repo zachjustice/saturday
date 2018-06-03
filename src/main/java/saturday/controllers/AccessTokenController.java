@@ -186,13 +186,13 @@ public class AccessTokenController {
         try{
             existingAccessToken = accessTokenService.findByToken(rawToken);
         } catch (ResourceNotFoundException e) {
-            throw new AccessDeniedException("Access token is invalid.");
+            throw new UnauthorizedUserException("Access token is invalid.");
         }
 
         // Make sure they're using the correct kind of token
         // i.e. use a normal auth token to reset the password
         if(existingAccessToken.getType().getId() != ACCESS_TOKEN_TYPE_RESET_PASSWORD) {
-            throw new AccessDeniedException("Access token is invalid.");
+            throw new UnauthorizedUserException("Access token is invalid.");
         }
 
         // We've validated the user is authenticated. Now make sure the request has the required fields.
