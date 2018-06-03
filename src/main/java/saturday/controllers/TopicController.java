@@ -27,6 +27,8 @@ public class TopicController {
 
     @Value("${saturday.topic.invite.status.accepted}")
     private int TOPIC_MEMBER_STATUS_ACCEPTED;
+    @Value("${saturday.topic.role.admin}")
+    private int TOPIC_ROLE_ADMIN;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -50,10 +52,14 @@ public class TopicController {
         TopicMemberStatus acceptedStatus = new TopicMemberStatus();
         acceptedStatus.setId(TOPIC_MEMBER_STATUS_ACCEPTED);
 
+        TopicRole adminTopicRole = new TopicRole();
+        adminTopicRole.setId(TOPIC_ROLE_ADMIN);
+
         TopicMember topicMember = new TopicMember();
         topicMember.setTopic(topic);
         topicMember.setCreator(currentEntity);
         topicMember.setEntity(currentEntity);
+        topicMember.setTopicRole(adminTopicRole);
 
         topicMember.setStatus(acceptedStatus);
         topicMemberService.save(topicMember);

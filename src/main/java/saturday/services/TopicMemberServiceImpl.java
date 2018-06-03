@@ -63,10 +63,12 @@ public class TopicMemberServiceImpl implements TopicMemberService {
             topicMember.setStatus(pendingStatus);
         }
 
-        // new topic members default to the USER role
-        TopicRole topicRole = new TopicRole();
-        topicRole.setId(TOPIC_ROLE_USER);
-        topicMember.setTopicRole(topicRole);
+        if (topicMember.getTopicRole() == null) {
+            // new topic members default to the USER role
+            TopicRole userTopicRole = new TopicRole();
+            userTopicRole.setId(TOPIC_ROLE_USER);
+            topicMember.setTopicRole(userTopicRole);
+        }
 
         // The default value for the creator of a topic member is the current user
         // unless an admin set a creator

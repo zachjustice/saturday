@@ -1,5 +1,8 @@
 package saturday.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -7,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.util.Date;
 import java.util.Objects;
 
 @javax.persistence.Entity
@@ -31,6 +35,24 @@ public class TopicRolePermission {
 
     @Column(name = "is_allowed", nullable = false)
     private Boolean isAllowed;
+
+    @ManyToOne
+    @JoinColumn(name="creator_id", referencedColumnName = "id", nullable=false, updatable = false)
+    private Entity creator;
+
+    @ManyToOne
+    @JoinColumn(name="modifier_id", referencedColumnName = "id", nullable=false)
+    private Entity modifier;
+
+    @Column(name = "created", insertable = false, updatable = false)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date created;
+
+    @Column(name = "modified", insertable = false, updatable = false)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date modified;
 
     public int getId() {
         return id;
@@ -70,6 +92,38 @@ public class TopicRolePermission {
 
     public void setIsAllowed(Boolean allowed) {
         isAllowed = allowed;
+    }
+
+    public Entity getCreator() {
+        return creator;
+    }
+
+    public void setCreator(Entity creator) {
+        this.creator = creator;
+    }
+
+    public Entity getModifier() {
+        return modifier;
+    }
+
+    public void setModifier(Entity modifier) {
+        this.modifier = modifier;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
+
+    public Date getModified() {
+        return modified;
+    }
+
+    public void setModified(Date modified) {
+        this.modified = modified;
     }
 
     @Override
