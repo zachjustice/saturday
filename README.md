@@ -31,9 +31,9 @@ eb deploy
 ```
 
 To setup the jenkins server
-* Create a JenkinsAccess role for EC2 services (Role Type 'EC2') with the 'AWSCodePipelineCustomActionAccess' policy
+* Create a JenkinsAccess permission for EC2 services (Role Type 'EC2') with the 'AWSCodePipelineCustomActionAccess' policy
 * Setup an ec2 instance with ports 80 and 22 accessible from your ip address 
-* Attach the JenkinsAccess role you just created to the new EC2 instance
+* Attach the JenkinsAccess permission you just created to the new EC2 instance
 * Setup the jenkins build server on the EC2 instance with the following commands
 ```
 # install java 8 and maven 3.5

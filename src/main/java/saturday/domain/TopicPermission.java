@@ -6,14 +6,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.util.Objects;
 
-public class TopicRole {
+public class TopicPermission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
     @Column(name = "label")
-    private String role;
+    private String permission;
 
     public int getId() {
         return id;
@@ -23,19 +23,19 @@ public class TopicRole {
         this.id = id;
     }
 
-    public String getRole() {
-        return role;
+    public String getPermission() {
+        return permission;
     }
 
-    public void setRole(String role) {
+    public void setPermission(String permission) {
 
     }
 
     @Override
     public String toString() {
-        return "TopicRole{" +
+        return "TopicPermission{" +
                 "id=" + id +
-                ", role='" + role + '\'' +
+                ", permission='" + permission + '\'' +
                 '}';
     }
 
@@ -43,14 +43,14 @@ public class TopicRole {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TopicRole topicRole = (TopicRole) o;
-        return id == topicRole.id &&
-                Objects.equals(role, topicRole.role);
+        TopicPermission that = (TopicPermission) o;
+        return id == that.id &&
+                Objects.equals(permission, that.permission);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(id, role);
+        return Objects.hash(id, permission);
     }
 }

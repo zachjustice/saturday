@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Objects;
 
 @javax.persistence.Entity
 @Table(name = "topic_members")
@@ -25,6 +26,10 @@ public class TopicMember {
     @ManyToOne
     @JoinColumn(name="status_id", referencedColumnName = "id", nullable = false)
     private TopicMemberStatus status;
+
+    @ManyToOne
+    @JoinColumn(name="topic_role_id", referencedColumnName = "id", nullable = false)
+    private TopicRole topicRole;
 
     @ManyToOne
     @JoinColumn(name="creator_id", referencedColumnName = "id", nullable=false, updatable = false)
@@ -84,17 +89,6 @@ public class TopicMember {
         this.modified = modified;
     }
 
-    @Override
-    public String toString() {
-        return "TopicMember{" +
-                "id=" + id +
-                ", entity=" + entity +
-                ", topic=" + topic +
-                ", created=" + created +
-                ", modified=" + modified +
-                '}';
-    }
-
     public TopicMemberStatus getStatus() {
         return status;
     }
@@ -117,5 +111,46 @@ public class TopicMember {
 
     public void setModifier(Entity modifier) {
         this.modifier = modifier;
+    }
+
+    public TopicRole getTopicRole() {
+        return topicRole;
+    }
+
+    public void setTopicRole(TopicRole topicRole) {
+        this.topicRole = topicRole;
+    }
+
+    @Override
+    public String toString() {
+        return "TopicMember{" +
+                "id=" + id +
+                ", entity=" + entity +
+                ", topic=" + topic +
+                ", created=" + created +
+                ", modified=" + modified +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TopicMember that = (TopicMember) o;
+        return id == that.id &&
+                Objects.equals(entity, that.entity) &&
+                Objects.equals(topic, that.topic) &&
+                Objects.equals(status, that.status) &&
+                Objects.equals(topicRole, that.topicRole) &&
+                Objects.equals(creator, that.creator) &&
+                Objects.equals(modifier, that.modifier) &&
+                Objects.equals(created, that.created) &&
+                Objects.equals(modified, that.modified);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(id, entity, topic, status, topicRole, creator, modifier, created, modified);
     }
 }

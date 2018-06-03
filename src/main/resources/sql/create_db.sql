@@ -170,7 +170,7 @@ START TRANSACTION;
     -- controls whether a topic member has sent an invite, the receiver has accepted or rejected it,
     -- or if the sender canceled the invite
     status_id INT NOT NULL REFERENCES topic_member_statuses(id) DEFAULT 1, -- default to pending
-    topic_role_id INT NOT NULL REFERENCES topic_roles(id) DEFAULT 1, -- default to USER role
+    topic_role_id INT NOT NULL REFERENCES topic_roles(id) DEFAULT 1, -- default to USER permission
 
     creator_id  INT NOT NULL REFERENCES entities(id),
     modifier_id INT REFERENCES entities(id),
