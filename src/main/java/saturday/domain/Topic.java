@@ -2,9 +2,14 @@ package saturday.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.util.Date;
 
 @javax.persistence.Entity
@@ -17,7 +22,6 @@ public class Topic {
     private int id;
 
     @Column(name = "name")
-    @NotEmpty(message = "*Please provide a topic name")
     private String name;
 
     @Column(name = "description")
