@@ -4,8 +4,11 @@ import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.Objects;
 
+@javax.persistence.Entity
+@Table(name = "topic_roles")
 public class TopicRole {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

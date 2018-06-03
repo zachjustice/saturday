@@ -4,8 +4,11 @@ import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.Objects;
 
+@javax.persistence.Entity
+@Table(name = "topic_permissions")
 public class TopicPermission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +31,7 @@ public class TopicPermission {
     }
 
     public void setPermission(String permission) {
-
+        this.permission = permission;
     }
 
     @Override
