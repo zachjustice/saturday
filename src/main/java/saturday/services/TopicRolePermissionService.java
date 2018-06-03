@@ -1,4 +1,4 @@
 package saturday.services;
 
-public class TopicRolePermissionService {
+public interface TopicRolePermissionService {
 }
