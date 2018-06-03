@@ -1,8 +1,4 @@
-package saturday;
-
-import saturday.domain.Topic;
-import saturday.domain.TopicPermission;
-import saturday.domain.TopicRole;
+package saturday.domain;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -15,7 +11,7 @@ import java.util.Objects;
 
 @javax.persistence.Entity
 @Table(name = "topic_role_permissions")
-public class TopicRolePermissions {
+public class TopicRolePermission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -78,7 +74,7 @@ public class TopicRolePermissions {
 
     @Override
     public String toString() {
-        return "TopicRolePermissions{" +
+        return "TopicRolePermission{" +
                 "id=" + id +
                 ", topic=" + topic +
                 ", topicRole=" + topicRole +
@@ -90,7 +86,7 @@ public class TopicRolePermissions {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TopicRolePermissions that = (TopicRolePermissions) o;
+        TopicRolePermission that = (TopicRolePermission) o;
         return id == that.id &&
                 Objects.equals(topic, that.topic) &&
                 Objects.equals(topicRole, that.topicRole) &&
