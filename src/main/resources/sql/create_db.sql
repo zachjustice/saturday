@@ -24,6 +24,10 @@ START TRANSACTION;
   END;
   $$ language 'plpgsql';
 
+  ----------------------
+  -- entities
+  ----------------------
+
   CREATE TABLE entities(
     -- my metadata
     id SERIAL PRIMARY KEY,
@@ -49,10 +53,18 @@ START TRANSACTION;
 
   CREATE TRIGGER update_entities_modtime BEFORE UPDATE ON entities FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
+  ----------------------
+  --   access_token_type
+  ----------------------
+
   CREATE TABLE access_token_type (
     id INT PRIMARY KEY,
     label VARCHAR NOT NULL UNIQUE
   );
+
+  ----------------------
+  -- access_tokens
+  ----------------------
 
   CREATE TABLE access_tokens(
     id SERIAL PRIMARY KEY,
@@ -62,11 +74,19 @@ START TRANSACTION;
     expiration_date TIMESTAMP WITHOUT TIME ZONE -- null means it won't expire, derived from decrypted token, but kept for auditing
   );
 
+  ----------------------
+  --   roles
+  ----------------------
+
   CREATE TABLE roles(
     id SERIAL PRIMARY KEY,
-    label VARCHAR(20) NOT NULL,
+    label VARCHAR(50) NOT NULL,
     CONSTRAINT unique_label UNIQUE(label)
   );
+
+  ----------------------
+  --   entity_roles
+  ----------------------
 
   CREATE TABLE entity_roles (
     id SERIAL PRIMARY KEY,
@@ -74,6 +94,10 @@ START TRANSACTION;
     role_id INT NOT NULL REFERENCES roles(id),
     CONSTRAINT unique_entity_roles UNIQUE(entity_id, role_id)
   );
+
+  ----------------------
+  --   topics
+  ----------------------
 
   CREATE TABLE topics(
     id SERIAL PRIMARY KEY,
@@ -85,6 +109,10 @@ START TRANSACTION;
   );
 
   CREATE TRIGGER update_topics_modtime BEFORE UPDATE ON topics FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
+
+  ----------------------
+  --   topic_content
+  ----------------------
 
   CREATE TABLE topic_content (
     id SERIAL PRIMARY KEY,
@@ -104,10 +132,36 @@ START TRANSACTION;
 
   CREATE TRIGGER update_topic_content_modtime BEFORE UPDATE ON topic_content FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
+  ----------------------
+  --   topic_member_statuses
+  ----------------------
+
   CREATE TABLE topic_member_statuses(
     id SERIAL PRIMARY KEY,
-    label VARCHAR(20) NOT NULL
+    label VARCHAR(50) UNIQUE NOT NULL
   );
+
+  ----------------------
+  --   topic_permissions
+  ----------------------
+
+  CREATE TABLE topic_permissions(
+    id SERIAL PRIMARY KEY,
+    label VARCHAR(50) UNIQUE NOT NULL
+  );
+
+  ----------------------
+  --   topic_roles
+  ----------------------
+
+  CREATE TABLE topic_roles(
+    id SERIAL PRIMARY KEY,
+    label VARCHAR(50) UNIQUE NOT NULL
+  );
+
+  ----------------------
+  --   topic_members
+  ----------------------
 
   CREATE TABLE topic_members(
     id SERIAL PRIMARY KEY,
@@ -116,6 +170,7 @@ START TRANSACTION;
     -- controls whether a topic member has sent an invite, the receiver has accepted or rejected it,
     -- or if the sender canceled the invite
     status_id INT NOT NULL REFERENCES topic_member_statuses(id) DEFAULT 1, -- default to pending
+    topic_role_id INT NOT NULL REFERENCES topic_roles(id) DEFAULT 1, -- default to USER role
 
     creator_id  INT NOT NULL REFERENCES entities(id),
     modifier_id INT REFERENCES entities(id),
@@ -128,23 +183,31 @@ START TRANSACTION;
   CREATE TRIGGER check_topic_member_modifier_is_not_set_to_null BEFORE UPDATE ON topic_members FOR EACH ROW EXECUTE PROCEDURE check_modifier_is_not_set_to_null();
   CREATE TRIGGER update_topic_members_modtime BEFORE UPDATE ON topic_members FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
-  CREATE TABLE topic_permissions(
-    id SERIAL PRIMARY KEY,
-    label VARCHAR(20) NOT NULL
-  );
+  ----------------------
+  --   topic_role_permissions
+  ----------------------
 
-  CREATE TABLE topic_entity_permissions(
+  CREATE TABLE topic_role_permissions(
     id SERIAL PRIMARY KEY,
-    entity_id INT NOT NULL REFERENCES  entities(id),
-    topic_id  INT NOT NULL REFERENCES topics(id),
+    topic_id INT NOT NULL REFERENCES topics(id),
+    topic_role_id INT NOT NULL REFERENCES topic_roles(id),
     topic_permission_id INT NOT NULL REFERENCES topic_permissions(id),
-    created  TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
-    modified TIMESTAMP WITHOUT TIME ZONE,
+    is_allowed BOOLEAN DEFAULT FALSE,
 
-    CONSTRAINT unique_permission UNIQUE(entity_id, topic_id, topic_permission_id)
+    creator_id  INT NOT NULL REFERENCES entities(id),
+    modifier_id INT REFERENCES entities(id),
+    created     TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+    modified    TIMESTAMP WITHOUT TIME ZONE,
+
+    CONSTRAINT unique_topic_role_permissions UNIQUE(topic_id, topic_role_id, topic_permission_id)
   );
 
-  CREATE TRIGGER update_topic_role_modtime BEFORE UPDATE ON topic_entity_permissions FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
+  CREATE TRIGGER check_topic_role_permissions_is_not_set_to_null BEFORE UPDATE ON topic_role_permissions FOR EACH ROW EXECUTE PROCEDURE check_modifier_is_not_set_to_null();
+  CREATE TRIGGER update_topic_role_permissions_modtime BEFORE UPDATE ON topic_role_permissions FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
+
+  ----------------------
+  -- Insert constants --
+  ----------------------
 
   INSERT INTO
     roles (id, label)
@@ -167,5 +230,23 @@ START TRANSACTION;
     (1, 'EMAIL_CONFIRMATION'),
     (2, 'FORGOT_PASSWORD'),
     (3, 'BEARER_TOKEN');
+
+  INSERT INTO
+    topic_roles(id, label)
+  VALUES
+    (1, 'USER'),
+    (2, 'MODERATOR'),
+    (3, 'ADMIN');
+
+  INSERT INTO
+    topic_permissions(id, label)
+  VALUES
+    (1, 'CAN_POST'),
+    (2, 'CAN_DELETE_TOPIC_CONTENT'),
+    (3, 'CAN_INVITE'),
+    (4, 'CAN_REMOVE_MEMBERS'),
+    (5, 'CAN_CANCEL_INVITES'),
+    (6, 'CAN_EDIT_GROUP_INFO'),
+    (7, 'CAN_PROMOTE_USERS');
 
 COMMIT;
