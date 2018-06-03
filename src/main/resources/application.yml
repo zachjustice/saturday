@@ -109,6 +109,18 @@ saturday:
       max_length: 20
     description:
       max_length: 150
+    permissions:
+       can_post: 1
+       can_delete_topic_content: 2
+       can_invite: 3
+       can_remove_members: 4
+       can_cancel_invites: 5
+       can_edit_group_info: 6
+       can_promote_users: 7
+    role:
+      user: 1
+      moderator: 2
+      admin: 3
     invite:
       status:
         pending: 1

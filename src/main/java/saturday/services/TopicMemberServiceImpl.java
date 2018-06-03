@@ -8,6 +8,7 @@ import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicMember;
 import saturday.domain.TopicMemberStatus;
+import saturday.domain.TopicRole;
 import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ResourceNotFoundException;
 import saturday.repositories.TopicMemberRepository;
@@ -24,6 +25,8 @@ public class TopicMemberServiceImpl implements TopicMemberService {
 
     @Value("${saturday.topic.invite.status.pending}")
     private int TOPIC_MEMBER_STATUS_PENDING;
+    @Value("${saturday.topic.role.user}")
+    private static final int TOPIC_ROLE_USER = 1;
 
     @Autowired
     TopicMemberServiceImpl(TopicMemberRepository topicMemberRepository, EntityService entityService) {
@@ -47,6 +50,12 @@ public class TopicMemberServiceImpl implements TopicMemberService {
             throw new IllegalArgumentException("Failed to create topic member. Null entity.");
         }
 
+        // check if the invitee is already a topic member
+        TopicMember existingTopicMember = topicMemberRepository.findByEntityAndTopic(topicMember.getEntity(), topicMember.getTopic());
+        if (existingTopicMember != null) {
+            return existingTopicMember;
+        }
+
         if(topicMember.getStatus() == null) {
             // new topic members have a default status of pending if no status is provided
             TopicMemberStatus pendingStatus = new TopicMemberStatus();
@@ -54,12 +63,10 @@ public class TopicMemberServiceImpl implements TopicMemberService {
             topicMember.setStatus(pendingStatus);
         }
 
-
-        // check if the invitee is already a topic member
-        TopicMember existingTopicMember = topicMemberRepository.findByEntityAndTopic(topicMember.getEntity(), topicMember.getTopic());
-        if (existingTopicMember != null) {
-            return existingTopicMember;
-        }
+        // new topic members default to the USER role
+        TopicRole topicRole = new TopicRole();
+        topicRole.setId(TOPIC_ROLE_USER);
+        topicMember.setTopicRole(topicRole);
 
         // The default value for the creator of a topic member is the current user
         // unless an admin set a creator
@@ -75,34 +82,37 @@ public class TopicMemberServiceImpl implements TopicMemberService {
 
     /**
      * The inviter or invitee can update the topic member request to have the invitee join/leave/whatever the topic.
-     * @param oldTopicMember The old topic member. We pass fields from the new topic member to the old one
      * @param newTopicMember The new topic member with the updated fields
      * @return The updated topic member
-     * @     */
+     */
     @Override
-    public TopicMember update(TopicMember oldTopicMember, TopicMember newTopicMember) {
+    public TopicMember update(TopicMember newTopicMember) {
 
-        if(oldTopicMember.getStatus() == null) {
-            throw new BusinessLogicException("Failed to modify topic member. Null topic member status.");
+        if (newTopicMember == null) {
+            throw new IllegalArgumentException("Error updating topic member. Null topicMember.");
         }
 
-        if(newTopicMember.getStatus() == null) {
-            throw new BusinessLogicException("Failed to modify topic member. Null topic member status.");
+        if (newTopicMember.getModifier() == null) {
+            throw new IllegalArgumentException("Error updating topic member. Null modifier.");
         }
 
-        if(oldTopicMember.getCreator() == null) {
-            throw new BusinessLogicException("Failed to modify topic member. Null creator.");
+        TopicMember currentTopicMember = topicMemberRepository.findById(newTopicMember.getId());
+
+        if (currentTopicMember == null) {
+            throw new ResourceNotFoundException("No topic member with the id " + newTopicMember.getId() + " exists!");
         }
 
-        if(oldTopicMember.getEntity() == null) {
-            throw new BusinessLogicException("Failed to modify topic member. Null topic member entity.");
+        if(newTopicMember.getTopicRole() != null) {
+            currentTopicMember.setTopicRole(newTopicMember.getTopicRole());
         }
 
-        // Status and the modifier are currently the only thing we need to update on topic members
-        oldTopicMember.setStatus(newTopicMember.getStatus());
-        oldTopicMember.setModifier(newTopicMember.getModifier());
+        if(newTopicMember.getStatus() != null) {
+            currentTopicMember.setStatus(newTopicMember.getStatus());
+        }
 
-        return topicMemberRepository.save(oldTopicMember);
+        currentTopicMember.setModifier(newTopicMember.getModifier());
+
+        return topicMemberRepository.save(currentTopicMember);
     }
 
     @Override

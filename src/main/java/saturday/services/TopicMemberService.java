@@ -20,7 +20,7 @@ public interface TopicMemberService {
     TopicMember findByEntityAndTopic(Entity entity, Topic topic);
     TopicMember findByEntityAndTopicAndStatus(Entity entity, Topic topic, TopicMemberStatus status);
 
-    TopicMember update(TopicMember oldTopicMember, TopicMember newTopicMember) ;
+    TopicMember update(TopicMember newTopicMember) ;
 
     Map<String, List<TopicMember>> getSentAndReceivedTopicInvites(Entity involvedParty);
 }

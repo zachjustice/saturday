@@ -96,7 +96,7 @@ public class TopicMemberController {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
-        newTopicMember = topicMemberService.update(oldTopicMember, newTopicMember);
+        newTopicMember = topicMemberService.update(newTopicMember);
         return new ResponseEntity<>(newTopicMember, HttpStatus.OK);
     }
 

@@ -236,6 +236,14 @@ public class PermissionService {
             throw new BusinessLogicException("Failed to authenticate permissions. Null topic member entity.");
         }
 
+        /*
+         * Validate update to topic role
+         */
+        // TODO validate authenticated entity has the CAN_PROMOTE_USERS permission
+
+        /*
+         * Validate update the new topic member status
+         */
         if(oldTopicMember.getStatus().getId() == newTopicMember.getStatus().getId()) {
             // If there was no change to the topic member status, then we're all good
             return true;
