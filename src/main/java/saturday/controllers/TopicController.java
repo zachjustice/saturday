@@ -6,12 +6,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import saturday.delegates.TopicRolePermissionDelegate;
 import saturday.domain.*;
 import saturday.exceptions.AccessDeniedException;
 import saturday.services.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zachjustice on 7/27/17.
@@ -24,6 +26,7 @@ public class TopicController {
     private final EntityService entityService;
     private final TopicContentService topicContentService;
     private final PermissionService permissionService;
+    private final TopicRolePermissionDelegate topicRolePermissionDelegate;
 
     @Value("${saturday.topic.invite.status.accepted}")
     private int TOPIC_MEMBER_STATUS_ACCEPTED;
@@ -32,12 +35,13 @@ public class TopicController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public TopicController(TopicMemberService topicMemberService, TopicService topicService, EntityService entityService, TopicContentService topicContentService, PermissionService permissionService) {
+    public TopicController(TopicMemberService topicMemberService, TopicService topicService, EntityService entityService, TopicContentService topicContentService, PermissionService permissionService, TopicRolePermissionDelegate topicRolePermissionDelegate) {
         this.topicMemberService = topicMemberService;
         this.topicService = topicService;
         this.entityService = entityService;
         this.topicContentService = topicContentService;
         this.permissionService = permissionService;
+        this.topicRolePermissionDelegate = topicRolePermissionDelegate;
     }
 
     @RequestMapping(value = "/topics", method = RequestMethod.POST)
@@ -131,6 +135,19 @@ public class TopicController {
 
         topicService.delete(topic);
         return new ResponseEntity<>(topic, HttpStatus.OK);
+    }
+
+    /**
+     * Get permissions settings for a topic
+     * @param id A Topic Id
+     * @return Permissions for the topic
+     */
+    @RequestMapping(value = "/topics/{id}/permissions", method = RequestMethod.GET)
+    public ResponseEntity<Map<String, List<TopicRolePermission>>> getTopicRolePermission(
+            @PathVariable int id
+    ) {
+        Map<String, List<TopicRolePermission>> topicRolePermissions = this.topicRolePermissionDelegate.getPermissions(id);
+        return new ResponseEntity<>(topicRolePermissions, HttpStatus.OK);
     }
 
     /**

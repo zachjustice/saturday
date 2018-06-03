@@ -6,6 +6,8 @@ import saturday.domain.Entity;
 import saturday.domain.TopicRolePermission;
 import saturday.repositories.TopicRolePermissionRepository;
 
+import java.util.List;
+
 @Service("topicRolePermissionServiceImpl ")
 public class TopicRolePermissionServiceImpl implements TopicRolePermissionService {
     private final EntityService entityService;
@@ -48,7 +50,25 @@ public class TopicRolePermissionServiceImpl implements TopicRolePermissionServic
             topicRolePermission.setCreator(currentEntity);
         }
 
+        // The default value for the creator of a topic member is the current user
+        // unless an admin set a creator
+        if(currentEntity.isAdmin() && topicRolePermission.getModifier() != null) {
+            topicRolePermission.setModifier(topicRolePermission.getModifier());
+        } else {
+            topicRolePermission.setModifier(currentEntity);
+        }
+
         this.topicRolePermissionRepository.save(topicRolePermission);
         return topicRolePermission;
+    }
+
+    @Override
+    public List<TopicRolePermission> findByTopicId(int topicId) {
+        return this.topicRolePermissionRepository.findByTopicId(topicId);
+    }
+
+    @Override
+    public List<TopicRolePermission> findByTopicIdAndIsAllowed(int id, boolean isAllowed) {
+        return this.topicRolePermissionRepository.findByTopicIdAndIsAllowed(id, isAllowed);
     }
 }
