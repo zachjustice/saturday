@@ -9,6 +9,8 @@ import saturday.services.PermissionService;
 import saturday.services.TopicRolePermissionService;
 import saturday.services.TopicService;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -52,7 +54,7 @@ public class TopicRolePermissionDelegate {
      * @param id Topic Id
      * @return Allowed permissions for the topic id
      */
-    public Map<String, List<TopicRolePermission>> getPermissions(int id) {
+    public Map<String, List<String>> getPermissions(int id) {
         Topic topic = topicService.findTopicById(id);
         if (topic == null) {
             throw new ResourceNotFoundException("No topic with id " + id + " exists!");
@@ -68,12 +70,19 @@ public class TopicRolePermissionDelegate {
                 true
         );
 
-        return allowedTopicRolePermissions
-                .stream()
-                .collect(
-                        Collectors.groupingBy(
-                                topicRolePermission -> topicRolePermission.getTopicRole().getRole()
-                        )
-                );
+        Map<String, List<String>> roleToPermission = new HashMap<>();
+
+        for(TopicRolePermission topicRolePermission: allowedTopicRolePermissions) {
+            String role = topicRolePermission.getTopicRole().getRole();
+            List<String> permissions = roleToPermission.get(role);
+            if (permissions == null) {
+                permissions = new ArrayList<>();
+            }
+            permissions.add(topicRolePermission.getTopicPermission().getPermission());
+
+            roleToPermission.put(role, permissions);
+        }
+
+        return roleToPermission;
     }
 }

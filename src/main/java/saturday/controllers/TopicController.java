@@ -143,10 +143,10 @@ public class TopicController {
      * @return Permissions for the topic
      */
     @RequestMapping(value = "/topics/{id}/permissions", method = RequestMethod.GET)
-    public ResponseEntity<Map<String, List<TopicRolePermission>>> getTopicRolePermission(
+    public ResponseEntity<Map<String, List<String>>> getTopicRolePermission(
             @PathVariable int id
     ) {
-        Map<String, List<TopicRolePermission>> topicRolePermissions = this.topicRolePermissionDelegate.getPermissions(id);
+        Map<String, List<String>> topicRolePermissions = this.topicRolePermissionDelegate.getPermissions(id);
         return new ResponseEntity<>(topicRolePermissions, HttpStatus.OK);
     }
 
