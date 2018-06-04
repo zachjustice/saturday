@@ -26,7 +26,7 @@ public class TopicMemberServiceImpl implements TopicMemberService {
     @Value("${saturday.topic.invite.status.pending}")
     private int TOPIC_MEMBER_STATUS_PENDING;
     @Value("${saturday.topic.role.user}")
-    private static final int TOPIC_ROLE_USER = 1;
+    private int TOPIC_ROLE_USER;
 
     @Autowired
     TopicMemberServiceImpl(TopicMemberRepository topicMemberRepository, EntityService entityService) {

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import saturday.delegates.TopicDelegate;
 import saturday.delegates.TopicRolePermissionDelegate;
 import saturday.domain.*;
 import saturday.exceptions.AccessDeniedException;
@@ -24,24 +25,19 @@ public class TopicController {
     private final TopicMemberService topicMemberService;
     private final TopicService topicService;
     private final EntityService entityService;
-    private final TopicContentService topicContentService;
     private final PermissionService permissionService;
     private final TopicRolePermissionDelegate topicRolePermissionDelegate;
-
-    @Value("${saturday.topic.invite.status.accepted}")
-    private int TOPIC_MEMBER_STATUS_ACCEPTED;
-    @Value("${saturday.topic.role.admin}")
-    private int TOPIC_ROLE_ADMIN;
+    private final TopicDelegate topicDelegate;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public TopicController(TopicMemberService topicMemberService, TopicService topicService, EntityService entityService, TopicContentService topicContentService, PermissionService permissionService, TopicRolePermissionDelegate topicRolePermissionDelegate) {
+    public TopicController(TopicMemberService topicMemberService, TopicService topicService, EntityService entityService, PermissionService permissionService, TopicRolePermissionDelegate topicRolePermissionDelegate, TopicDelegate topicDelegate) {
         this.topicMemberService = topicMemberService;
         this.topicService = topicService;
         this.entityService = entityService;
-        this.topicContentService = topicContentService;
         this.permissionService = permissionService;
         this.topicRolePermissionDelegate = topicRolePermissionDelegate;
+        this.topicDelegate = topicDelegate;
     }
 
     @RequestMapping(value = "/topics", method = RequestMethod.POST)
@@ -49,24 +45,7 @@ public class TopicController {
 
         // TODO AWS API Gateway style rate limiting for topics?
         // Create a topic and set the current user as the only member
-        topic = topicService.saveTopic(topic);
-
-        Entity currentEntity = entityService.getAuthenticatedEntity();
-
-        TopicMemberStatus acceptedStatus = new TopicMemberStatus();
-        acceptedStatus.setId(TOPIC_MEMBER_STATUS_ACCEPTED);
-
-        TopicRole adminTopicRole = new TopicRole();
-        adminTopicRole.setId(TOPIC_ROLE_ADMIN);
-
-        TopicMember topicMember = new TopicMember();
-        topicMember.setTopic(topic);
-        topicMember.setCreator(currentEntity);
-        topicMember.setEntity(currentEntity);
-        topicMember.setTopicRole(adminTopicRole);
-
-        topicMember.setStatus(acceptedStatus);
-        topicMemberService.save(topicMember);
+        topic = topicDelegate.save(topic);
 
         return new ResponseEntity<>(topic, HttpStatus.OK);
     }
