@@ -14,6 +14,9 @@ spring:
     password: ${SATURDAY_PASSWORD}
     tomcat:
       validationQuery: SELECT 1;
+  # ==============================================================
+  # = JPA for PostgreSQL
+  # ==============================================================
   jpa:
     properties:
       hibernate:
@@ -37,8 +40,14 @@ spring:
           starttls:
             enable: true
             required: true
+  # ==============================================================
+  # = TODO Probably don't need this anymore
+  # ==============================================================
   mvc:
     dispatch-options-request: true
+  # ==============================================================
+  # Handle big files
+  # ==============================================================
   servlet:
     multipart:
       maxFileSize: 100MB
@@ -67,9 +76,7 @@ saturday:
   date:
     format: "yyyy-MM-dd"
 
-  # ===============================
-  # = SPECIFIC TO THIS APP
-  # ===============================
+  # OneSignal configuration
   one-signal:
     app.id: ${ONESIGNAL_APP_ID}
     rest:
