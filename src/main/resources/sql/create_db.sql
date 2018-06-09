@@ -235,18 +235,18 @@ START TRANSACTION;
     topic_roles(id, label)
   VALUES
     (1, 'USER'),
-    (2, 'MODERATOR'),
-    (3, 'ADMIN');
+    (2, 'ADMIN');
+    -- (2, 'MODERATOR'),
 
   INSERT INTO
     topic_permissions(id, label)
   VALUES
     (1, 'CAN_POST'),
-    (2, 'CAN_DELETE_TOPIC_CONTENT'),
-    (3, 'CAN_INVITE'),
-    (4, 'CAN_REMOVE_MEMBERS'),
-    (5, 'CAN_CANCEL_INVITES'),
-    (6, 'CAN_EDIT_GROUP_INFO'),
-    (7, 'CAN_PROMOTE_USERS');
+    (2, 'CAN_INVITE');
+    -- (3, 'CAN_DELETE_TOPIC_CONTENT'),
+    -- (4, 'CAN_REMOVE_MEMBERS'),
+    -- (5, 'CAN_CANCEL_INVITES'),
+    -- (6, 'CAN_EDIT_GROUP_INFO'),
+    -- (7, 'CAN_PROMOTE_USERS');
 
 COMMIT;

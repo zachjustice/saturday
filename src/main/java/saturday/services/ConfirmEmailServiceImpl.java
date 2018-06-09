@@ -104,7 +104,7 @@ public class ConfirmEmailServiceImpl implements ConfirmEmailService {
 
         // Check if the user has already confirmed their email address
         Entity entity = entityService.findEntityByEmail(email);
-        if(entity.isEmailConfirmed()) {
+        if(entity.getIsEmailConfirmed()) {
             return entity;
         }
 
@@ -124,7 +124,7 @@ public class ConfirmEmailServiceImpl implements ConfirmEmailService {
         }
 
         // update the user's status to reflect the confirmed email
-        entity.setEmailConfirmed(true);
+        entity.setIsEmailConfirmed(true);
         entityService.updateEntity(entity);
 
         // delete the access token after we've updated the user

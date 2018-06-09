@@ -1,5 +1,6 @@
 package saturday.delegates;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import saturday.domain.Topic;
 import saturday.domain.TopicRolePermission;
@@ -9,17 +10,24 @@ import saturday.services.PermissionService;
 import saturday.services.TopicRolePermissionService;
 import saturday.services.TopicService;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Component
 public class TopicRolePermissionDelegate {
     private final TopicService topicService;
     private final TopicRolePermissionService topicRolePermissionService;
     private final PermissionService permissionService;
+
+    @Value("${saturday.topic.role.user}")
+    private int TOPIC_ROLE_USER;
+    @Value("${saturday.topic.role.admin}")
+    private int TOPIC_ROLE_ADMIN;
+    @Value("${saturday.topic.permission.can_post}")
+    private int TOPIC_PERMISSION_CAN_POST;
+    @Value("${saturday.topic.permission.can_invite}")
+    private int TOPIC_PERMISSION_CAN_INVITE;
 
     public TopicRolePermissionDelegate(
             TopicService topicService,
@@ -54,7 +62,7 @@ public class TopicRolePermissionDelegate {
      * @param id Topic Id
      * @return Allowed permissions for the topic id
      */
-    public Map<String, List<String>> getPermissions(int id) {
+    public List<TopicRolePermission> getPermissions(int id) {
         Topic topic = topicService.findTopicById(id);
         if (topic == null) {
             throw new ResourceNotFoundException("No topic with id " + id + " exists!");
@@ -65,24 +73,6 @@ public class TopicRolePermissionDelegate {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
-        List<TopicRolePermission> allowedTopicRolePermissions = topicRolePermissionService.findByTopicIdAndIsAllowed(
-                id,
-                true
-        );
-
-        Map<String, List<String>> roleToPermission = new HashMap<>();
-
-        for(TopicRolePermission topicRolePermission: allowedTopicRolePermissions) {
-            String role = topicRolePermission.getTopicRole().getRole();
-            List<String> permissions = roleToPermission.get(role);
-            if (permissions == null) {
-                permissions = new ArrayList<>();
-            }
-            permissions.add(topicRolePermission.getTopicPermission().getPermission());
-
-            roleToPermission.put(role, permissions);
-        }
-
-        return roleToPermission;
+        return topicRolePermissionService.findByTopicId(id);
     }
 }

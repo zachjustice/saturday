@@ -34,7 +34,6 @@ public class Entity {
     private String password; // optional since they might be logging via social media
 
     @Column(name = "name")
-    @NotEmpty(message = "*Please provide your name")
     private String name;
 
     @Column(name = "birthday")
@@ -201,14 +200,6 @@ public class Entity {
 
     public void setToken(String token) {
         this.token = token;
-    }
-
-    public boolean isEmailConfirmed() {
-        return isEmailConfirmed;
-    }
-
-    public void setEmailConfirmed(boolean emailConfirmed) {
-        isEmailConfirmed = emailConfirmed;
     }
 
     public List<Topic> getTopics() {

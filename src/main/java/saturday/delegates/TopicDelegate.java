@@ -28,25 +28,13 @@ public class TopicDelegate {
 
     @Value("${saturday.topic.role.user}")
     private int TOPIC_ROLE_USER;
-    @Value("${saturday.topic.role.moderator}")
-    private int TOPIC_ROLE_MODERATOR;
     @Value("${saturday.topic.role.admin}")
     private int TOPIC_ROLE_ADMIN;
 
     @Value("${saturday.topic.permission.can_post}")
     private int TOPIC_PERMISSION_CAN_POST;
-    @Value("${saturday.topic.permission.can_delete_topic_content}")
-    private int TOPIC_PERMISSION_CAN_DELETE_TOPIC_CONTENT;
     @Value("${saturday.topic.permission.can_invite}")
     private int TOPIC_PERMISSION_CAN_INVITE;
-    @Value("${saturday.topic.permission.can_remove_members}")
-    private int TOPIC_PERMISSION_CAN_REMOVE_MEMBERS;
-    @Value("${saturday.topic.permission.can_cancel_invites}")
-    private int TOPIC_PERMISSION_CAN_CANCEL_INVITES;
-    @Value("${saturday.topic.permission.can_edit_group_info}")
-    private int TOPIC_PERMISSION_CAN_EDIT_GROUP_INFO;
-    @Value("${saturday.topic.permission.can_promote_users}")
-    private int TOPIC_PERMISSION_CAN_PROMOTE_USERS;
 
     @Autowired
     public TopicDelegate(
@@ -84,63 +72,23 @@ public class TopicDelegate {
         topicMember.setStatus(acceptedStatus);
         topicMemberService.save(topicMember);
 
-        // Add default topic permissions
-        // Users can post
-        TopicRole userTopicRole = new TopicRole();
-        userTopicRole.setId(TOPIC_ROLE_USER);
-
-        TopicPermission canPostPermission = new TopicPermission();
-        canPostPermission.setId(TOPIC_PERMISSION_CAN_POST);
-
-        TopicRolePermission usersCanPost = new TopicRolePermission();
-        usersCanPost.setTopic(topic);
-        usersCanPost.setTopicRole(userTopicRole);
-        usersCanPost.setTopicPermission(canPostPermission);
-        usersCanPost.setIsAllowed(true);
-
-        topicRolePermissionService.save(usersCanPost);
-
-        // Moderators can post and delete posts
-        TopicRole moderatorTopicRole = new TopicRole();
-        moderatorTopicRole.setId(TOPIC_ROLE_MODERATOR);
-
-        TopicRolePermission modsCanPost = new TopicRolePermission();
-        modsCanPost.setTopic(topic);
-        modsCanPost.setTopicRole(moderatorTopicRole);
-        modsCanPost.setTopicPermission(canPostPermission);
-        modsCanPost.setIsAllowed(true);
-
-        topicRolePermissionService.save(modsCanPost);
-
-        TopicPermission canDeletePermission = new TopicPermission();
-        canDeletePermission.setId(TOPIC_PERMISSION_CAN_DELETE_TOPIC_CONTENT);
-
-        TopicRolePermission modsCanDelete = new TopicRolePermission();
-        modsCanDelete.setTopic(topic);
-        modsCanDelete.setTopicRole(moderatorTopicRole);
-        modsCanDelete.setTopicPermission(canDeletePermission);
-        modsCanDelete.setIsAllowed(true);
-
-        topicRolePermissionService.save(modsCanDelete);
-
-        // Admins can do everything
+        // Add default topic permissions for topic users
+        //   users can post and invite by default
         int[] allPermissions = new int[]{
                 TOPIC_PERMISSION_CAN_POST,
-                TOPIC_PERMISSION_CAN_DELETE_TOPIC_CONTENT,
-                TOPIC_PERMISSION_CAN_INVITE,
-                TOPIC_PERMISSION_CAN_REMOVE_MEMBERS,
-                TOPIC_PERMISSION_CAN_CANCEL_INVITES,
-                TOPIC_PERMISSION_CAN_EDIT_GROUP_INFO,
-                TOPIC_PERMISSION_CAN_PROMOTE_USERS
+                TOPIC_PERMISSION_CAN_INVITE
         };
 
         for(int topicPermissionId: allPermissions) {
+            TopicRole userTopicRole = new TopicRole();
+            userTopicRole.setId(TOPIC_ROLE_USER);
+
             TopicPermission topicPermission = new TopicPermission();
             topicPermission.setId(topicPermissionId);
 
             TopicRolePermission adminPermission = new TopicRolePermission();
             adminPermission.setTopic(topic);
-            adminPermission.setTopicRole(adminTopicRole);
+            adminPermission.setTopicRole(userTopicRole);
             adminPermission.setTopicPermission(topicPermission);
             adminPermission.setIsAllowed(true);
 
