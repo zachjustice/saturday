@@ -1,5 +1,6 @@
 package saturday.domain;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -33,6 +34,7 @@ public class TopicRolePermission {
     @JoinColumn(name="topic_permission_id", referencedColumnName = "id", nullable=false, updatable = false)
     private TopicPermission topicPermission;
 
+    @JsonAlias("isAllowed")
     @Column(name = "is_allowed", nullable = false)
     private Boolean isAllowed;
 
@@ -86,12 +88,14 @@ public class TopicRolePermission {
         this.topicPermission = topicPermission;
     }
 
+    @JsonAlias("isAllowed")
     public Boolean isAllowed() {
         return isAllowed;
     }
 
-    public void setIsAllowed(Boolean allowed) {
-        isAllowed = allowed;
+    @JsonAlias("isAllowed")
+    public void setIsAllowed(Boolean isAllowed) {
+        this.isAllowed = isAllowed;
     }
 
     public Entity getCreator() {
