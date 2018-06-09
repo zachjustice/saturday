@@ -9,17 +9,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import saturday.domain.Entity;
+import saturday.domain.Topic;
+import saturday.domain.TopicMember;
 import saturday.exceptions.AccessDeniedException;
 import saturday.publishers.SaturdayEventPublisher;
 import saturday.services.ConfirmEmailService;
 import saturday.services.EntityServiceImpl;
 import saturday.services.PermissionService;
 import saturday.services.S3Service;
+import saturday.services.TopicMemberService;
 import saturday.utils.HTTPUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Created by zachjustice on 7/27/17.
@@ -32,6 +38,7 @@ public class EntityController {
     private final ConfirmEmailService confirmEmailService;
     private final PermissionService permissionService;
     private final SaturdayEventPublisher saturdayEventPublisher;
+    private final TopicMemberService topicMemberService;
 
     @Value("${saturday.s3.user-files-bucket}")
     private String bucketName;
@@ -48,12 +55,15 @@ public class EntityController {
             PermissionService permissionService,
             S3Service s3Service,
             ConfirmEmailService confirmEmailService,
-            SaturdayEventPublisher saturdayEventPublisher) {
+            SaturdayEventPublisher saturdayEventPublisher,
+            TopicMemberService topicMemberService
+    ) {
         this.entityService = entityService;
         this.permissionService = permissionService;
         this.s3Service = s3Service;
         this.confirmEmailService = confirmEmailService;
         this.saturdayEventPublisher = saturdayEventPublisher;
+        this.topicMemberService = topicMemberService;
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
@@ -137,6 +147,27 @@ public class EntityController {
         entityService.updateEntity(entity);// do this better especially
 
         return new ResponseEntity<>(entity, HttpStatus.OK);
+    }
+
+
+    @RequestMapping(value = "/entities/{entity_id}/topic_roles/{topic_role_id}", method = RequestMethod.GET)
+    public ResponseEntity<List<Topic>> getTopicsEntityIsAdminOf(
+            @PathVariable(value = "entity_id") int entityId,
+            @PathVariable(value = "topic_role_id") int topicRoleId
+    ) {
+
+        Entity entity = entityService.findEntityById(entityId);
+
+        if (!permissionService.canAccess(entity)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+        }
+
+        List<Topic> topicsEntityIsAdminOf = topicMemberService.findByEntityIdAndTopicRoleId(entityId, topicRoleId)
+                .stream()
+                .map(TopicMember::getTopic)
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(topicsEntityIsAdminOf, HttpStatus.OK);
     }
 
 

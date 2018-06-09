@@ -13,6 +13,7 @@ import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ResourceNotFoundException;
 import saturday.repositories.TopicMemberRepository;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -187,5 +188,14 @@ public class TopicMemberServiceImpl implements TopicMemberService {
         }
 
         return sentAndReceivedTopicInvites;
+    }
+
+    @Override
+    public List<TopicMember> findByEntityIdAndTopicRoleId(int entityId, int topicRoleId) {
+        try {
+            return topicMemberRepository.findByEntityIdAndTopicRoleId(entityId, topicRoleId);
+        } catch (org.springframework.data.rest.webmvc.ResourceNotFoundException ex) {
+            return new ArrayList<>();
+        }
     }
 }

@@ -23,4 +23,6 @@ public interface TopicMemberService {
     TopicMember update(TopicMember newTopicMember) ;
 
     Map<String, List<TopicMember>> getSentAndReceivedTopicInvites(Entity involvedParty);
+
+    List<TopicMember> findByEntityIdAndTopicRoleId(int entityId, int topicRoleId);
 }

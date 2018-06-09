@@ -20,7 +20,7 @@ public interface TopicMemberRepository extends JpaRepository<TopicMember, Intege
     List<TopicMember> findByTopicId(int id);
 
     @Query(
-        value = "select id, entity_id, status_id, topic_id, creator_id, modifier_id, created, modified from topic_members where (creator_id = :creator_id or entity_id = :entity_id) and status_id = :status_id",
+        value = "select id, entity_id, status_id, topic_id, toipc_role_id, creator_id, modifier_id, created, modified from topic_members where (creator_id = :creator_id or entity_id = :entity_id) and status_id = :status_id",
         nativeQuery = true
     )
     List<TopicMember> findAllByCreatorOrEntityAndStatus(
@@ -28,4 +28,6 @@ public interface TopicMemberRepository extends JpaRepository<TopicMember, Intege
             @Param("entity_id") int entityId,
             @Param("status_id") int statusId
     );
+
+    List<TopicMember> findByEntityIdAndTopicRoleId(int entityId, int topicRoleId);
 }
