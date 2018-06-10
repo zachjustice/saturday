@@ -31,8 +31,6 @@ START TRANSACTION;
   CREATE TABLE entities(
     -- my metadata
     id SERIAL PRIMARY KEY,
-    created TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
-    modified TIMESTAMP WITHOUT TIME ZONE,
     token CHARACTER VARYING,
     is_email_confirmed BOOLEAN DEFAULT false,
 
@@ -47,6 +45,10 @@ START TRANSACTION;
     -- fb metadata
     fb_id BIGINT UNIQUE, -- NOT NULL,
     fb_access_token CHARACTER VARYING, -- NOT NULL
+
+    created TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+    modified TIMESTAMP WITHOUT TIME ZONE,
+
     CONSTRAINT unique_email UNIQUE(email),
     CONSTRAINT valid_password_length CHECK(CHAR_LENGTH(password_hash) >= 8)
   );
@@ -121,11 +123,13 @@ START TRANSACTION;
   CREATE TABLE topic_content (
     id SERIAL PRIMARY KEY,
     topic_id INT NOT NULL REFERENCES topics(id),
-    creator_id INT NOT NULL REFERENCES entities(id),
     description VARCHAR(40000),
     s3bucket VARCHAR NOT NULL,
     s3key VARCHAR NOT NULL,
     date_taken TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+
+    creator_id  INT NOT NULL REFERENCES entities(id),
+    modifier_id INT REFERENCES entities(id),
     created TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
     modified TIMESTAMP WITHOUT TIME ZONE,
 
@@ -134,6 +138,7 @@ START TRANSACTION;
     CONSTRAINT unique_s3_bucket_and_key UNIQUE(s3bucket, s3key)
   );
 
+  CREATE TRIGGER check_topic_content_modifier_is_not_set_to_null BEFORE UPDATE ON topic_content FOR EACH ROW EXECUTE PROCEDURE check_modifier_is_not_set_to_null();
   CREATE TRIGGER update_topic_content_modtime BEFORE UPDATE ON topic_content FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
   ----------------------
