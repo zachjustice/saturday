@@ -130,7 +130,7 @@ public class TopicContentServiceImpl implements TopicContentService {
     }
 
     @Override
-    public TopicContent updateTopicContent(TopicContent newTopicContent) {
+    public TopicContent update(TopicContent newTopicContent) {
         TopicContent topicContent = findTopicContentById(newTopicContent.getId());
 
         if (topicContent == null) {
