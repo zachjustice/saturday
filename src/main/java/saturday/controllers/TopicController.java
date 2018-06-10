@@ -2,6 +2,7 @@ package saturday.controllers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,7 @@ import saturday.services.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by zachjustice on 7/27/17.
@@ -26,6 +28,9 @@ public class TopicController {
     private final PermissionService permissionService;
     private final TopicRolePermissionDelegate topicRolePermissionDelegate;
     private final TopicDelegate topicDelegate;
+
+    @Value("${saturday.topic.invite.status.accepted}")
+    private int TOPIC_MEMBER_STATUS_ACCEPTED;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -152,6 +157,14 @@ public class TopicController {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
-        return new ResponseEntity<>(entity.getTopics(), HttpStatus.OK);
+        TopicMemberStatus acceptedStatus = new TopicMemberStatus();
+        acceptedStatus.setId(TOPIC_MEMBER_STATUS_ACCEPTED);
+
+        List<Topic> entityTopics = topicMemberService.findByEntityAndStatus(entity, acceptedStatus)
+                .stream()
+                .map(TopicMember::getTopic)
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(entityTopics, HttpStatus.OK);
     }
 }
