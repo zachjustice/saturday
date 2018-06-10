@@ -152,6 +152,11 @@ public class TopicMemberServiceImpl implements TopicMemberService {
         return topicMemberRepository.findByEntityAndTopicAndStatus(entity, topic, status);
     }
 
+    @Override
+    public List<TopicMember> findByEntityAndStatus(Entity entity, TopicMemberStatus status) {
+        return topicMemberRepository.findByEntityAndStatus(entity, status);
+    }
+
     /**
      * Retrieve get and received topic invites (topic members with a pending status)
      * @param involvedParty The party which sent or received the topic invite
