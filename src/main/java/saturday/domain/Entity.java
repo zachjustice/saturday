@@ -9,6 +9,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @javax.persistence.Entity
@@ -71,11 +72,6 @@ public class Entity {
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "entity_roles", joinColumns = @JoinColumn(name = "entity_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
-
-    @JsonIgnore
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "topic_members", joinColumns = @JoinColumn(name = "entity_id"), inverseJoinColumns = @JoinColumn(name = "topic_id"))
-    private List<Topic> topics;
 
     @JsonIgnore
     public boolean isAdmin() {
@@ -202,25 +198,49 @@ public class Entity {
         this.token = token;
     }
 
-    public List<Topic> getTopics() {
-        return topics;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Entity entity = (Entity) o;
+        return id == entity.id &&
+                isEmailConfirmed == entity.isEmailConfirmed &&
+                Objects.equals(token, entity.token) &&
+                Objects.equals(email, entity.email) &&
+                Objects.equals(password, entity.password) &&
+                Objects.equals(name, entity.name) &&
+                Objects.equals(birthday, entity.birthday) &&
+                Objects.equals(gender, entity.gender) &&
+                Objects.equals(created, entity.created) &&
+                Objects.equals(modified, entity.modified) &&
+                Objects.equals(pictureUrl, entity.pictureUrl) &&
+                Objects.equals(fbId, entity.fbId) &&
+                Objects.equals(fbAccessToken, entity.fbAccessToken) &&
+                Objects.equals(roles, entity.roles);
     }
 
-    public void setTopics(List<Topic> topics) {
-        this.topics = topics;
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(id, token, email, password, name, birthday, gender, isEmailConfirmed, created, modified, pictureUrl, fbId, fbAccessToken, roles);
     }
 
     @Override
     public String toString() {
         return "Entity{" +
                 "id=" + id +
+                ", token='" + token + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", name='" + name + '\'' +
+                ", birthday=" + birthday +
+                ", gender='" + gender + '\'' +
                 ", isEmailConfirmed=" + isEmailConfirmed +
                 ", created=" + created +
                 ", modified=" + modified +
+                ", pictureUrl='" + pictureUrl + '\'' +
+                ", fbId=" + fbId +
+                ", fbAccessToken='" + fbAccessToken + '\'' +
                 '}';
     }
-
 }
