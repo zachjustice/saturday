@@ -18,7 +18,7 @@ public interface TopicContentService {
 
     List<TopicContent> findByTopicMember(int id, int offset, int limit);
 
-    TopicContent updateTopicContent(TopicContent newTopicContent);
+    TopicContent update(TopicContent newTopicContent);
 
     TopicContent save(MultipartFile file, Integer topicId, Integer creatorId, String description, Date dateTaken) throws IOException;
 

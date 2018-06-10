@@ -130,7 +130,7 @@ public class TopicContentServiceImpl implements TopicContentService {
     }
 
     @Override
-    public TopicContent updateTopicContent(TopicContent newTopicContent) {
+    public TopicContent update(TopicContent newTopicContent) {
         TopicContent topicContent = findTopicContentById(newTopicContent.getId());
 
         if (topicContent == null) {
@@ -140,6 +140,9 @@ public class TopicContentServiceImpl implements TopicContentService {
         topicContent.setDescription(newTopicContent.getDescription());
         topicContent.setDateTaken(newTopicContent.getDateTaken());
         topicContent.setTopic(newTopicContent.getTopic());
+
+        Entity authenticatedEntity = entityService.getAuthenticatedEntity();
+        topicContent.setModifier(authenticatedEntity);
 
         return topicContentRepository.save(topicContent);
     }
