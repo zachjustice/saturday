@@ -43,8 +43,7 @@ public class Topic {
     private Date created;
 
     @ManyToOne
-    @JoinColumn(name="modifier_id", referencedColumnName = "id", nullable=false, updatable = false)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JoinColumn(name="modifier_id", referencedColumnName = "id", nullable=false)
     private Entity modifier;
 
     @Column(name = "modified", insertable = false, updatable = false)
