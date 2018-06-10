@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,6 +37,8 @@ import saturday.utils.TokenAuthenticationUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.concurrent.TimeUnit;
+
+import static java.util.Collections.emptyList;
 
 @RestController
 public class AccessTokenController {
@@ -158,6 +163,9 @@ public class AccessTokenController {
 
             throw new UnauthorizedUserException("Invalid password or email.");
         }
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(actualUser.getEmail(), null, emptyList());
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         String token = TokenAuthenticationUtils.createToken(actualUser.getEmail());
         actualUser.setToken(token);
