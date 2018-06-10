@@ -74,6 +74,7 @@ public class TopicServiceImpl implements TopicService {
         }
 
         topic.setCreator(entityService.getAuthenticatedEntity());
+        topic.setOwner(entityService.getAuthenticatedEntity());
         return topicRepository.save(topic);
     }
 

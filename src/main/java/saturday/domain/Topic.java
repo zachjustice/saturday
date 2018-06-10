@@ -28,6 +28,10 @@ public class Topic {
     private String description;
 
     @ManyToOne
+    @JoinColumn(name="owner_id", referencedColumnName = "id", nullable=false)
+    private Entity owner;
+
+    @ManyToOne
     @JoinColumn(name="creator_id", referencedColumnName = "id", nullable=false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Entity creator;
@@ -90,6 +94,14 @@ public class Topic {
         this.description = description;
     }
 
+    public Entity getOwner() {
+        return owner;
+    }
+
+    public void setOwner(Entity owner) {
+        this.owner = owner;
+    }
+
     @Override
     public String toString() {
         return "Topic{" +
@@ -97,6 +109,7 @@ public class Topic {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", creator=" + creator +
+                ", owner=" + owner +
                 ", created=" + created +
                 ", modified=" + modified +
                 '}';
