@@ -332,4 +332,18 @@ public class PermissionService {
 
         return true;
     }
+
+    /**
+     * Only the current owner can change the current owner of a topic
+     * @param topic The topic to modify
+     * @return Whether or not the authenticated entity can modify the given topic's owner
+     */
+    public boolean canModifyOwner(Topic topic) {
+        Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
+        if (topic == null || topic.getOwner() == null) {
+            return false;
+        }
+
+        return authenticatedEntity.getId() == topic.getOwner().getId();
+    }
 }

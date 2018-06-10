@@ -2,7 +2,6 @@ package saturday.controllers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +13,6 @@ import saturday.services.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by zachjustice on 7/27/17.
@@ -82,13 +80,23 @@ public class TopicController {
             @PathVariable(value = "id") int id,
             @RequestBody Topic topic
     ) {
-        topic = topicService.findTopicById(topic.getId());
+        Topic currentTopic = topicService.findTopicById(topic.getId());
 
-        if(!permissionService.canModify(topic)) {
+        if(!permissionService.canModify(currentTopic)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions");
         }
 
-        topic = topicService.saveTopic(topic);
+        if (topic.getOwner() == null) {
+            topic.setOwner(currentTopic.getOwner());
+        }
+
+        boolean changedOwner = currentTopic.getOwner().getId() != topic.getOwner().getId();
+
+        if (changedOwner && !permissionService.canModifyOwner(currentTopic)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions");
+        }
+
+        topic = topicService.update(topic);
         return new ResponseEntity<>(topic, HttpStatus.OK);
     }
 

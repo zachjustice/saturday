@@ -63,7 +63,25 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public Topic saveTopic(Topic topic) {
+    public Topic update(Topic topic) {
+
+        if(StringUtils.isEmpty(topic.getName()) || topic.getName().length() > TOPIC_NAME_MAX_LENGTH) {
+            throw new BusinessLogicException("Failed to update topic. Topic name must exist and be less than " + TOPIC_NAME_MAX_LENGTH + " characters.");
+        }
+
+        if(topic.getDescription() != null && topic.getDescription().length() > TOPIC_DESCRIPTION_MAX_LENGTH) {
+            throw new BusinessLogicException("Failed to update topic. Topic description must be less than " + TOPIC_DESCRIPTION_MAX_LENGTH + " characters.");
+        }
+
+        if (topic.getOwner() == null) {
+            throw new BusinessLogicException("Failed to update topic. Owner is null.");
+        }
+
+        return topicRepository.save(topic);
+    }
+
+    @Override
+    public Topic save(Topic topic) {
 
         if(StringUtils.isEmpty(topic.getName()) || topic.getName().length() > TOPIC_NAME_MAX_LENGTH) {
             throw new BusinessLogicException("Invalid topic name. Topic name must exist and be less than " + TOPIC_NAME_MAX_LENGTH + " characters.");
@@ -74,6 +92,7 @@ public class TopicServiceImpl implements TopicService {
         }
 
         topic.setCreator(entityService.getAuthenticatedEntity());
+        topic.setOwner(entityService.getAuthenticatedEntity());
         return topicRepository.save(topic);
     }
 

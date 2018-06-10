@@ -11,7 +11,9 @@ public interface TopicService {
     List<Topic> findTopicByName(String name);
     Topic findTopicById(int id) ;
 
-    Topic saveTopic(Topic topic) ;
+    Topic update(Topic topic);
+
+    Topic save(Topic topic) ;
 
     void delete(Topic topic);
 }

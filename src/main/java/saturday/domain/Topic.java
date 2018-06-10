@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.util.Date;
+import java.util.Objects;
 
 @javax.persistence.Entity
 @Table(name = "topics")
@@ -28,6 +29,10 @@ public class Topic {
     private String description;
 
     @ManyToOne
+    @JoinColumn(name="owner_id", referencedColumnName = "id", nullable=false)
+    private Entity owner;
+
+    @ManyToOne
     @JoinColumn(name="creator_id", referencedColumnName = "id", nullable=false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Entity creator;
@@ -36,6 +41,11 @@ public class Topic {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date created;
+
+    @ManyToOne
+    @JoinColumn(name="modifier_id", referencedColumnName = "id", nullable=false, updatable = false)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Entity modifier;
 
     @Column(name = "modified", insertable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -58,12 +68,28 @@ public class Topic {
         this.name = name;
     }
 
+    public Entity getOwner() {
+        return owner;
+    }
+
+    public void setOwner(Entity owner) {
+        this.owner = owner;
+    }
+
     public Entity getCreator() {
         return creator;
     }
 
     public void setCreator(Entity creator) {
         this.creator = creator;
+    }
+
+    public Entity getModifier() {
+        return modifier;
+    }
+
+    public void setModifier(Entity modifier) {
+        this.modifier = modifier;
     }
 
     public Date getCreated() {
@@ -96,9 +122,31 @@ public class Topic {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
+                ", owner=" + owner +
                 ", creator=" + creator +
+                ", modifier=" + modifier +
                 ", created=" + created +
                 ", modified=" + modified +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Topic topic = (Topic) o;
+        return id == topic.id &&
+                Objects.equals(name, topic.name) &&
+                Objects.equals(description, topic.description) &&
+                Objects.equals(creator, topic.creator) &&
+                Objects.equals(modifier, topic.modifier) &&
+                Objects.equals(created, topic.created) &&
+                Objects.equals(modified, topic.modified) &&
+                Objects.equals(owner, topic.owner);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, description, creator, modifier, created, modified, owner);
     }
 }

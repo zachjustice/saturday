@@ -52,7 +52,7 @@ public class TopicDelegate {
     public Topic save(Topic topic) {
 
         // Create Topic
-        topic = topicService.saveTopic(topic);
+        topic = topicService.save(topic);
 
         // Add creator of the topic as the only topic member with a role of admin
         Entity currentEntity = entityService.getAuthenticatedEntity();

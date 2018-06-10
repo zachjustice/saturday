@@ -103,12 +103,16 @@ START TRANSACTION;
     id SERIAL PRIMARY KEY,
     name VARCHAR(20) NOT NULL,
     description VARCHAR(150),
-    creator_id INT NOT NULL REFERENCES entities(id),
-    created TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
-    modified TIMESTAMP WITHOUT TIME ZONE
+    owner_id INT NOT NULL REFERENCES entities(id),
+
+    creator_id  INT NOT NULL REFERENCES entities(id),
+    modifier_id INT REFERENCES entities(id),
+    created     TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+    modified    TIMESTAMP WITHOUT TIME ZONE
   );
 
-  CREATE TRIGGER update_topics_modtime BEFORE UPDATE ON topics FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
+  CREATE TRIGGER check_topic_modifier_is_not_set_to_null BEFORE UPDATE ON topics FOR EACH ROW EXECUTE PROCEDURE check_modifier_is_not_set_to_null();
+  CREATE TRIGGER update_topic_modtime BEFORE UPDATE ON topics FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
   ----------------------
   --   topic_content
