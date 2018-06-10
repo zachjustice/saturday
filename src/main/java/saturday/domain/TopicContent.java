@@ -20,8 +20,12 @@ public class TopicContent {
     private Topic topic;
 
     @ManyToOne
-    @JoinColumn(name="creator_id", referencedColumnName = "id", nullable=false)
+    @JoinColumn(name="creator_id", referencedColumnName = "id", nullable=false, updatable = false)
     private Entity creator;
+
+    @ManyToOne
+    @JoinColumn(name="modifier_id", referencedColumnName = "id", nullable=false)
+    private Entity modifier;
 
     @Column(name = "description")
     private String description;
@@ -129,12 +133,21 @@ public class TopicContent {
         this.dateTaken = dateTaken;
     }
 
+    public Entity getModifier() {
+        return modifier;
+    }
+
+    public void setModifier(Entity modifier) {
+        this.modifier = modifier;
+    }
+
     @Override
     public String toString() {
         return "TopicContent{" +
                 "id=" + id +
                 ", topic=" + topic + '\'' +
                 ", creator=" + creator + '\'' +
+                ", modifier=" + modifier + '\'' +
                 ", description='" + description + '\'' +
                 ", s3bucket='" + s3bucket + '\'' +
                 ", s3key='" + s3key + '\'' +
