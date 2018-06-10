@@ -37,10 +37,6 @@ public class TopicRolePermissionServiceImpl implements TopicRolePermissionServic
             throw new IllegalArgumentException("Failed to save topicRolePermission. Null topicRolePermission.");
         }
 
-        if (topicRolePermission.isAllowed() == null) {
-            throw new IllegalArgumentException("Failed to save topicRolePermission. Null isAllowed.");
-        }
-
         // The default value for the creator of a topic member is the current user
         // unless an admin set a creator
         Entity currentEntity = entityService.getAuthenticatedEntity();

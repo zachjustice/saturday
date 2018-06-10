@@ -34,9 +34,8 @@ public class TopicRolePermission {
     @JoinColumn(name="topic_permission_id", referencedColumnName = "id", nullable=false, updatable = false)
     private TopicPermission topicPermission;
 
-    @JsonAlias("isAllowed")
     @Column(name = "is_allowed", nullable = false)
-    private Boolean isAllowed;
+    private boolean isAllowed;
 
     @ManyToOne
     @JoinColumn(name="creator_id", referencedColumnName = "id", nullable=false, updatable = false)
@@ -88,13 +87,11 @@ public class TopicRolePermission {
         this.topicPermission = topicPermission;
     }
 
-    @JsonAlias("isAllowed")
-    public Boolean isAllowed() {
+    public boolean getIsAllowed() {
         return isAllowed;
     }
 
-    @JsonAlias("isAllowed")
-    public void setIsAllowed(Boolean isAllowed) {
+    public void setIsAllowed(boolean isAllowed) {
         this.isAllowed = isAllowed;
     }
 
