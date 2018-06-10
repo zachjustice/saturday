@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import saturday.domain.Entity;
 import saturday.domain.TopicMember;
+import saturday.domain.TopicMemberStatus;
 import saturday.exceptions.AccessDeniedException;
 import saturday.publishers.SaturdayEventPublisher;
 import saturday.services.EntityService;
@@ -91,13 +92,35 @@ public class TopicMemberController {
             @PathVariable(value = "id") int id,
             @RequestBody TopicMember newTopicMember
     ) {
-        TopicMember oldTopicMember = topicMemberService.findById(newTopicMember.getId());
-        if(!permissionService.canModify(oldTopicMember, newTopicMember)) {
+        if(!permissionService.canModify(newTopicMember)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
         }
 
         newTopicMember = topicMemberService.update(newTopicMember);
         return new ResponseEntity<>(newTopicMember, HttpStatus.OK);
+    }
+
+    @RequestMapping(
+            value = "entities/{entity_id}/topics/{topic_id}/topic_member_status/{topic_member_status_id}",
+            method = RequestMethod.PUT
+    )
+    public ResponseEntity<TopicMember> update(
+            @PathVariable(value = "entity_id") int entityId,
+            @PathVariable(value = "topic_id") int topicId,
+            @PathVariable(value = "topic_member_status_id") int topicMemberStatusId
+    ) {
+        TopicMemberStatus topicMemberStatus = new TopicMemberStatus();
+        topicMemberStatus.setId(topicMemberStatusId);
+
+        TopicMember topicMember = topicMemberService.findByEntityIdAndTopicId(entityId, topicId);
+        topicMember.setStatus(topicMemberStatus);
+
+        if(!permissionService.canModify(topicMember )) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+        }
+
+        topicMember = topicMemberService.update(topicMember);
+        return new ResponseEntity<>(topicMember, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/topic_members/{id}", method = RequestMethod.DELETE)

@@ -30,4 +30,6 @@ public interface TopicMemberRepository extends JpaRepository<TopicMember, Intege
     );
 
     List<TopicMember> findByEntityIdAndTopicRoleId(int entityId, int topicRoleId);
+
+    TopicMember findByEntityIdAndTopicId(int entityId, int topicId);
 }

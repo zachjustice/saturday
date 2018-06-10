@@ -95,10 +95,6 @@ public class TopicMemberServiceImpl implements TopicMemberService {
             throw new IllegalArgumentException("Error updating topic member. Null topicMember.");
         }
 
-        if (newTopicMember.getModifier() == null) {
-            throw new IllegalArgumentException("Error updating topic member. Null modifier.");
-        }
-
         TopicMember currentTopicMember = topicMemberRepository.findById(newTopicMember.getId());
 
         if (currentTopicMember == null) {
@@ -113,7 +109,8 @@ public class TopicMemberServiceImpl implements TopicMemberService {
             currentTopicMember.setStatus(newTopicMember.getStatus());
         }
 
-        currentTopicMember.setModifier(newTopicMember.getModifier());
+        Entity authenticatedEntity = entityService.getAuthenticatedEntity();
+        currentTopicMember.setModifier(authenticatedEntity);
 
         return topicMemberRepository.save(currentTopicMember);
     }
@@ -145,6 +142,11 @@ public class TopicMemberServiceImpl implements TopicMemberService {
     @Override
     public TopicMember findByEntityAndTopic(Entity entity, Topic topic) {
         return topicMemberRepository.findByEntityAndTopic(entity, topic);
+    }
+
+    @Override
+    public TopicMember findByEntityIdAndTopicId(int entityId, int topicId) {
+        return topicMemberRepository.findByEntityIdAndTopicId(entityId, topicId);
     }
 
     @Override

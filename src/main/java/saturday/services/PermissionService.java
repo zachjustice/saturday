@@ -195,8 +195,13 @@ public class PermissionService {
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
         Topic currentTopic = topicService.findTopicById(topic.getId());
 
+
         if (currentTopic == null) {
             throw new ResourceNotFoundException("No topic with id " + topic.getId() + " exists!");
+        }
+
+        if (!isTopicMember(authenticatedEntity, currentTopic)) {
+            return false;
         }
 
         if (topic.getOwner() != null) { // If they're updating the owner
@@ -234,12 +239,12 @@ public class PermissionService {
      * pending            -> (accepted | rejected)   by the invitee
      * accepted           -> left_topic              by the invitee
      // TODO topic moderators, etc can rescind invites
-     * @param oldTopicMember The old topic member
      * @param newTopicMember The new topic member object with the applied updates
      * @return If the auth'ed user can modify the topic member
      */
-    public boolean canModify(TopicMember oldTopicMember, TopicMember newTopicMember) {
+    public boolean canModify(TopicMember newTopicMember) {
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
+        TopicMember oldTopicMember = this.topicMemberService.findById(newTopicMember.getId());
         if(authenticatedEntity.isAdmin()) {
             return authenticatedEntity.isAdmin();
         }
@@ -263,7 +268,6 @@ public class PermissionService {
         /*
          * Validate update to topic role
          */
-        // TODO validate authenticated entity has the CAN_PROMOTE_USERS permission
 
         /*
          * Validate update the new topic member status
