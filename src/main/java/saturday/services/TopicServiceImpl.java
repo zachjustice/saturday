@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ResourceNotFoundException;
@@ -63,7 +64,48 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public Topic saveTopic(Topic topic) {
+    public Topic update(Topic topic) {
+        if (topic == null) {
+            throw new IllegalArgumentException("Failed to update topic. Topic is null.");
+        }
+
+        Topic currentTopic = findTopicById(topic.getId());
+
+        if (currentTopic == null) {
+            throw new ResourceNotFoundException("No topic with id " + topic.getId() + " exists!");
+        }
+
+        String updatedName = topic.getName();
+        String updatedDescription = topic.getDescription();
+        Entity updatedOwner = topic.getOwner();
+
+        if (updatedName != null) {
+            updatedName = updatedName.trim();
+            if (StringUtils.isEmpty(updatedName) || updatedName.length() > TOPIC_NAME_MAX_LENGTH) {
+                throw new BusinessLogicException("Invalid topic name. Topic name must exist and be less than " + TOPIC_NAME_MAX_LENGTH + " characters.");
+            }
+
+            currentTopic.setName(updatedName);
+        }
+
+        if (updatedDescription != null) {
+            updatedDescription = updatedDescription.trim();
+            if (updatedDescription.length() > TOPIC_DESCRIPTION_MAX_LENGTH) {
+                throw new BusinessLogicException("Invalid topic description. Topic description must be less than " + TOPIC_DESCRIPTION_MAX_LENGTH + " characters.");
+            }
+
+            currentTopic.setDescription(updatedDescription);
+        }
+
+        if (updatedOwner != null) {
+            currentTopic.setOwner(updatedOwner);
+        }
+
+        return topicRepository.save(currentTopic);
+    }
+
+    @Override
+    public Topic save(Topic topic) {
 
         if(StringUtils.isEmpty(topic.getName()) || topic.getName().length() > TOPIC_NAME_MAX_LENGTH) {
             throw new BusinessLogicException("Invalid topic name. Topic name must exist and be less than " + TOPIC_NAME_MAX_LENGTH + " characters.");

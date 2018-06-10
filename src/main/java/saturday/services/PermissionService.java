@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import saturday.domain.*;
 import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ProcessingResourceException;
+import saturday.exceptions.ResourceNotFoundException;
 
 @Component
 public class PermissionService {
@@ -187,8 +188,29 @@ public class PermissionService {
      * @return If the auth'ed user can modify the topic
      */
     public boolean canModify(Topic topic) {
+        if (topic == null) {
+            throw new BusinessLogicException("Failed to authenticate permissions. Topic is null.");
+        }
+
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
-        return authenticatedEntity.isAdmin() || authenticatedEntity.getId() == topic.getCreator().getId();
+        Topic currentTopic = topicService.findTopicById(topic.getId());
+
+        if (currentTopic == null) {
+            throw new ResourceNotFoundException("No topic with id " + topic.getId() + " exists!");
+        }
+
+        if (topic.getOwner() != null) { // If they're updating the owner
+            if (topic.getOwner().getId() != currentTopic.getOwner().getId()) { // if the owner has changed
+                // only the current owner can transfer ownership
+                if (currentTopic.getOwner().getId() != authenticatedEntity.getId()) {
+                    return false;
+                }
+            }
+        }
+
+        // TODO check if they're a topic admin
+
+        return authenticatedEntity.isAdmin() || authenticatedEntity.getId() == currentTopic.getCreator().getId();
     }
 
     /**

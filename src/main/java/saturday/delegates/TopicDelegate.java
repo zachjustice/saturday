@@ -10,7 +10,9 @@ import saturday.domain.TopicMemberStatus;
 import saturday.domain.TopicPermission;
 import saturday.domain.TopicRole;
 import saturday.domain.TopicRolePermission;
+import saturday.exceptions.AccessDeniedException;
 import saturday.services.EntityService;
+import saturday.services.PermissionService;
 import saturday.services.TopicMemberService;
 import saturday.services.TopicRolePermissionService;
 import saturday.services.TopicService;
@@ -22,6 +24,7 @@ public class TopicDelegate {
     private final TopicMemberService topicMemberService;
     private final EntityService entityService;
     private final TopicRolePermissionService topicRolePermissionService;
+    private final PermissionService permissionService;
 
     @Value("${saturday.topic.invite.status.accepted}")
     private int TOPIC_MEMBER_STATUS_ACCEPTED;
@@ -41,18 +44,29 @@ public class TopicDelegate {
             TopicService topicService,
             TopicMemberService topicMemberService,
             EntityService entityService,
-            TopicRolePermissionService topicRolePermissionService
+            TopicRolePermissionService topicRolePermissionService,
+            PermissionService permissionService
     ) {
         this.topicService = topicService;
         this.topicMemberService = topicMemberService;
         this.entityService = entityService;
         this.topicRolePermissionService = topicRolePermissionService;
+        this.permissionService = permissionService;
+    }
+
+    public Topic update(Topic topic) {
+
+        if(!permissionService.canModify(topic)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions");
+        }
+
+        return topicService.update(topic);
     }
 
     public Topic save(Topic topic) {
 
         // Create Topic
-        topic = topicService.saveTopic(topic);
+        topic = topicService.save(topic);
 
         // Add creator of the topic as the only topic member with a role of admin
         Entity currentEntity = entityService.getAuthenticatedEntity();
