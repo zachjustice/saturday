@@ -123,19 +123,14 @@ public class TopicController {
 
     /**
      * Get a list of an entity's topics
-     * @param id The entity for which to retrieve topics
+     * @param entityId The entity for which to retrieve topics
      * @return A list of topics
      */
     @RequestMapping(value = "/entities/{id}/topics", method = RequestMethod.GET)
     public ResponseEntity<List<Topic>> getEntityTopics(
-            @PathVariable(value="id") int id
+            @PathVariable(value="id") int entityId
     ) {
-        Entity entity = entityService.findEntityById(id);
-
-        if(!permissionService.canAccess(entity)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
-        }
-
-        return new ResponseEntity<>(entity.getTopics(), HttpStatus.OK);
+        List<Topic> entityTopics = this.topicDelegate.getEntityTopics(entityId);
+        return new ResponseEntity<>(entityTopics, HttpStatus.OK);
     }
 }

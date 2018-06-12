@@ -17,6 +17,8 @@ import saturday.services.TopicMemberService;
 import saturday.services.TopicRolePermissionService;
 import saturday.services.TopicService;
 
+import java.util.List;
+
 @Component()
 public class TopicDelegate {
 
@@ -110,5 +112,15 @@ public class TopicDelegate {
         }
 
         return topic;
+    }
+
+    public List<Topic> getEntityTopics(int entityId) {
+        Entity entity = entityService.findEntityById(entityId);
+
+        if(!permissionService.canAccess(entity)) {
+            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+        }
+
+        return this.topicService.findByEntityIdAndTopicMemberStatusId(entityId, TOPIC_MEMBER_STATUS_ACCEPTED);
     }
 }

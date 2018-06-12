@@ -16,4 +16,6 @@ public interface TopicService {
     Topic save(Topic topic) ;
 
     void delete(Topic topic);
+
+    List<Topic> findByEntityIdAndTopicMemberStatusId(int entityId, int statusId);
 }

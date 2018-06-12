@@ -124,6 +124,11 @@ public class TopicServiceImpl implements TopicService {
     public void delete(Topic topic) {
         topicRepository.delete(topic);
     }
+
+    @Override
+    public List<Topic> findByEntityIdAndTopicMemberStatusId(int entityId, int statusId) {
+        return this.topicRepository.findByEntityIdAndTopicMemberStatusId(entityId, statusId);
+    }
 }
 
 
