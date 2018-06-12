@@ -94,7 +94,7 @@ public class PermissionService {
             return true;
         }
 
-        // only topic members can send invites
+        // only topic members can send invites TODO check topicRolePermission to see if its permissable
         if(!isTopicMember(authenticatedEntity, topicMember.getTopic())) {
             return false;
         }

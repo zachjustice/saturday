@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import saturday.delegates.TopicMemberDelegate;
 import saturday.domain.Entity;
 import saturday.domain.TopicMember;
 import saturday.domain.TopicMemberStatus;
@@ -14,13 +15,14 @@ import saturday.publishers.SaturdayEventPublisher;
 import saturday.services.EntityService;
 import saturday.services.PermissionService;
 import saturday.services.TopicMemberService;
-import saturday.services.TopicService;
 
 import java.util.List;
 import java.util.Map;
 
 @RestController()
 public class TopicMemberController {
+    private final TopicMemberDelegate topicMemberDelegate;
+
     private final TopicMemberService topicMemberService;
     private final EntityService entityService;
     private final PermissionService permissionService;
@@ -30,11 +32,13 @@ public class TopicMemberController {
 
     @Autowired
     public TopicMemberController(
+            TopicMemberDelegate topicMemberDelegate,
             TopicMemberService topicMemberService,
             EntityService entityService,
             PermissionService permissionService,
             SaturdayEventPublisher saturdayEventPublisher
     ) {
+        this.topicMemberDelegate = topicMemberDelegate;
         this.topicMemberService = topicMemberService;
         this.entityService = entityService;
         this.permissionService = permissionService;
@@ -120,6 +124,15 @@ public class TopicMemberController {
         }
 
         topicMember = topicMemberService.update(topicMember);
+        return new ResponseEntity<>(topicMember, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/topics/{topic_id}/invite", method = RequestMethod.POST)
+    public ResponseEntity<TopicMember> inviteByEmail(
+            @PathVariable(value = "topic_id") int id,
+            @RequestParam(value = "email") String email
+    ) {
+        TopicMember topicMember = topicMemberDelegate.inviteByEmail(email, id);
         return new ResponseEntity<>(topicMember, HttpStatus.OK);
     }
 
