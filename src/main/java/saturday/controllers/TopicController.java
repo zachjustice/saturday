@@ -89,7 +89,7 @@ public class TopicController {
         Topic topic = topicService.findTopicById(id);
 
         if (!permissionService.canView(topic)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+            throw new AccessDeniedException();
         }
 
         List<TopicMember> topicMembers = topicMemberService.findByTopicId(id);
@@ -101,7 +101,7 @@ public class TopicController {
         Topic topic = topicService.findTopicById(id);
 
         if (!permissionService.canDelete(topic)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+            throw new AccessDeniedException();
         }
 
         topicService.delete(topic);

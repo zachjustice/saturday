@@ -53,7 +53,7 @@ public class TopicContentController {
     ) throws IOException {
 
         if (!permissionService.canCreate(topicContentRequest)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+            throw new AccessDeniedException();
         }
 
         TopicContent topicContent = topicContentService.save(
@@ -84,7 +84,7 @@ public class TopicContentController {
         topicContentRequest.setFile(file);
 
         if (!permissionService.canCreate(topicContentRequest)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+            throw new AccessDeniedException();
         }
 
         Date date = null;
@@ -104,7 +104,7 @@ public class TopicContentController {
         TopicContent topicContent = topicContentService.findTopicContentById(id);
 
         if (!permissionService.canView(topicContent)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+            throw new AccessDeniedException();
         }
 
         return new ResponseEntity<>(topicContent, HttpStatus.OK);
@@ -118,7 +118,7 @@ public class TopicContentController {
         TopicContent topicContent = topicContentService.findTopicContentById(newTopicContent.getId());
 
         if (!permissionService.canModify(topicContent)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+            throw new AccessDeniedException();
         }
 
         topicContent = topicContentService.update(newTopicContent);
@@ -131,7 +131,7 @@ public class TopicContentController {
     ) {
         TopicContent topicContent = topicContentService.findTopicContentById(id);
         if (!permissionService.canDelete(topicContent)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+            throw new AccessDeniedException();
         }
 
         topicContentService.delete(topicContent);
@@ -156,7 +156,7 @@ public class TopicContentController {
         Entity entity = entityService.findEntityById(id);
 
         if (!permissionService.canAccess(entity)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+            throw new AccessDeniedException();
         }
 
         List<TopicContent> entityTopicContent = topicContentService.findByTopicMember(id, page, pageSize);

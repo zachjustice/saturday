@@ -52,7 +52,7 @@ public class TopicMemberDelegate {
         topicMember.setTopicRole(topicRoleFactory.createUser());
 
         if(!permissionService.canCreate(topicMember)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+            throw new AccessDeniedException();
         }
 
         return topicMemberService.save(topicMember);

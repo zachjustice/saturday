@@ -46,7 +46,7 @@ public class TopicRolePermissionDelegate {
      */
     public TopicRolePermission save(TopicRolePermission topicRolePermission) {
         if (!permissionService.canModify(topicRolePermission)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+            throw new AccessDeniedException();
         }
 
         return topicRolePermissionService.save(topicRolePermission);
@@ -70,7 +70,7 @@ public class TopicRolePermissionDelegate {
 
         // If you can view the topic, you can view the permissions
         if (!permissionService.canView(topic)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+            throw new AccessDeniedException();
         }
 
         return topicRolePermissionService.findByTopicId(id);

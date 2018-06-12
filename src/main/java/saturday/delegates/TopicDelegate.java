@@ -118,7 +118,7 @@ public class TopicDelegate {
         Entity entity = entityService.findEntityById(entityId);
 
         if(!permissionService.canAccess(entity)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+            throw new AccessDeniedException();
         }
 
         return this.topicService.findByEntityIdAndTopicMemberStatusId(entityId, TOPIC_MEMBER_STATUS_ACCEPTED);

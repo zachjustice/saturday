@@ -57,7 +57,7 @@ public class TopicMemberController {
         Entity involvedParty = entityService.findEntityById(involvedPartyId);
 
         if(!permissionService.canAccess(involvedParty)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+            throw new AccessDeniedException();
         }
 
         Map<String, List<TopicMember>> sentAndReceivedTopicInvites = topicMemberService.getSentAndReceivedTopicInvites(involvedParty);
@@ -69,7 +69,7 @@ public class TopicMemberController {
         TopicMember topicMember = this.topicMemberService.findById(id);
 
         if(!permissionService.canView(topicMember)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+            throw new AccessDeniedException();
         }
 
         return new ResponseEntity<>(topicMember, HttpStatus.OK);
@@ -83,7 +83,7 @@ public class TopicMemberController {
     @RequestMapping(value = "/topic_members", method = RequestMethod.POST)
     public ResponseEntity<TopicMember> saveTopicMember(@RequestBody TopicMember topicMember) {
         if(!permissionService.canCreate(topicMember)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+            throw new AccessDeniedException();
         }
 
         topicMember = topicMemberService.save(topicMember);
@@ -97,7 +97,7 @@ public class TopicMemberController {
             @RequestBody TopicMember newTopicMember
     ) {
         if(!permissionService.canModify(newTopicMember)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+            throw new AccessDeniedException();
         }
 
         newTopicMember = topicMemberService.update(newTopicMember);
@@ -120,7 +120,7 @@ public class TopicMemberController {
         topicMember.setStatus(topicMemberStatus);
 
         if(!permissionService.canModify(topicMember )) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+            throw new AccessDeniedException();
         }
 
         topicMember = topicMemberService.update(topicMember);
@@ -142,7 +142,7 @@ public class TopicMemberController {
         // Instead of deleting topic members, move the status to "rescinded" or "left_topic"
         // so we can avoid repeatedly sending invites
         if(!entityService.getAuthenticatedEntity().isAdmin()) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+            throw new AccessDeniedException();
         }
 
         topicMemberService.deleteById(id);

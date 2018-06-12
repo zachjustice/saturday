@@ -88,7 +88,7 @@ public class EntityController {
         Entity currEntity = entityService.findEntityById(updatedEntity.getId());
 
         if (!permissionService.canAccess(currEntity)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+            throw new AccessDeniedException();
         }
 
         currEntity = entityService.updateEntity(updatedEntity, true);
@@ -132,7 +132,7 @@ public class EntityController {
         Entity entity = entityService.findEntityById(id);
 
         if (!permissionService.canAccess(entity)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+            throw new AccessDeniedException();
         }
 
         // TODO do this better
@@ -159,7 +159,7 @@ public class EntityController {
         Entity entity = entityService.findEntityById(entityId);
 
         if (!permissionService.canAccess(entity)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+            throw new AccessDeniedException();
         }
 
         List<Topic> topicsEntityIsAdminOf = topicMemberService.findByEntityIdAndTopicRoleId(entityId, topicRoleId)
@@ -184,7 +184,7 @@ public class EntityController {
 
         Entity entity = entityService.findEntityById(id);
         if (!permissionService.canAccess(entity)) {
-            throw new AccessDeniedException("Authenticated entity does not have sufficient permissions.");
+            throw new AccessDeniedException();
         }
 
         confirmEmailService.sendEmail(entity);
