@@ -84,18 +84,6 @@ public class TopicController {
         return new ResponseEntity<>(topic, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "topics/{id}/topic_members", method = RequestMethod.GET)
-    public ResponseEntity<List<TopicMember>> getTopicTopicMember(@PathVariable(value = "id") int id) {
-        Topic topic = topicService.findTopicById(id);
-
-        if (!permissionService.canView(topic)) {
-            throw new AccessDeniedException();
-        }
-
-        List<TopicMember> topicMembers = topicMemberService.findByTopicId(id);
-        return new ResponseEntity<>(topicMembers, HttpStatus.OK);
-    }
-
     @RequestMapping(value = "topics/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Topic> delete(@PathVariable(value = "id") int id) {
         Topic topic = topicService.findTopicById(id);

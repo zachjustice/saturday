@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import saturday.delegates.TopicMemberDelegate;
 import saturday.domain.Entity;
+import saturday.domain.Topic;
 import saturday.domain.TopicMember;
 import saturday.domain.TopicMemberStatus;
 import saturday.exceptions.AccessDeniedException;
@@ -15,6 +16,7 @@ import saturday.publishers.SaturdayEventPublisher;
 import saturday.services.EntityService;
 import saturday.services.PermissionService;
 import saturday.services.TopicMemberService;
+import saturday.services.TopicService;
 
 import java.util.List;
 import java.util.Map;
@@ -24,6 +26,7 @@ public class TopicMemberController {
     private final TopicMemberDelegate topicMemberDelegate;
 
     private final TopicMemberService topicMemberService;
+    private final TopicService topicService;
     private final EntityService entityService;
     private final PermissionService permissionService;
     private final SaturdayEventPublisher saturdayEventPublisher;
@@ -34,12 +37,14 @@ public class TopicMemberController {
     public TopicMemberController(
             TopicMemberDelegate topicMemberDelegate,
             TopicMemberService topicMemberService,
+            TopicService topicService,
             EntityService entityService,
             PermissionService permissionService,
             SaturdayEventPublisher saturdayEventPublisher
     ) {
         this.topicMemberDelegate = topicMemberDelegate;
         this.topicMemberService = topicMemberService;
+        this.topicService = topicService;
         this.entityService = entityService;
         this.permissionService = permissionService;
         this.saturdayEventPublisher = saturdayEventPublisher;
@@ -73,6 +78,23 @@ public class TopicMemberController {
         }
 
         return new ResponseEntity<>(topicMember, HttpStatus.OK);
+    }
+
+    /**
+     * Retrieve topic members for the topic id
+     * @param id Topic Id
+     * @return List of Topic Members
+     */
+    @RequestMapping(value = "topics/{id}/topic_members", method = RequestMethod.GET)
+    public ResponseEntity<List<TopicMember>> getTopicTopicMember(@PathVariable(value = "id") int id) {
+        Topic topic = topicService.findTopicById(id);
+
+        if (!permissionService.canView(topic)) {
+            throw new AccessDeniedException();
+        }
+
+        List<TopicMember> topicMembers = topicMemberService.findByTopicId(id);
+        return new ResponseEntity<>(topicMembers, HttpStatus.OK);
     }
 
     /**
