@@ -200,12 +200,32 @@ public class PermissionService {
      */
     public boolean canCreate(TopicContentRequest topicContentRequest) {
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
-        // TODO better way to do this
+
+        if (authenticatedEntity.isAdmin()) {
+            return true;
+        }
+
         Topic topic = new Topic();
         topic.setId(topicContentRequest.getTopicId());
 
-        return authenticatedEntity.isAdmin()
-                || isTopicMember(authenticatedEntity, topic);
+        TopicMemberStatus acceptedStatus = new TopicMemberStatus();
+        acceptedStatus.setId(TOPIC_MEMBER_STATUS_ACCEPTED);
+        TopicMember topicMember = this.topicMemberService.findByEntityAndTopicAndStatus(authenticatedEntity, topic, acceptedStatus);
+
+        if (topicMember == null) {
+            return false;
+        }
+
+        if (topicMember.getTopicRole().getId() == TOPIC_ROLE_ADMIN) {
+            return true;
+        }
+
+        // only topic members with the correct permissions can post. Admins can always post.
+        return isTopicMemberAllowed(
+                topicMember.getTopic().getId(),
+                topicMember.getTopicRole().getId(),
+                TOPIC_PERMISSION_CAN_INVITE
+        );
     }
 
     /**
