@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import saturday.delegates.TopicMemberDelegate;
 import saturday.domain.Entity;
-import saturday.domain.Topic;
 import saturday.domain.TopicMember;
 import saturday.domain.TopicMemberStatus;
 import saturday.exceptions.AccessDeniedException;
@@ -106,7 +105,7 @@ public class TopicMemberController {
      */
     @RequestMapping(value = "/topic_members", method = RequestMethod.POST)
     public ResponseEntity<TopicMember> saveTopicMember(@RequestBody TopicMember topicMember) {
-        if(!permissionService.canCreate(topicMember)) {
+        if(!permissionService.canCreateTopicMember(topicMember.getTopic())) {
             throw new AccessDeniedException();
         }
 

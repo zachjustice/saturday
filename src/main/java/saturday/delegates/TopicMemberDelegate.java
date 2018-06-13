@@ -45,24 +45,25 @@ public class TopicMemberDelegate {
     }
 
     public TopicMember inviteByEmail(String email, int topicId) {
-        Entity entity = entityService.findEntityByEmail(email);
-        if (entity == null) {
-            throw new ResourceNotFoundException("No entity with the email " + email + " exists!");
-        }
-
         Topic topic = topicService.findTopicById(topicId);
         if (topic == null) {
             throw new ResourceNotFoundException("No topic with the id " + topicId + " exists!");
+        }
+
+        if(!permissionService.canCreateTopicMember(topic)) {
+            throw new AccessDeniedException();
+        }
+
+        Entity entity = entityService.findEntityByEmail(email);
+        if (entity == null) {
+            // TODO send an invite email
+            throw new ResourceNotFoundException("No entity with the email " + email + " exists!");
         }
 
         TopicMember topicMember = new TopicMember();
         topicMember.setEntity(entity);
         topicMember.setTopic(topic);
         topicMember.setTopicRole(topicRoleFactory.createUser());
-
-        if(!permissionService.canCreate(topicMember)) {
-            throw new AccessDeniedException();
-        }
 
         return topicMemberService.save(topicMember);
     }

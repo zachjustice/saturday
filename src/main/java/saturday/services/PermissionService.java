@@ -12,6 +12,7 @@ import saturday.exceptions.ResourceNotFoundException;
 public class PermissionService {
     private final EntityService entityService;
     private final TopicMemberService topicMemberService;
+    private final TopicRolePermissionService topicRolePermissionService;
     private final TopicService topicService;
 
     @Value("${saturday.topic.invite.status.pending}")
@@ -24,13 +25,22 @@ public class PermissionService {
     private int TOPIC_MEMBER_STATUS_RESCINDED;
     @Value("${saturday.topic.invite.status.left_topic}")
     private int TOPIC_MEMBER_STATUS_LEFT_TOPIC;
+
     @Value("${saturday.topic.role.admin}")
     private int TOPIC_ROLE_ADMIN;
+    @Value("${saturday.topic.role.user}")
+    private int TOPIC_ROLE_USER;
+
+    @Value("${saturday.topic.permission.can_invite}")
+    private int TOPIC_PERMISSION_CAN_INVITE;
+    @Value("${saturday.topic.permission.can_post}")
+    private int TOPIC_PERMISSION_CAN_POST;
 
     @Autowired
-    public PermissionService(EntityService entityService, TopicMemberService topicMemberService, TopicService topicService) {
+    public PermissionService(EntityService entityService, TopicMemberService topicMemberService, TopicRolePermissionService topicRolePermissionService, TopicService topicService) {
         this.entityService = entityService;
         this.topicMemberService = topicMemberService;
+        this.topicRolePermissionService = topicRolePermissionService;
         this.topicService = topicService;
     }
 
@@ -57,6 +67,16 @@ public class PermissionService {
         return topicMember != null;
     }
 
+    private boolean isTopicMemberAllowed(int topicId, int topicRoleId, int topicPermissionId) {
+        TopicRolePermission topicRolePermission = this.topicRolePermissionService.findByTopicIdAndTopicRoleIdAndTopicPermissionId(
+                topicId,
+                topicRoleId,
+                topicPermissionId
+        );
+
+        return topicRolePermission != null && topicRolePermission.getIsAllowed();
+    }
+
     /**
      * Check if the auth'ed entity can access an Entity owned resource.
      * This check applies to actions for updating the entity, sending confirmation emails, etc.
@@ -80,13 +100,13 @@ public class PermissionService {
      * Check if the auth'ed entity can send invites for a topic.
      * Only admins can send invites that are not in pending.
      * (e.g. normal users can only create topic members in 'pending')
-     * TODO only topic moderators
-     * @param topicMember The resource to validate
+     * TODO what if topic doesn't exist?
+     * @param topic The resource to validate
      * @return Whether the user is allowed to create the topic member
      */
-    public boolean canCreate(TopicMember topicMember) {
-        if(topicMember == null) {
-            throw new BusinessLogicException("Failed to authenticate permissions. Topic Member is null.");
+    public boolean canCreateTopicMember(Topic topic) {
+        if(topic == null) {
+            throw new BusinessLogicException("Failed to authenticate permissions. Topic is null.");
         }
 
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
@@ -94,18 +114,24 @@ public class PermissionService {
             return true;
         }
 
-        // only topic members can send invites TODO check topicRolePermission to see if its permissable
-        if(!isTopicMember(authenticatedEntity, topicMember.getTopic())) {
+        TopicMemberStatus acceptedStatus = new TopicMemberStatus();
+        acceptedStatus.setId(TOPIC_MEMBER_STATUS_ACCEPTED);
+        TopicMember topicMember = this.topicMemberService.findByEntityAndTopicAndStatus(authenticatedEntity, topic, acceptedStatus);
+
+        if (topicMember == null) {
             return false;
         }
 
-        // Normal topic members can only create topic members in pending mode (e.g. its an invite, and they must accept)
-        if(topicMember.getStatus() != null && topicMember.getStatus().getId() != TOPIC_MEMBER_STATUS_PENDING) {
-            return false;
-        } else {
+        if (topicMember.getTopicRole().getId() == TOPIC_ROLE_ADMIN) {
             return true;
         }
 
+        // only topic members with the provided invite can send invites. Admins can always send invites.
+        return isTopicMemberAllowed(
+                topicMember.getTopic().getId(),
+                topicMember.getTopicRole().getId(),
+                TOPIC_PERMISSION_CAN_INVITE
+        );
     }
 
     /**
@@ -148,6 +174,7 @@ public class PermissionService {
      */
     public boolean canView(Topic topic) {
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
+        TopicMember topicMember = this.topicMemberService.findByEntityAndTopic(authenticatedEntity, topic);
 
         return authenticatedEntity.isAdmin()
                 || isTopicMember(authenticatedEntity, topic);

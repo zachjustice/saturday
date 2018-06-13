@@ -67,4 +67,17 @@ public class TopicRolePermissionServiceImpl implements TopicRolePermissionServic
     public List<TopicRolePermission> findByTopicIdAndIsAllowed(int id, boolean isAllowed) {
         return this.topicRolePermissionRepository.findByTopicIdAndIsAllowed(id, isAllowed);
     }
+
+    @Override
+    public TopicRolePermission findByTopicIdAndTopicRoleIdAndTopicPermissionId(
+            int topicId,
+            int topicRoleId,
+            int topicPermissionId
+    ) {
+        return this.topicRolePermissionRepository.findByTopicIdAndTopicRoleIdAndTopicPermissionId(
+                topicId,
+                topicRoleId,
+                topicPermissionId
+        );
+    }
 }
