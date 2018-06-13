@@ -103,6 +103,7 @@ START TRANSACTION;
     id SERIAL PRIMARY KEY,
     name VARCHAR(20) NOT NULL,
     description VARCHAR(150),
+    owner_id INT NOT NULL REFERENCES entities(id),
     creator_id INT NOT NULL REFERENCES entities(id),
     created TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
     modified TIMESTAMP WITHOUT TIME ZONE
