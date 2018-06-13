@@ -13,6 +13,7 @@ import saturday.services.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by zachjustice on 7/27/17.
@@ -120,5 +121,31 @@ public class TopicController {
     ) {
         List<Topic> entityTopics = this.topicDelegate.getEntityTopics(entityId);
         return new ResponseEntity<>(entityTopics, HttpStatus.OK);
+    }
+
+    /**
+     * Get topics for which the given entity is of the given topic role
+     * @param entityId Entity Id
+     * @param topicRoleId Topic Role Id
+     * @return List of Topic matching the search criteria
+     */
+    @RequestMapping(value = "/entities/{entity_id}/topic_roles/{topic_role_id}", method = RequestMethod.GET)
+    public ResponseEntity<List<Topic>> getTopicsEntityIsAdminOf(
+            @PathVariable(value = "entity_id") int entityId,
+            @PathVariable(value = "topic_role_id") int topicRoleId
+    ) {
+
+        Entity entity = entityService.findEntityById(entityId);
+
+        if (!permissionService.canAccess(entity)) {
+            throw new AccessDeniedException();
+        }
+
+        List<Topic> topicsEntityIsAdminOf = topicMemberService.findByEntityIdAndTopicRoleId(entityId, topicRoleId)
+                .stream()
+                .map(TopicMember::getTopic)
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(topicsEntityIsAdminOf, HttpStatus.OK);
     }
 }

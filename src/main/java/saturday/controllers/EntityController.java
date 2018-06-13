@@ -150,26 +150,6 @@ public class EntityController {
     }
 
 
-    @RequestMapping(value = "/entities/{entity_id}/topic_roles/{topic_role_id}", method = RequestMethod.GET)
-    public ResponseEntity<List<Topic>> getTopicsEntityIsAdminOf(
-            @PathVariable(value = "entity_id") int entityId,
-            @PathVariable(value = "topic_role_id") int topicRoleId
-    ) {
-
-        Entity entity = entityService.findEntityById(entityId);
-
-        if (!permissionService.canAccess(entity)) {
-            throw new AccessDeniedException();
-        }
-
-        List<Topic> topicsEntityIsAdminOf = topicMemberService.findByEntityIdAndTopicRoleId(entityId, topicRoleId)
-                .stream()
-                .map(TopicMember::getTopic)
-                .collect(Collectors.toList());
-
-        return new ResponseEntity<>(topicsEntityIsAdminOf, HttpStatus.OK);
-    }
-
 
     /**
      * Resend the email confirmation email
