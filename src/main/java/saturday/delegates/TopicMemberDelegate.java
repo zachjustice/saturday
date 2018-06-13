@@ -1,5 +1,6 @@
 package saturday.delegates;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import saturday.TopicRoleFactory;
 import saturday.domain.Entity;
@@ -12,6 +13,9 @@ import saturday.services.PermissionService;
 import saturday.services.TopicMemberService;
 import saturday.services.TopicService;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Component
 public class TopicMemberDelegate {
     private final TopicMemberService topicMemberService;
@@ -20,6 +24,11 @@ public class TopicMemberDelegate {
     private final PermissionService permissionService;
 
     private final TopicRoleFactory topicRoleFactory;
+
+    @Value("${saturday.topic.invite.status.accepted}")
+    private int TOPIC_MEMBER_STATUS_ACCEPTED;
+    @Value("${saturday.topic.invite.status.pending}")
+    private int TOPIC_MEMBER_STATUS_PENDING;
 
     public TopicMemberDelegate(
             TopicMemberService topicMemberService,
@@ -58,4 +67,18 @@ public class TopicMemberDelegate {
         return topicMemberService.save(topicMember);
     }
 
+    public List<TopicMember> getPendingAndAcceptedTopicMembersByTopic(int topicId) {
+        Topic topic = topicService.findTopicById(topicId);
+
+        if (!permissionService.canView(topic)) {
+            throw new AccessDeniedException();
+        }
+
+        return topicMemberService.findByTopicId(topicId)
+                .stream()
+                .filter(topicMember ->
+                        topicMember.getStatus().getId() == TOPIC_MEMBER_STATUS_PENDING
+                        || topicMember.getStatus().getId() == TOPIC_MEMBER_STATUS_ACCEPTED)
+                .collect(Collectors.toList());
+    }
 }

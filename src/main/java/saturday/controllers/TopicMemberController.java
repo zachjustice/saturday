@@ -86,19 +86,16 @@ public class TopicMemberController {
     }
 
     /**
-     * Retrieve topic members for the topic id
-     * @param id Topic Id
+     * Retrieve pending and accepted topic members for the topic topicId
+     * @param topicId Topic Id
      * @return List of Topic Members
      */
-    @RequestMapping(value = "topics/{id}/topic_members", method = RequestMethod.GET)
-    public ResponseEntity<List<TopicMember>> getTopicTopicMember(@PathVariable(value = "id") int id) {
-        Topic topic = topicService.findTopicById(id);
+    @RequestMapping(value = "topics/{topicId}/topic_members", method = RequestMethod.GET)
+    public ResponseEntity<List<TopicMember>> getTopicTopicMember(@PathVariable(value = "topicId") int topicId) {
 
-        if (!permissionService.canView(topic)) {
-            throw new AccessDeniedException();
-        }
+        List<TopicMember> topicMembers = topicMemberDelegate
+                .getPendingAndAcceptedTopicMembersByTopic(topicId);
 
-        List<TopicMember> topicMembers = topicMemberService.findByTopicId(id);
         return new ResponseEntity<>(topicMembers, HttpStatus.OK);
     }
 
