@@ -2,7 +2,7 @@ package saturday.delegates;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import saturday.TopicRoleFactory;
+import saturday.factories.TopicRoleFactory;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicMember;
