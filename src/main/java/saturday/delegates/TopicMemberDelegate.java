@@ -2,10 +2,10 @@ package saturday.delegates;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import saturday.factories.TopicRoleFactory;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicMember;
+import saturday.domain.TopicUser;
 import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.ResourceNotFoundException;
 import saturday.services.EntityService;
@@ -23,7 +23,6 @@ public class TopicMemberDelegate {
     private final EntityService entityService;
     private final PermissionService permissionService;
 
-    private final TopicRoleFactory topicRoleFactory;
 
     @Value("${saturday.topic.invite.status.accepted}")
     private int TOPIC_MEMBER_STATUS_ACCEPTED;
@@ -34,14 +33,12 @@ public class TopicMemberDelegate {
             TopicMemberService topicMemberService,
             TopicService topicService,
             EntityService entityService,
-            PermissionService permissionService,
-            TopicRoleFactory topicRoleFactory
+            PermissionService permissionService
     ) {
         this.topicMemberService = topicMemberService;
         this.topicService = topicService;
         this.entityService = entityService;
         this.permissionService = permissionService;
-        this.topicRoleFactory = topicRoleFactory;
     }
 
     public TopicMember inviteByEmail(String email, int topicId) {
@@ -63,7 +60,7 @@ public class TopicMemberDelegate {
         TopicMember topicMember = new TopicMember();
         topicMember.setEntity(entity);
         topicMember.setTopic(topic);
-        topicMember.setTopicRole(topicRoleFactory.createUser());
+        topicMember.setTopicRole(new TopicUser());
 
         return topicMemberService.save(topicMember);
     }

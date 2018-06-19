@@ -9,6 +9,7 @@ import saturday.domain.Topic;
 import saturday.domain.TopicMember;
 import saturday.domain.TopicMemberStatus;
 import saturday.domain.TopicRole;
+import saturday.domain.TopicUser;
 import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ResourceNotFoundException;
 import saturday.repositories.TopicMemberRepository;
@@ -66,8 +67,7 @@ public class TopicMemberServiceImpl implements TopicMemberService {
 
         if (topicMember.getTopicRole() == null) {
             // new topic members default to the USER role
-            TopicRole userTopicRole = new TopicRole();
-            userTopicRole.setId(TOPIC_ROLE_USER);
+            TopicUser userTopicRole = new TopicUser();
             topicMember.setTopicRole(userTopicRole);
         }
 

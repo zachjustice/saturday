@@ -1,5 +1,8 @@
 package saturday.domain;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -18,11 +21,19 @@ public class TopicRole {
     @Column(name = "label")
     private String role;
 
+    public TopicRole() {
+    }
+
+    public TopicRole(int id, String role) {
+        this.id = id;
+        this.role = role;
+    }
+
     public int getId() {
         return id;
     }
 
-    public void setId(int id) {
+    protected void setId(int id) {
         this.id = id;
     }
 
@@ -30,7 +41,7 @@ public class TopicRole {
         return role;
     }
 
-    public void setRole(String role) {
+    protected void setRole(String role) {
 
     }
 

@@ -5,11 +5,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
+import saturday.domain.TopicAdmin;
 import saturday.domain.TopicMember;
 import saturday.domain.TopicMemberStatus;
 import saturday.domain.TopicPermission;
 import saturday.domain.TopicRole;
 import saturday.domain.TopicRolePermission;
+import saturday.domain.TopicUser;
 import saturday.exceptions.AccessDeniedException;
 import saturday.services.EntityService;
 import saturday.services.PermissionService;
@@ -76,8 +78,7 @@ public class TopicDelegate {
         TopicMemberStatus acceptedStatus = new TopicMemberStatus();
         acceptedStatus.setId(TOPIC_MEMBER_STATUS_ACCEPTED);
 
-        TopicRole adminTopicRole = new TopicRole();
-        adminTopicRole.setId(TOPIC_ROLE_ADMIN);
+        TopicAdmin adminTopicRole = new TopicAdmin();
 
         TopicMember topicMember = new TopicMember();
         topicMember.setTopic(topic);
@@ -96,8 +97,7 @@ public class TopicDelegate {
         };
 
         for(int topicPermissionId: allPermissions) {
-            TopicRole userTopicRole = new TopicRole();
-            userTopicRole.setId(TOPIC_ROLE_USER);
+            TopicUser userTopicRole = new TopicUser();
 
             TopicPermission topicPermission = new TopicPermission();
             topicPermission.setId(topicPermissionId);
