@@ -3,7 +3,7 @@ package saturday.repositories;
 import org.springframework.data.jpa.repository.JpaRepository;
 import saturday.domain.Topic;
 import saturday.domain.TopicPermission;
-import saturday.domain.TopicRole;
+import saturday.domain.topicRoles.TopicRole;
 import saturday.domain.TopicRolePermission;
 
 import java.util.List;

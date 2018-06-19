@@ -1,7 +1,10 @@
-package saturday.domain;
+package saturday.domain.topicMemberStatuses;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import saturday.domain.Topic;
+import saturday.domain.TopicMemberStatus;
+import saturday.domain.topicRoles.TopicRole;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -17,7 +20,7 @@ public class TopicMember {
 
     @ManyToOne
     @JoinColumn(name="entity_id", referencedColumnName = "id", nullable=false, updatable = false)
-    private Entity entity;
+    private saturday.domain.Entity entity;
 
     @ManyToOne
     @JoinColumn(name="topic_id", referencedColumnName = "id", nullable=false, updatable = false)
@@ -33,11 +36,11 @@ public class TopicMember {
 
     @ManyToOne
     @JoinColumn(name="creator_id", referencedColumnName = "id", nullable=false, updatable = false)
-    private Entity creator;
+    private saturday.domain.Entity creator;
 
     @ManyToOne
     @JoinColumn(name="modifier_id", referencedColumnName = "id", nullable=false)
-    private Entity modifier;
+    private saturday.domain.Entity modifier;
 
     @Column(name = "created", insertable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -57,11 +60,11 @@ public class TopicMember {
         this.id = id;
     }
 
-    public Entity getEntity() {
+    public saturday.domain.Entity getEntity() {
         return entity;
     }
 
-    public void setEntity(Entity entity) {
+    public void setEntity(saturday.domain.Entity entity) {
         this.entity = entity;
     }
 
@@ -97,19 +100,19 @@ public class TopicMember {
         this.status = status;
     }
 
-    public Entity getCreator() {
+    public saturday.domain.Entity getCreator() {
         return creator;
     }
 
-    public void setCreator(Entity creator) {
+    public void setCreator(saturday.domain.Entity creator) {
         this.creator = creator;
     }
 
-    public Entity getModifier() {
+    public saturday.domain.Entity getModifier() {
         return modifier;
     }
 
-    public void setModifier(Entity modifier) {
+    public void setModifier(saturday.domain.Entity modifier) {
         this.modifier = modifier;
     }
 

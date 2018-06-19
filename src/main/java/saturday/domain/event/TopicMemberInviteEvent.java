@@ -1,7 +1,7 @@
 package saturday.domain.event;
 
 import org.springframework.context.ApplicationEvent;
-import saturday.domain.TopicMember;
+import saturday.domain.topicMemberStatuses.TopicMember;
 
 public class TopicMemberInviteEvent extends ApplicationEvent {
     private final TopicMember invitedTopicMember;

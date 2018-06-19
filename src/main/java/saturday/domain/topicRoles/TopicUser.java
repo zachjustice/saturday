@@ -1,4 +1,4 @@
-package saturday.domain;
+package saturday.domain.topicRoles;
 
 public class TopicUser extends TopicRole {
 

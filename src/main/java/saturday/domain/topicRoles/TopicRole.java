@@ -1,7 +1,4 @@
-package saturday.domain;
-
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+package saturday.domain.topicRoles;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;

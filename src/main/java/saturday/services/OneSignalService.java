@@ -12,7 +12,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import saturday.domain.Topic;
-import saturday.domain.TopicMember;
+import saturday.domain.topicMemberStatuses.TopicMember;
 import saturday.domain.oneSignal.*;
 import saturday.utils.HTTPUtils;
 

@@ -2,7 +2,7 @@ package saturday.services;
 
 import saturday.domain.Entity;
 import saturday.domain.Topic;
-import saturday.domain.TopicMember;
+import saturday.domain.topicMemberStatuses.TopicMember;
 import saturday.domain.TopicMemberStatus;
 
 import java.util.List;

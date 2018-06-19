@@ -6,15 +6,13 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
-import saturday.domain.TopicMember;
+import saturday.domain.topicMemberStatuses.TopicMember;
 import saturday.domain.TopicMemberStatus;
-import saturday.domain.TopicRole;
-import saturday.domain.TopicUser;
+import saturday.domain.topicRoles.TopicUser;
 import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ResourceNotFoundException;
 import saturday.repositories.TopicMemberRepository;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
