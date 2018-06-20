@@ -1,9 +1,8 @@
-package saturday.domain.topicMemberStatuses;
+package saturday.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import saturday.domain.Topic;
-import saturday.domain.TopicMemberStatus;
+import saturday.domain.topicMemberStatuses.TopicMemberStatus;
 import saturday.domain.topicRoles.TopicRole;
 
 import javax.persistence.*;

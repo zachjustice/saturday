@@ -6,8 +6,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
-import saturday.domain.topicMemberStatuses.TopicMember;
-import saturday.domain.TopicMemberStatus;
+import saturday.domain.TopicMember;
+import saturday.domain.topicMemberStatuses.TopicMemberStatus;
 
 import java.util.List;
 

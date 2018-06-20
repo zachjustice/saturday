@@ -10,7 +10,7 @@ import saturday.domain.*;
 import saturday.domain.event.RegistrationEvent;
 import saturday.domain.event.ResetPasswordEvent;
 import saturday.domain.event.TopicMemberInviteEvent;
-import saturday.domain.topicMemberStatuses.TopicMember;
+import saturday.domain.TopicMember;
 
 @Component
 public class SaturdayEventPublisher {

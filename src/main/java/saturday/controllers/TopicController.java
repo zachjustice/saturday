@@ -14,7 +14,7 @@ import saturday.delegates.TopicDelegate;
 import saturday.delegates.TopicRolePermissionDelegate;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
-import saturday.domain.topicMemberStatuses.TopicMember;
+import saturday.domain.TopicMember;
 import saturday.domain.TopicRolePermission;
 import saturday.exceptions.AccessDeniedException;
 import saturday.services.EntityService;
