@@ -180,7 +180,6 @@ public class PermissionService {
      */
     public boolean canView(Topic topic) {
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
-        TopicMember topicMember = this.topicMemberService.findByEntityAndTopic(authenticatedEntity, topic);
 
         return authenticatedEntity.isAdmin()
                 || isTopicMember(authenticatedEntity, topic);
