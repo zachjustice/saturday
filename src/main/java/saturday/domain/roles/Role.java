@@ -1,4 +1,4 @@
-package saturday.domain;
+package saturday.domain.roles;
 
 
 import javax.persistence.Column;
@@ -11,6 +11,9 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "roles")
 public class Role {
+    public final static int USER = 1;
+    public final static int ADMIN = 2;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="id")
@@ -19,16 +22,17 @@ public class Role {
     @Column(name="label")
     private String role;
 
+    public Role() {}
+
+    Role(int id, String role) {
+        this.id = id;
+        this.role = role;
+    }
+
     public int getId() {
         return id;
     }
-    public void setId(int id) {
-        this.id = id;
-    }
     public String getRole() {
         return role;
-    }
-    public void setRole(String role) {
-        this.role = role;
     }
 }

@@ -10,7 +10,8 @@ import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import saturday.domain.Entity;
-import saturday.domain.Role;
+import saturday.domain.roles.Role;
+import saturday.domain.roles.RoleUser;
 import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ProcessingResourceException;
 import saturday.repositories.EntityRepository;
@@ -145,7 +146,7 @@ public class EntityServiceImpl implements EntityService {
         entity.setIsEmailConfirmed(false);
         entity.setPassword(bCryptPasswordEncoder.encode(entity.getPassword()));
 
-        Role authorRole = roleRepository.findByRole("USER");
+        Role authorRole = new RoleUser();
         entity.setRoles(new HashSet<>(Collections.singletonList(authorRole)));
 
         return entityRepository.save(entity);
