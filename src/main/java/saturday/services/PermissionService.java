@@ -293,7 +293,7 @@ public class PermissionService {
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
         TopicMember oldTopicMember = this.topicMemberService.findById(newTopicMember.getId());
         if(authenticatedEntity.isAdmin()) {
-            return authenticatedEntity.isAdmin();
+            return true;
         }
 
         if(oldTopicMember.getStatus() == null) {
@@ -383,13 +383,13 @@ public class PermissionService {
     /**
      * Check whether the authenticated entity can update the given topicRolePermission
      * Only site and topic admins can update a topic's permissions settings
-     * @param topicRolePermission
+     * @param topicRolePermission The new updated topicRolePermission
      * @return If the auth'ed user can modify the topic role permission
      */
     public boolean canModify(TopicRolePermission topicRolePermission) {
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
         if (authenticatedEntity.isAdmin()) {
-            return authenticatedEntity.isAdmin();
+            return true;
         }
 
         // if the user is an admin they can update the permission's setting
@@ -399,10 +399,6 @@ public class PermissionService {
             return false;
         }
 
-        if (topicMember.getTopicRole() == TopicMember.TopicRole.ADMIN) {
-            return false;
-        }
-
-        return true;
+        return topicMember.getTopicRole() == TopicMember.TopicRole.ADMIN;
     }
 }
