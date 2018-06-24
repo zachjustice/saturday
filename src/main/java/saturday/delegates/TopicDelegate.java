@@ -48,7 +48,6 @@ public class TopicDelegate {
     }
 
     public Topic update(Topic topic) {
-
         if(!permissionService.canModify(topic)) {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions");
         }
@@ -57,7 +56,6 @@ public class TopicDelegate {
     }
 
     public Topic save(Topic topic) {
-
         // Create Topic
         topic = topicService.save(topic);
 
