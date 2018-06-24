@@ -1,4 +1,4 @@
-package saturday.domain;
+package saturday.domain.TopicPermissions;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -10,6 +10,9 @@ import java.util.Objects;
 @javax.persistence.Entity
 @Table(name = "topic_permissions")
 public class TopicPermission {
+    public final static int CAN_POST = 1;
+    public final static int CAN_INVITE = 2;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -18,20 +21,19 @@ public class TopicPermission {
     @Column(name = "label")
     private String permission;
 
+    public TopicPermission() {}
+
+    TopicPermission(int id, String permission) {
+        this.id = id;
+        this.permission = permission;
+    }
+
     public int getId() {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getPermission() {
         return permission;
-    }
-
-    public void setPermission(String permission) {
-        this.permission = permission;
     }
 
     @Override

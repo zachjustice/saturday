@@ -5,11 +5,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
+import saturday.domain.TopicPermissions.TopicPermissionCanInvite;
+import saturday.domain.TopicPermissions.TopicPermissionCanPost;
 import saturday.domain.topicMemberStatuses.TopicMemberStatusAccepted;
 import saturday.domain.topicRoles.TopicAdmin;
 import saturday.domain.TopicMember;
 import saturday.domain.topicMemberStatuses.TopicMemberStatus;
-import saturday.domain.TopicPermission;
+import saturday.domain.TopicPermissions.TopicPermission;
 import saturday.domain.TopicRolePermission;
 import saturday.domain.topicRoles.TopicUser;
 import saturday.exceptions.AccessDeniedException;
@@ -29,11 +31,6 @@ public class TopicDelegate {
     private final EntityService entityService;
     private final TopicRolePermissionService topicRolePermissionService;
     private final PermissionService permissionService;
-
-    @Value("${saturday.topic.permission.can_post}")
-    private int TOPIC_PERMISSION_CAN_POST;
-    @Value("${saturday.topic.permission.can_invite}")
-    private int TOPIC_PERMISSION_CAN_INVITE;
 
     @Autowired
     public TopicDelegate(
@@ -81,16 +78,13 @@ public class TopicDelegate {
 
         // Add default topic permissions for topic users
         //   users can post and invite by default
-        int[] allPermissions = new int[]{
-                TOPIC_PERMISSION_CAN_POST,
-                TOPIC_PERMISSION_CAN_INVITE
+        TopicPermission[] allPermissions = new TopicPermission[]{
+                new TopicPermissionCanPost(),
+                new TopicPermissionCanInvite()
         };
 
-        for(int topicPermissionId: allPermissions) {
+        for(TopicPermission topicPermission: allPermissions) {
             TopicUser userTopicRole = new TopicUser();
-
-            TopicPermission topicPermission = new TopicPermission();
-            topicPermission.setId(topicPermissionId);
 
             TopicRolePermission adminPermission = new TopicRolePermission();
             adminPermission.setTopic(topic);

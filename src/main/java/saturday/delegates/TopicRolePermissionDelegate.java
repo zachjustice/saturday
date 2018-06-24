@@ -20,11 +20,6 @@ public class TopicRolePermissionDelegate {
     private final TopicRolePermissionService topicRolePermissionService;
     private final PermissionService permissionService;
 
-    @Value("${saturday.topic.permission.can_post}")
-    private int TOPIC_PERMISSION_CAN_POST;
-    @Value("${saturday.topic.permission.can_invite}")
-    private int TOPIC_PERMISSION_CAN_INVITE;
-
     public TopicRolePermissionDelegate(
             TopicService topicService,
             TopicRolePermissionService topicRolePermissionService,

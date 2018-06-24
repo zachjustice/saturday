@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import saturday.domain.*;
 import saturday.domain.TopicMember;
+import saturday.domain.TopicPermissions.TopicPermission;
 import saturday.domain.topicMemberStatuses.TopicMemberStatus;
 import saturday.domain.topicMemberStatuses.TopicMemberStatusAccepted;
 import saturday.domain.topicRoles.TopicRole;
@@ -18,11 +19,6 @@ public class PermissionService {
     private final TopicMemberService topicMemberService;
     private final TopicRolePermissionService topicRolePermissionService;
     private final TopicService topicService;
-
-    @Value("${saturday.topic.permission.can_invite}")
-    private int TOPIC_PERMISSION_CAN_INVITE;
-    @Value("${saturday.topic.permission.can_post}")
-    private int TOPIC_PERMISSION_CAN_POST;
 
     @Autowired
     public PermissionService(EntityService entityService, TopicMemberService topicMemberService, TopicRolePermissionService topicRolePermissionService, TopicService topicService) {
@@ -116,7 +112,7 @@ public class PermissionService {
         return isTopicMemberAllowed(
                 topicMember.getTopic().getId(),
                 topicMember.getTopicRole().getId(),
-                TOPIC_PERMISSION_CAN_INVITE
+                TopicPermission.CAN_INVITE
         );
     }
 
@@ -209,7 +205,7 @@ public class PermissionService {
         return isTopicMemberAllowed(
                 topicMember.getTopic().getId(),
                 topicMember.getTopicRole().getId(),
-                TOPIC_PERMISSION_CAN_INVITE
+                TopicPermission.CAN_INVITE
         );
     }
 
