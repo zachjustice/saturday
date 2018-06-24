@@ -1,18 +1,17 @@
 package saturday.delegates;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
+import saturday.domain.TopicMember;
+import saturday.domain.TopicPermissions.TopicPermission;
 import saturday.domain.TopicPermissions.TopicPermissionCanInvite;
 import saturday.domain.TopicPermissions.TopicPermissionCanPost;
+import saturday.domain.TopicRolePermission;
+import saturday.domain.topicMemberStatuses.TopicMemberStatus;
 import saturday.domain.topicMemberStatuses.TopicMemberStatusAccepted;
 import saturday.domain.topicRoles.TopicAdmin;
-import saturday.domain.TopicMember;
-import saturday.domain.topicMemberStatuses.TopicMemberStatus;
-import saturday.domain.TopicPermissions.TopicPermission;
-import saturday.domain.TopicRolePermission;
 import saturday.domain.topicRoles.TopicUser;
 import saturday.exceptions.AccessDeniedException;
 import saturday.services.EntityService;

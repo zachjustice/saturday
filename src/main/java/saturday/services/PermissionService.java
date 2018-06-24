@@ -1,11 +1,14 @@
 package saturday.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import saturday.domain.*;
+import saturday.domain.Entity;
+import saturday.domain.Topic;
+import saturday.domain.TopicContent;
+import saturday.domain.TopicContentRequest;
 import saturday.domain.TopicMember;
 import saturday.domain.TopicPermissions.TopicPermission;
+import saturday.domain.TopicRolePermission;
 import saturday.domain.topicMemberStatuses.TopicMemberStatus;
 import saturday.domain.topicMemberStatuses.TopicMemberStatusAccepted;
 import saturday.domain.topicRoles.TopicRole;
