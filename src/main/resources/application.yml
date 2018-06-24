@@ -12,8 +12,9 @@ spring:
     url: jdbc:postgresql://${SATURDAY_HOST}:${SATURDAY_PORT}/${SATURDAY_DB_NAME}
     username: ${SATURDAY_USERNAME}
     password: ${SATURDAY_PASSWORD}
-    tomcat:
-      validationQuery: SELECT 1;
+    hikari:
+      data-source-properties: stringtype=unspecified
+      connection-test-query: SELECT 1;
   # ==============================================================
   # = JPA for PostgreSQL
   # ==============================================================
