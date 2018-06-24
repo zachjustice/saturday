@@ -163,19 +163,20 @@ START TRANSACTION;
   ----------------------
   --   topic_members
   ----------------------
+CREATE TYPE topic_role AS ENUM ('USER', 'ADMIN');
 
   CREATE TABLE topic_members(
-    id SERIAL PRIMARY KEY,
-    entity_id INT NOT NULL REFERENCES entities(id),
-    topic_id  INT NOT NULL REFERENCES topics(id),
+    id          SERIAL PRIMARY KEY,
+    entity_id   INT        NOT NULL REFERENCES entities(id),
+    topic_id    INT        NOT NULL REFERENCES topics(id),
     -- controls whether a topic member has sent an invite, the receiver has accepted or rejected it,
     -- or if the sender canceled the invite
-    status_id INT NOT NULL REFERENCES topic_member_statuses(id) DEFAULT 1, -- default to pending
-    topic_role_id INT NOT NULL REFERENCES topic_roles(id) DEFAULT 1, -- default to USER permission
+    status_id   INT        NOT NULL references topic_member_statuses (id) default 1, -- default to pending
+    topic_role  topic_role NOT NULL                                       DEFAULT 'USER', -- default to USER permission
 
-    creator_id  INT NOT NULL REFERENCES entities(id),
+    creator_id  INT        NOT NULL REFERENCES entities(id),
     modifier_id INT REFERENCES entities(id),
-    created     TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+    created     TIMESTAMP WITHOUT TIME ZONE                               DEFAULT now(),
     modified    TIMESTAMP WITHOUT TIME ZONE,
 
     CONSTRAINT unique_topic_member UNIQUE(entity_id, topic_id)
@@ -189,18 +190,18 @@ START TRANSACTION;
   ----------------------
 
   CREATE TABLE topic_role_permissions(
-    id SERIAL PRIMARY KEY,
-    topic_id INT NOT NULL REFERENCES topics(id),
-    topic_role_id INT NOT NULL REFERENCES topic_roles(id),
-    topic_permission_id INT NOT NULL REFERENCES topic_permissions(id),
-    is_allowed BOOLEAN DEFAULT FALSE,
+    id                  SERIAL PRIMARY KEY,
+    topic_id            INT        NOT NULL REFERENCES topics(id),
+    topic_role          topic_role NOT NULL,
+    topic_permission_id INT        NOT NULL REFERENCES topic_permissions(id),
+    is_allowed          BOOLEAN DEFAULT FALSE,
 
-    creator_id  INT NOT NULL REFERENCES entities(id),
-    modifier_id INT REFERENCES entities(id),
-    created     TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
-    modified    TIMESTAMP WITHOUT TIME ZONE,
+    creator_id          INT        NOT NULL REFERENCES entities(id),
+    modifier_id         INT REFERENCES entities(id),
+    created             TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
+    modified            TIMESTAMP WITHOUT TIME ZONE,
 
-    CONSTRAINT unique_topic_role_permissions UNIQUE(topic_id, topic_role_id, topic_permission_id)
+    CONSTRAINT unique_topic_role_permissions UNIQUE (topic_id, topic_role, topic_permission_id)
   );
 
   CREATE TRIGGER check_topic_role_permissions_is_not_set_to_null BEFORE UPDATE ON topic_role_permissions FOR EACH ROW EXECUTE PROCEDURE check_modifier_is_not_set_to_null();
@@ -232,12 +233,6 @@ START TRANSACTION;
     (2, 'FORGOT_PASSWORD'),
     (3, 'BEARER_TOKEN');
 
-  INSERT INTO
-    topic_roles(id, label)
-  VALUES
-    (1, 'USER'),
-    (2, 'ADMIN');
-    -- (2, 'MODERATOR'),
 
   INSERT INTO
     topic_permissions(id, label)
