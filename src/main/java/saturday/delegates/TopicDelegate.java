@@ -30,11 +30,6 @@ public class TopicDelegate {
     @Value("${saturday.topic.invite.status.accepted}")
     private int TOPIC_MEMBER_STATUS_ACCEPTED;
 
-    @Value("${saturday.topic.permission.can_post}")
-    private int TOPIC_PERMISSION_CAN_POST;
-    @Value("${saturday.topic.permission.can_invite}")
-    private int TOPIC_PERMISSION_CAN_INVITE;
-
     @Autowired
     public TopicDelegate(
             TopicService topicService,
@@ -81,14 +76,12 @@ public class TopicDelegate {
 
         // Add default topic permissions for topic users
         //   users can post and invite by default
-        int[] allPermissions = new int[]{
-                TOPIC_PERMISSION_CAN_POST,
-                TOPIC_PERMISSION_CAN_INVITE
+        TopicPermission[] allPermissions = new TopicPermission[]{
+                TopicPermission.CAN_POST,
+                TopicPermission.CAN_INVITE
         };
 
-        for(int topicPermissionId: allPermissions) {
-            TopicPermission topicPermission = new TopicPermission();
-            topicPermission.setId(topicPermissionId);
+        for (TopicPermission topicPermission : allPermissions) {
 
             TopicRolePermission adminPermission = new TopicRolePermission();
             adminPermission.setTopic(topic);

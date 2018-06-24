@@ -9,6 +9,7 @@ import saturday.domain.TopicContent;
 import saturday.domain.TopicContentRequest;
 import saturday.domain.TopicMember;
 import saturday.domain.TopicMemberStatus;
+import saturday.domain.TopicPermission;
 import saturday.domain.TopicRolePermission;
 import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ProcessingResourceException;
@@ -32,10 +33,6 @@ public class PermissionService {
     @Value("${saturday.topic.invite.status.left_topic}")
     private int TOPIC_MEMBER_STATUS_LEFT_TOPIC;
 
-    @Value("${saturday.topic.permission.can_invite}")
-    private int TOPIC_PERMISSION_CAN_INVITE;
-    @Value("${saturday.topic.permission.can_post}")
-    private int TOPIC_PERMISSION_CAN_POST;
 
     @Autowired
     public PermissionService(EntityService entityService, TopicMemberService topicMemberService, TopicRolePermissionService topicRolePermissionService, TopicService topicService) {
@@ -68,11 +65,11 @@ public class PermissionService {
         return topicMember != null;
     }
 
-    private boolean isTopicMemberAllowed(int topicId, TopicMember.TopicRole topicRole, int topicPermissionId) {
-        TopicRolePermission topicRolePermission = this.topicRolePermissionService.findByTopicIdAndTopicRoleAndTopicPermissionId(
+    private boolean isTopicMemberAllowed(int topicId, TopicMember.TopicRole topicRole, TopicPermission topicPermission) {
+        TopicRolePermission topicRolePermission = this.topicRolePermissionService.findByTopicIdAndTopicRoleAndTopicPermission(
                 topicId,
                 topicRole,
-                topicPermissionId
+                topicPermission
         );
 
         return topicRolePermission != null && topicRolePermission.getIsAllowed();
@@ -131,7 +128,7 @@ public class PermissionService {
         return isTopicMemberAllowed(
                 topicMember.getTopic().getId(),
                 topicMember.getTopicRole(),
-                TOPIC_PERMISSION_CAN_INVITE
+                TopicPermission.CAN_INVITE
         );
     }
 
@@ -224,7 +221,7 @@ public class PermissionService {
         return isTopicMemberAllowed(
                 topicMember.getTopic().getId(),
                 topicMember.getTopicRole(),
-                TOPIC_PERMISSION_CAN_INVITE
+                TopicPermission.CAN_INVITE
         );
     }
 

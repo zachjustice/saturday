@@ -1,6 +1,5 @@
 package saturday.delegates;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import saturday.domain.Topic;
 import saturday.domain.TopicRolePermission;
@@ -10,20 +9,13 @@ import saturday.services.PermissionService;
 import saturday.services.TopicRolePermissionService;
 import saturday.services.TopicService;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Component
 public class TopicRolePermissionDelegate {
     private final TopicService topicService;
     private final TopicRolePermissionService topicRolePermissionService;
     private final PermissionService permissionService;
-
-    @Value("${saturday.topic.permission.can_post}")
-    private int TOPIC_PERMISSION_CAN_POST;
-    @Value("${saturday.topic.permission.can_invite}")
-    private int TOPIC_PERMISSION_CAN_INVITE;
 
     public TopicRolePermissionDelegate(
             TopicService topicService,

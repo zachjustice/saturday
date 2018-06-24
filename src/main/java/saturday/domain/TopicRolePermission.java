@@ -18,6 +18,7 @@ import java.util.Objects;
 @javax.persistence.Entity
 @Table(name = "topic_role_permissions")
 public class TopicRolePermission {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -28,10 +29,11 @@ public class TopicRolePermission {
     private Topic topic;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "topic_role", nullable = false)
     private TopicMember.TopicRole topicRole;
 
-    @ManyToOne
-    @JoinColumn(name="topic_permission_id", referencedColumnName = "id", nullable=false, updatable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "topic_permission", nullable = false)
     private TopicPermission topicPermission;
 
     @Column(name = "is_allowed", nullable = false)

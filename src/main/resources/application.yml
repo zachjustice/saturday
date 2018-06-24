@@ -117,9 +117,6 @@ saturday:
       max_length: 20
     description:
       max_length: 150
-    permission:
-       can_post: 1
-       can_invite: 2
     invite:
       status:
         pending: 1

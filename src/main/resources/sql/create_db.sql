@@ -143,24 +143,6 @@ START TRANSACTION;
   );
 
   ----------------------
-  --   topic_permissions
-  ----------------------
-
-  CREATE TABLE topic_permissions(
-    id SERIAL PRIMARY KEY,
-    label VARCHAR(50) UNIQUE NOT NULL
-  );
-
-  ----------------------
-  --   topic_roles
-  ----------------------
-
-  CREATE TABLE topic_roles(
-    id SERIAL PRIMARY KEY,
-    label VARCHAR(50) UNIQUE NOT NULL
-  );
-
-  ----------------------
   --   topic_members
   ----------------------
 CREATE TYPE topic_role AS ENUM ('USER', 'ADMIN');
@@ -171,7 +153,7 @@ CREATE TYPE topic_role AS ENUM ('USER', 'ADMIN');
     topic_id    INT        NOT NULL REFERENCES topics(id),
     -- controls whether a topic member has sent an invite, the receiver has accepted or rejected it,
     -- or if the sender canceled the invite
-    status_id   INT        NOT NULL references topic_member_statuses (id) default 1, -- default to pending
+    status_id   INT        NOT NULL REFERENCES topic_member_statuses (id) DEFAULT 1, -- default to pending
     topic_role  topic_role NOT NULL                                       DEFAULT 'USER', -- default to USER permission
 
     creator_id  INT        NOT NULL REFERENCES entities(id),
@@ -188,15 +170,16 @@ CREATE TYPE topic_role AS ENUM ('USER', 'ADMIN');
   ----------------------
   --   topic_role_permissions
   ----------------------
+CREATE TYPE topic_permission AS ENUM ('CAN_POST', 'CAN_INVITE');
 
   CREATE TABLE topic_role_permissions(
     id                  SERIAL PRIMARY KEY,
-    topic_id            INT        NOT NULL REFERENCES topics(id),
-    topic_role          topic_role NOT NULL,
-    topic_permission_id INT        NOT NULL REFERENCES topic_permissions(id),
-    is_allowed          BOOLEAN DEFAULT FALSE,
+    topic_id            INT              NOT NULL REFERENCES topics (id),
+    topic_role          topic_role       NOT NULL,
+    topic_permission_id topic_permission NOT NULL,
+    is_allowed          BOOLEAN                     DEFAULT FALSE,
 
-    creator_id          INT        NOT NULL REFERENCES entities(id),
+    creator_id          INT              NOT NULL REFERENCES entities (id),
     modifier_id         INT REFERENCES entities(id),
     created             TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
     modified            TIMESTAMP WITHOUT TIME ZONE,
@@ -232,17 +215,5 @@ CREATE TYPE topic_role AS ENUM ('USER', 'ADMIN');
     (1, 'EMAIL_CONFIRMATION'),
     (2, 'FORGOT_PASSWORD'),
     (3, 'BEARER_TOKEN');
-
-
-  INSERT INTO
-    topic_permissions(id, label)
-  VALUES
-    (1, 'CAN_POST'),
-    (2, 'CAN_INVITE');
-    -- (3, 'CAN_DELETE_TOPIC_CONTENT'),
-    -- (4, 'CAN_REMOVE_MEMBERS'),
-    -- (5, 'CAN_CANCEL_INVITES'),
-    -- (6, 'CAN_EDIT_GROUP_INFO'),
-    -- (7, 'CAN_PROMOTE_USERS');
 
 COMMIT;

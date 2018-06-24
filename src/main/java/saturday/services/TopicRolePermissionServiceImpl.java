@@ -4,12 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import saturday.domain.Entity;
 import saturday.domain.TopicMember;
+import saturday.domain.TopicPermission;
 import saturday.domain.TopicRolePermission;
 import saturday.repositories.TopicRolePermissionRepository;
 
 import java.util.List;
 
-@Service("topicRolePermissionServiceImpl ")
+@Service()
 public class TopicRolePermissionServiceImpl implements TopicRolePermissionService {
     private final EntityService entityService;
     private final TopicRolePermissionRepository topicRolePermissionRepository;
@@ -38,10 +39,10 @@ public class TopicRolePermissionServiceImpl implements TopicRolePermissionServic
             throw new IllegalArgumentException("Failed to save topicRolePermission. Null topicRolePermission.");
         }
 
-        TopicRolePermission existingTopicRolePermission = topicRolePermissionRepository.findByTopicIdAndTopicRoleAndTopicPermissionId(
+        TopicRolePermission existingTopicRolePermission = topicRolePermissionRepository.findByTopicIdAndTopicRoleAndTopicPermission(
                 topicRolePermission.getTopic().getId(),
                 topicRolePermission.getTopicRole(),
-                topicRolePermission.getTopicPermission().getId()
+                topicRolePermission.getTopicPermission()
         );
 
         // TODO improve
@@ -84,15 +85,15 @@ public class TopicRolePermissionServiceImpl implements TopicRolePermissionServic
     }
 
     @Override
-    public TopicRolePermission findByTopicIdAndTopicRoleAndTopicPermissionId(
+    public TopicRolePermission findByTopicIdAndTopicRoleAndTopicPermission(
             int topicId,
             TopicMember.TopicRole topicRole,
-            int topicPermissionId
+            TopicPermission topicPermission
     ) {
-        return this.topicRolePermissionRepository.findByTopicIdAndTopicRoleAndTopicPermissionId(
+        return this.topicRolePermissionRepository.findByTopicIdAndTopicRoleAndTopicPermission(
                 topicId,
                 topicRole,
-                topicPermissionId
+                topicPermission
         );
     }
 }
