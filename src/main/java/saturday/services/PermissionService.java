@@ -32,11 +32,6 @@ public class PermissionService {
     @Value("${saturday.topic.invite.status.left_topic}")
     private int TOPIC_MEMBER_STATUS_LEFT_TOPIC;
 
-    @Value("${saturday.topic.role.admin}")
-    private int TOPIC_ROLE_ADMIN;
-    @Value("${saturday.topic.role.user}")
-    private int TOPIC_ROLE_USER;
-
     @Value("${saturday.topic.permission.can_invite}")
     private int TOPIC_PERMISSION_CAN_INVITE;
     @Value("${saturday.topic.permission.can_post}")

@@ -120,9 +120,6 @@ saturday:
     permission:
        can_post: 1
        can_invite: 2
-    role:
-      user: 1
-      admin: 2
     invite:
       status:
         pending: 1
