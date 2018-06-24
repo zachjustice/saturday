@@ -7,6 +7,7 @@ import saturday.domain.*;
 import saturday.domain.TopicMember;
 import saturday.domain.topicMemberStatuses.TopicMemberStatus;
 import saturday.domain.topicMemberStatuses.TopicMemberStatusAccepted;
+import saturday.domain.topicRoles.TopicRole;
 import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ProcessingResourceException;
 import saturday.exceptions.ResourceNotFoundException;
@@ -17,22 +18,6 @@ public class PermissionService {
     private final TopicMemberService topicMemberService;
     private final TopicRolePermissionService topicRolePermissionService;
     private final TopicService topicService;
-
-    @Value("${saturday.topic.invite.status.pending}")
-    private int TOPIC_MEMBER_STATUS_PENDING;
-    @Value("${saturday.topic.invite.status.accepted}")
-    private int TOPIC_MEMBER_STATUS_ACCEPTED;
-    @Value("${saturday.topic.invite.status.rejected}")
-    private int TOPIC_MEMBER_STATUS_REJECTED;
-    @Value("${saturday.topic.invite.status.rescinded}")
-    private int TOPIC_MEMBER_STATUS_RESCINDED;
-    @Value("${saturday.topic.invite.status.left_topic}")
-    private int TOPIC_MEMBER_STATUS_LEFT_TOPIC;
-
-    @Value("${saturday.topic.role.admin}")
-    private int TOPIC_ROLE_ADMIN;
-    @Value("${saturday.topic.role.user}")
-    private int TOPIC_ROLE_USER;
 
     @Value("${saturday.topic.permission.can_invite}")
     private int TOPIC_PERMISSION_CAN_INVITE;
@@ -123,7 +108,7 @@ public class PermissionService {
             return false;
         }
 
-        if (topicMember.getTopicRole().getId() == TOPIC_ROLE_ADMIN) {
+        if (topicMember.getTopicRole().getId() == TopicRole.ADMIN) {
             return true;
         }
 
@@ -216,7 +201,7 @@ public class PermissionService {
             return false;
         }
 
-        if (topicMember.getTopicRole().getId() == TOPIC_ROLE_ADMIN) {
+        if (topicMember.getTopicRole().getId() == TopicRole.ADMIN) {
             return true;
         }
 
@@ -322,52 +307,52 @@ public class PermissionService {
         if(oldTopicMember.getStatus().getId() == newTopicMember.getStatus().getId()) {
             // If there was no change to the topic member status, then we're all good
             return true;
-        } else if(oldTopicMember.getStatus().getId()          == TOPIC_MEMBER_STATUS_PENDING
-                && newTopicMember.getStatus().getId()  == TOPIC_MEMBER_STATUS_RESCINDED
+        } else if(oldTopicMember.getStatus().getId()          == TopicMemberStatus.PENDING
+                && newTopicMember.getStatus().getId()  == TopicMemberStatus.RESCINDED
                 && oldTopicMember.getCreator().getId() == authenticatedEntity.getId()) {
 
             // Validate pending -> rescinded transition
             //    you sent the invite, but want to take it back
             //    auth'ed entity must be creator
             return true;
-        } else if(oldTopicMember.getStatus().getId()       == TOPIC_MEMBER_STATUS_ACCEPTED
-                    && newTopicMember.getStatus().getId()  == TOPIC_MEMBER_STATUS_RESCINDED
+        } else if(oldTopicMember.getStatus().getId()       == TopicMemberStatus.ACCEPTED
+                    && newTopicMember.getStatus().getId()  == TopicMemberStatus.RESCINDED
                     && oldTopicMember.getCreator().getId() == authenticatedEntity.getId()) {
 
             // Validate pending -> rescinded transition
             //    someone accepted an invite, but you want to remove them
             //    auth'ed entity must be creator
             return true;
-        } else if(oldTopicMember.getStatus().getId()   == TOPIC_MEMBER_STATUS_PENDING
-                && newTopicMember.getStatus().getId()  == TOPIC_MEMBER_STATUS_ACCEPTED
+        } else if(oldTopicMember.getStatus().getId()   == TopicMemberStatus.PENDING
+                && newTopicMember.getStatus().getId()  == TopicMemberStatus.ACCEPTED
                 && oldTopicMember.getEntity().getId()  == authenticatedEntity.getId()) {
             // Validate pending -> accepted transition
             //    you send an invite, and someone accepts
             //    auth'ed entity must be future member
             return true;
-        } else if(oldTopicMember.getStatus().getId()   == TOPIC_MEMBER_STATUS_PENDING
-                && newTopicMember.getStatus().getId()  == TOPIC_MEMBER_STATUS_REJECTED
+        } else if(oldTopicMember.getStatus().getId()   == TopicMemberStatus.PENDING
+                && newTopicMember.getStatus().getId()  == TopicMemberStatus.REJECTED
                 && oldTopicMember.getEntity().getId()  == authenticatedEntity.getId()) {
             // Validate pending -> rejected transition
             //    you send an invite, and they reject it
             //    auth'ed entity must be future member
             return true;
-        } else if(oldTopicMember.getStatus().getId()   == TOPIC_MEMBER_STATUS_ACCEPTED
-                && newTopicMember.getStatus().getId()  == TOPIC_MEMBER_STATUS_LEFT_TOPIC
+        } else if(oldTopicMember.getStatus().getId()   == TopicMemberStatus.ACCEPTED
+                && newTopicMember.getStatus().getId()  == TopicMemberStatus.LEFT_TOPIC
                 && oldTopicMember.getEntity().getId()  == authenticatedEntity.getId()) {
             // Validate accepted -> left transition
             //    someone accepts an invite but later leaves the group
             //    auth'ed entity must be future member
             return true;
-        } else if(oldTopicMember.getStatus().getId()   == TOPIC_MEMBER_STATUS_RESCINDED
-                && newTopicMember.getStatus().getId()  == TOPIC_MEMBER_STATUS_PENDING
+        } else if(oldTopicMember.getStatus().getId()   == TopicMemberStatus.RESCINDED
+                && newTopicMember.getStatus().getId()  == TopicMemberStatus.PENDING
                 && oldTopicMember.getCreator().getId()  == authenticatedEntity.getId()) {
             // Validate rescinded -> pending left transition
             //    you rescind an invite, but then change your mind again
             //    auth'ed entity must be future member
             return true;
-        } else if(oldTopicMember.getStatus().getId()   == TOPIC_MEMBER_STATUS_REJECTED
-                && newTopicMember.getStatus().getId()  == TOPIC_MEMBER_STATUS_ACCEPTED
+        } else if(oldTopicMember.getStatus().getId()   == TopicMemberStatus.REJECTED
+                && newTopicMember.getStatus().getId()  == TopicMemberStatus.ACCEPTED
                 && oldTopicMember.getEntity().getId()  == authenticatedEntity.getId()) {
             // Validate rejected -> accepted transition
             //    you reject an invite, but change your mind
@@ -399,10 +384,7 @@ public class PermissionService {
             return false;
         }
 
-        if (topicMember.getTopicRole().getId() != TOPIC_ROLE_ADMIN) {
-            return false;
-        }
+        return topicMember.getTopicRole().getId() == TopicRole.ADMIN;
 
-        return true;
     }
 }

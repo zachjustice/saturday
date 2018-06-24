@@ -30,14 +30,6 @@ public class TopicDelegate {
     private final TopicRolePermissionService topicRolePermissionService;
     private final PermissionService permissionService;
 
-    @Value("${saturday.topic.invite.status.accepted}")
-    private int TOPIC_MEMBER_STATUS_ACCEPTED;
-
-    @Value("${saturday.topic.role.user}")
-    private int TOPIC_ROLE_USER;
-    @Value("${saturday.topic.role.admin}")
-    private int TOPIC_ROLE_ADMIN;
-
     @Value("${saturday.topic.permission.can_post}")
     private int TOPIC_PERMISSION_CAN_POST;
     @Value("${saturday.topic.permission.can_invite}")
@@ -119,6 +111,6 @@ public class TopicDelegate {
             throw new AccessDeniedException();
         }
 
-        return this.topicService.findByEntityIdAndTopicMemberStatusId(entityId, TOPIC_MEMBER_STATUS_ACCEPTED);
+        return this.topicService.findByEntityIdAndTopicMemberStatusId(entityId, TopicMemberStatus.ACCEPTED);
     }
 }

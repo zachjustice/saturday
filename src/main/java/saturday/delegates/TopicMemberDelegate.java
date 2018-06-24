@@ -1,10 +1,10 @@
 package saturday.delegates;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicMember;
+import saturday.domain.topicMemberStatuses.TopicMemberStatus;
 import saturday.domain.topicRoles.TopicUser;
 import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.ResourceNotFoundException;
@@ -22,12 +22,6 @@ public class TopicMemberDelegate {
     private final TopicService topicService;
     private final EntityService entityService;
     private final PermissionService permissionService;
-
-
-    @Value("${saturday.topic.invite.status.accepted}")
-    private int TOPIC_MEMBER_STATUS_ACCEPTED;
-    @Value("${saturday.topic.invite.status.pending}")
-    private int TOPIC_MEMBER_STATUS_PENDING;
 
     public TopicMemberDelegate(
             TopicMemberService topicMemberService,
@@ -75,8 +69,8 @@ public class TopicMemberDelegate {
         return topicMemberService.findByTopicId(topicId)
                 .stream()
                 .filter(topicMember ->
-                        topicMember.getStatus().getId() == TOPIC_MEMBER_STATUS_PENDING
-                        || topicMember.getStatus().getId() == TOPIC_MEMBER_STATUS_ACCEPTED)
+                        topicMember.getStatus().getId() == TopicMemberStatus.PENDING
+                        || topicMember.getStatus().getId() == TopicMemberStatus.ACCEPTED)
                 .collect(Collectors.toList());
     }
 }

@@ -11,8 +11,8 @@ import java.util.Objects;
 @Table(name = "topic_roles")
 public class TopicRole {
 
-    public final static int TOPIC_ROLE_ADMIN = 2;
-    public final static int TOPIC_ROLE_USER = 1;
+    public final static int ADMIN = 2;
+    public final static int USER = 1;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -24,11 +24,6 @@ public class TopicMemberServiceImpl implements TopicMemberService {
     private final TopicMemberRepository topicMemberRepository;
     private final EntityService entityService;
 
-    @Value("${saturday.topic.invite.status.pending}")
-    private int TOPIC_MEMBER_STATUS_PENDING;
-    @Value("${saturday.topic.role.user}")
-    private int TOPIC_ROLE_USER;
-
     @Autowired
     TopicMemberServiceImpl(TopicMemberRepository topicMemberRepository, EntityService entityService) {
         this.topicMemberRepository = topicMemberRepository;
@@ -163,7 +158,7 @@ public class TopicMemberServiceImpl implements TopicMemberService {
         List<TopicMember> topicMembers = topicMemberRepository.findAllByCreatorOrEntityAndStatus(
                 involvedParty.getId(),
                 involvedParty.getId(),
-                TOPIC_MEMBER_STATUS_PENDING
+                TopicMemberStatus.PENDING
         );
 
         Map<String, List<TopicMember>> sentAndReceivedTopicInvites = topicMembers
