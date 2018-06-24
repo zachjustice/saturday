@@ -7,8 +7,7 @@ import org.springframework.stereotype.Service;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicMember;
-import saturday.domain.topicMemberStatuses.TopicMemberStatus;
-import saturday.domain.topicRoles.TopicUser;
+import saturday.domain.TopicMemberStatus;
 import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ResourceNotFoundException;
 import saturday.repositories.TopicMemberRepository;
@@ -65,8 +64,7 @@ public class TopicMemberServiceImpl implements TopicMemberService {
 
         if (topicMember.getTopicRole() == null) {
             // new topic members default to the USER role
-            TopicUser userTopicRole = new TopicUser();
-            topicMember.setTopicRole(userTopicRole);
+            topicMember.setTopicRole(TopicMember.TopicRole.USER);
         }
 
         // The default value for the creator of a topic member is the current user
@@ -191,9 +189,9 @@ public class TopicMemberServiceImpl implements TopicMemberService {
     }
 
     @Override
-    public List<TopicMember> findByEntityIdAndTopicRoleId(int entityId, int topicRoleId) {
+    public List<TopicMember> findByEntityIdAndTopicRole(int entityId, TopicMember.TopicRole topicRole) {
         try {
-            return topicMemberRepository.findByEntityIdAndTopicRoleId(entityId, topicRoleId);
+            return topicMemberRepository.findByEntityIdAndTopicRole(entityId, topicRole);
         } catch (org.springframework.data.rest.webmvc.ResourceNotFoundException ex) {
             return new ArrayList<>();
         }

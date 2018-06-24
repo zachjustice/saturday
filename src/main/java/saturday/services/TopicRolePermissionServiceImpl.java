@@ -3,6 +3,7 @@ package saturday.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import saturday.domain.Entity;
+import saturday.domain.TopicMember;
 import saturday.domain.TopicRolePermission;
 import saturday.repositories.TopicRolePermissionRepository;
 
@@ -37,9 +38,9 @@ public class TopicRolePermissionServiceImpl implements TopicRolePermissionServic
             throw new IllegalArgumentException("Failed to save topicRolePermission. Null topicRolePermission.");
         }
 
-        TopicRolePermission existingTopicRolePermission = topicRolePermissionRepository.findByTopicIdAndTopicRoleIdAndTopicPermissionId(
+        TopicRolePermission existingTopicRolePermission = topicRolePermissionRepository.findByTopicIdAndTopicRoleAndTopicPermissionId(
                 topicRolePermission.getTopic().getId(),
-                topicRolePermission.getTopicRole().getId(),
+                topicRolePermission.getTopicRole(),
                 topicRolePermission.getTopicPermission().getId()
         );
 
@@ -83,14 +84,14 @@ public class TopicRolePermissionServiceImpl implements TopicRolePermissionServic
     }
 
     @Override
-    public TopicRolePermission findByTopicIdAndTopicRoleIdAndTopicPermissionId(
+    public TopicRolePermission findByTopicIdAndTopicRoleAndTopicPermissionId(
             int topicId,
-            int topicRoleId,
+            TopicMember.TopicRole topicRole,
             int topicPermissionId
     ) {
-        return this.topicRolePermissionRepository.findByTopicIdAndTopicRoleIdAndTopicPermissionId(
+        return this.topicRolePermissionRepository.findByTopicIdAndTopicRoleAndTopicPermissionId(
                 topicId,
-                topicRoleId,
+                topicRole,
                 topicPermissionId
         );
     }

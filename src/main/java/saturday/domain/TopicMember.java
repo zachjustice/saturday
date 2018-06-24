@@ -2,16 +2,25 @@ package saturday.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import saturday.domain.topicMemberStatuses.TopicMemberStatus;
-import saturday.domain.topicRoles.TopicRole;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.util.Date;
 import java.util.Objects;
 
 @javax.persistence.Entity
 @Table(name = "topic_members")
 public class TopicMember {
+
+    public enum TopicRole {USER, ADMIN}
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -29,8 +38,7 @@ public class TopicMember {
     @JoinColumn(name="status_id", referencedColumnName = "id", nullable = false)
     private TopicMemberStatus status;
 
-    @ManyToOne
-    @JoinColumn(name="topic_role_id", referencedColumnName = "id", nullable = false)
+    @Enumerated(EnumType.STRING)
     private TopicRole topicRole;
 
     @ManyToOne

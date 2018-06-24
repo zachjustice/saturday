@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import saturday.delegates.TopicMemberDelegate;
 import saturday.domain.Entity;
 import saturday.domain.TopicMember;
-import saturday.domain.topicMemberStatuses.TopicMemberStatus;
+import saturday.domain.TopicMemberStatus;
 import saturday.exceptions.AccessDeniedException;
 import saturday.publishers.SaturdayEventPublisher;
 import saturday.services.EntityService;

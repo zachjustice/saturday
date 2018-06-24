@@ -137,13 +137,13 @@ public class TopicController {
     /**
      * Get topics for which the given entity is of the given topic role
      * @param entityId Entity Id
-     * @param topicRoleId Topic Role Id
+     * @param topicRole Topic Role
      * @return List of Topic matching the search criteria
      */
-    @RequestMapping(value = "/entities/{entity_id}/topic_roles/{topic_role_id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/entities/{entity_id}/topic_roles/{topic_role}", method = RequestMethod.GET)
     public ResponseEntity<List<Topic>> getTopicsEntityIsAdminOf(
             @PathVariable(value = "entity_id") int entityId,
-            @PathVariable(value = "topic_role_id") int topicRoleId
+            @PathVariable(value = "topic_role") TopicMember.TopicRole topicRole
     ) {
 
         Entity entity = entityService.findEntityById(entityId);
@@ -152,7 +152,7 @@ public class TopicController {
             throw new AccessDeniedException();
         }
 
-        List<Topic> topicsEntityIsAdminOf = topicMemberService.findByEntityIdAndTopicRoleId(entityId, topicRoleId)
+        List<Topic> topicsEntityIsAdminOf = topicMemberService.findByEntityIdAndTopicRole(entityId, topicRole)
                 .stream()
                 .map(TopicMember::getTopic)
                 .collect(Collectors.toList());

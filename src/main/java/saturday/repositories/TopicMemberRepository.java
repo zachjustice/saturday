@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicMember;
-import saturday.domain.topicMemberStatuses.TopicMemberStatus;
+import saturday.domain.TopicMemberStatus;
 
 import java.util.List;
 
@@ -20,7 +20,7 @@ public interface TopicMemberRepository extends JpaRepository<TopicMember, Intege
     List<TopicMember> findByTopicId(int id);
 
     @Query(
-        value = "select id, entity_id, status_id, topic_id, topic_role_id, creator_id, modifier_id, created, modified from topic_members where (creator_id = :creator_id or entity_id = :entity_id) and status_id = :status_id",
+            value = "select id, entity_id, status_id, topic_id, topic_role, creator_id, modifier_id, created, modified from topic_members where (creator_id = :creator_id or entity_id = :entity_id) and status_id = :status_id",
         nativeQuery = true
     )
     List<TopicMember> findAllByCreatorOrEntityAndStatus(
@@ -29,7 +29,7 @@ public interface TopicMemberRepository extends JpaRepository<TopicMember, Intege
             @Param("status_id") int statusId
     );
 
-    List<TopicMember> findByEntityIdAndTopicRoleId(int entityId, int topicRoleId);
+    List<TopicMember> findByEntityIdAndTopicRole(int entityId, TopicMember.TopicRole topicRole);
 
     TopicMember findByEntityIdAndTopicId(int entityId, int topicId);
 }

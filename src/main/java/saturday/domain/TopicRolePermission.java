@@ -2,9 +2,10 @@ package saturday.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import saturday.domain.topicRoles.TopicRole;
 
 import javax.persistence.Column;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -26,9 +27,8 @@ public class TopicRolePermission {
     @JoinColumn(name="topic_id", referencedColumnName = "id", nullable=false, updatable = false)
     private Topic topic;
 
-    @ManyToOne
-    @JoinColumn(name="topic_role_id", referencedColumnName = "id", nullable=false, updatable = false)
-    private TopicRole topicRole;
+    @Enumerated(EnumType.STRING)
+    private TopicMember.TopicRole topicRole;
 
     @ManyToOne
     @JoinColumn(name="topic_permission_id", referencedColumnName = "id", nullable=false, updatable = false)
@@ -71,11 +71,11 @@ public class TopicRolePermission {
         this.topic = topic;
     }
 
-    public TopicRole getTopicRole() {
+    public TopicMember.TopicRole getTopicRole() {
         return topicRole;
     }
 
-    public void setTopicRole(TopicRole topicRole) {
+    public void setTopicRole(TopicMember.TopicRole topicRole) {
         this.topicRole = topicRole;
     }
 

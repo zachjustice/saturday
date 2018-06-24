@@ -1,5 +1,6 @@
 package saturday.services;
 
+import saturday.domain.TopicMember;
 import saturday.domain.TopicRolePermission;
 
 import java.util.List;
@@ -10,5 +11,6 @@ public interface TopicRolePermissionService {
     List<TopicRolePermission> findByTopicId(int topicId);
 
     List<TopicRolePermission> findByTopicIdAndIsAllowed(int id, boolean isAllowed);
-    TopicRolePermission findByTopicIdAndTopicRoleIdAndTopicPermissionId(int topicId, int topicRoleId, int topicPermissionId);
+
+    TopicRolePermission findByTopicIdAndTopicRoleAndTopicPermissionId(int topicId, TopicMember.TopicRole topicRole, int topicPermissionId);
 }

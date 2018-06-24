@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicMember;
-import saturday.domain.topicRoles.TopicUser;
 import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.ResourceNotFoundException;
 import saturday.services.EntityService;
@@ -60,7 +59,7 @@ public class TopicMemberDelegate {
         TopicMember topicMember = new TopicMember();
         topicMember.setEntity(entity);
         topicMember.setTopic(topic);
-        topicMember.setTopicRole(new TopicUser());
+        topicMember.setTopicRole(TopicMember.TopicRole.USER);
 
         return topicMemberService.save(topicMember);
     }

@@ -5,12 +5,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
-import saturday.domain.topicRoles.TopicAdmin;
 import saturday.domain.TopicMember;
-import saturday.domain.topicMemberStatuses.TopicMemberStatus;
+import saturday.domain.TopicMemberStatus;
 import saturday.domain.TopicPermission;
 import saturday.domain.TopicRolePermission;
-import saturday.domain.topicRoles.TopicUser;
 import saturday.exceptions.AccessDeniedException;
 import saturday.services.EntityService;
 import saturday.services.PermissionService;
@@ -77,13 +75,11 @@ public class TopicDelegate {
         TopicMemberStatus acceptedStatus = new TopicMemberStatus();
         acceptedStatus.setId(TOPIC_MEMBER_STATUS_ACCEPTED);
 
-        TopicAdmin adminTopicRole = new TopicAdmin();
-
         TopicMember topicMember = new TopicMember();
         topicMember.setTopic(topic);
         topicMember.setCreator(currentEntity);
         topicMember.setEntity(currentEntity);
-        topicMember.setTopicRole(adminTopicRole);
+        topicMember.setTopicRole(TopicMember.TopicRole.ADMIN);
 
         topicMember.setStatus(acceptedStatus);
         topicMemberService.save(topicMember);
@@ -96,14 +92,12 @@ public class TopicDelegate {
         };
 
         for(int topicPermissionId: allPermissions) {
-            TopicUser userTopicRole = new TopicUser();
-
             TopicPermission topicPermission = new TopicPermission();
             topicPermission.setId(topicPermissionId);
 
             TopicRolePermission adminPermission = new TopicRolePermission();
             adminPermission.setTopic(topic);
-            adminPermission.setTopicRole(userTopicRole);
+            adminPermission.setTopicRole(TopicMember.TopicRole.USER);
             adminPermission.setTopicPermission(topicPermission);
             adminPermission.setIsAllowed(true);
 

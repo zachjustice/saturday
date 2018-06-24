@@ -3,9 +3,13 @@ package saturday.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import saturday.domain.*;
+import saturday.domain.Entity;
+import saturday.domain.Topic;
+import saturday.domain.TopicContent;
+import saturday.domain.TopicContentRequest;
 import saturday.domain.TopicMember;
-import saturday.domain.topicMemberStatuses.TopicMemberStatus;
+import saturday.domain.TopicMemberStatus;
+import saturday.domain.TopicRolePermission;
 import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ProcessingResourceException;
 import saturday.exceptions.ResourceNotFoundException;
@@ -69,10 +73,10 @@ public class PermissionService {
         return topicMember != null;
     }
 
-    private boolean isTopicMemberAllowed(int topicId, int topicRoleId, int topicPermissionId) {
-        TopicRolePermission topicRolePermission = this.topicRolePermissionService.findByTopicIdAndTopicRoleIdAndTopicPermissionId(
+    private boolean isTopicMemberAllowed(int topicId, TopicMember.TopicRole topicRole, int topicPermissionId) {
+        TopicRolePermission topicRolePermission = this.topicRolePermissionService.findByTopicIdAndTopicRoleAndTopicPermissionId(
                 topicId,
-                topicRoleId,
+                topicRole,
                 topicPermissionId
         );
 
@@ -124,14 +128,14 @@ public class PermissionService {
             return false;
         }
 
-        if (topicMember.getTopicRole().getId() == TOPIC_ROLE_ADMIN) {
+        if (topicMember.getTopicRole() == TopicMember.TopicRole.ADMIN) {
             return true;
         }
 
         // only topic members with the provided invite can send invites. Admins can always send invites.
         return isTopicMemberAllowed(
                 topicMember.getTopic().getId(),
-                topicMember.getTopicRole().getId(),
+                topicMember.getTopicRole(),
                 TOPIC_PERMISSION_CAN_INVITE
         );
     }
@@ -218,14 +222,14 @@ public class PermissionService {
             return false;
         }
 
-        if (topicMember.getTopicRole().getId() == TOPIC_ROLE_ADMIN) {
+        if (topicMember.getTopicRole() == TopicMember.TopicRole.ADMIN) {
             return true;
         }
 
         // only topic members with the correct permissions can post. Admins can always post.
         return isTopicMemberAllowed(
                 topicMember.getTopic().getId(),
-                topicMember.getTopicRole().getId(),
+                topicMember.getTopicRole(),
                 TOPIC_PERMISSION_CAN_INVITE
         );
     }
@@ -401,7 +405,7 @@ public class PermissionService {
             return false;
         }
 
-        if (topicMember.getTopicRole().getId() != TOPIC_ROLE_ADMIN) {
+        if (topicMember.getTopicRole() == TopicMember.TopicRole.ADMIN) {
             return false;
         }
 

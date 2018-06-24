@@ -3,7 +3,7 @@ package saturday.services;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicMember;
-import saturday.domain.topicMemberStatuses.TopicMemberStatus;
+import saturday.domain.TopicMemberStatus;
 
 import java.util.List;
 import java.util.Map;
@@ -27,5 +27,5 @@ public interface TopicMemberService {
 
     Map<String, List<TopicMember>> getSentAndReceivedTopicInvites(Entity involvedParty);
 
-    List<TopicMember> findByEntityIdAndTopicRoleId(int entityId, int topicRoleId);
+    List<TopicMember> findByEntityIdAndTopicRole(int entityId, TopicMember.TopicRole topicRole);
 }
