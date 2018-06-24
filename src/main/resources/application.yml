@@ -13,7 +13,6 @@ spring:
     username: ${SATURDAY_USERNAME}
     password: ${SATURDAY_PASSWORD}
     hikari:
-      data-source-properties: stringtype=unspecified
       connection-test-query: SELECT 1;
   # ==============================================================
   # = JPA for PostgreSQL
