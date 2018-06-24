@@ -25,20 +25,23 @@ public class TopicMemberStatus {
     @Column(name="label")
     private String label;
 
-    public int getId() {
-        return id;
-    }
+    public TopicMemberStatus() {}
 
-    public void setId(int id) {
+    public TopicMemberStatus(int id) {
         this.id = id;
     }
 
-    public String getLabel() {
-        return label;
+    public TopicMemberStatus(int id, String label) {
+        this.id = id;
+        this.label = label;
     }
 
-    public void setLabel(String label) {
-        this.label = label;
+
+    public int getId() {
+        return id;
+    }
+    public String getLabel() {
+        return label;
     }
 
     @Override

@@ -136,8 +136,7 @@ public class TopicMemberController {
             @PathVariable(value = "topic_id") int topicId,
             @PathVariable(value = "topic_member_status_id") int topicMemberStatusId
     ) {
-        TopicMemberStatus topicMemberStatus = new TopicMemberStatus();
-        topicMemberStatus.setId(topicMemberStatusId);
+        TopicMemberStatus topicMemberStatus = new TopicMemberStatus(topicMemberStatusId);
 
         TopicMember topicMember = topicMemberService.findByEntityIdAndTopicId(entityId, topicId);
         topicMember.setStatus(topicMemberStatus);

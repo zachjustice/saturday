@@ -8,6 +8,7 @@ import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicMember;
 import saturday.domain.topicMemberStatuses.TopicMemberStatus;
+import saturday.domain.topicMemberStatuses.TopicMemberStatusPending;
 import saturday.domain.topicRoles.TopicUser;
 import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ResourceNotFoundException;
@@ -58,8 +59,7 @@ public class TopicMemberServiceImpl implements TopicMemberService {
 
         if(topicMember.getStatus() == null) {
             // new topic members have a default status of pending if no status is provided
-            TopicMemberStatus pendingStatus = new TopicMemberStatus();
-            pendingStatus.setId(TOPIC_MEMBER_STATUS_PENDING);
+            TopicMemberStatus pendingStatus = new TopicMemberStatusPending();
             topicMember.setStatus(pendingStatus);
         }
 

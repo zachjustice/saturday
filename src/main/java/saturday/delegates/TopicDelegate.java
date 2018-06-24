@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
+import saturday.domain.topicMemberStatuses.TopicMemberStatusAccepted;
 import saturday.domain.topicRoles.TopicAdmin;
 import saturday.domain.TopicMember;
 import saturday.domain.topicMemberStatuses.TopicMemberStatus;
@@ -74,9 +75,7 @@ public class TopicDelegate {
         // Add creator of the topic as the only topic member with a role of admin
         Entity currentEntity = entityService.getAuthenticatedEntity();
 
-        TopicMemberStatus acceptedStatus = new TopicMemberStatus();
-        acceptedStatus.setId(TOPIC_MEMBER_STATUS_ACCEPTED);
-
+        TopicMemberStatus acceptedStatus = new TopicMemberStatusAccepted();
         TopicAdmin adminTopicRole = new TopicAdmin();
 
         TopicMember topicMember = new TopicMember();

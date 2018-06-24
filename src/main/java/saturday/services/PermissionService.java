@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import saturday.domain.*;
 import saturday.domain.TopicMember;
 import saturday.domain.topicMemberStatuses.TopicMemberStatus;
+import saturday.domain.topicMemberStatuses.TopicMemberStatusAccepted;
 import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ProcessingResourceException;
 import saturday.exceptions.ResourceNotFoundException;
@@ -62,8 +63,7 @@ public class PermissionService {
         }
 
         // TODO better way to do this
-        TopicMemberStatus acceptedStatus = new TopicMemberStatus();
-        acceptedStatus.setId(TOPIC_MEMBER_STATUS_ACCEPTED);
+        TopicMemberStatus acceptedStatus = new TopicMemberStatusAccepted();
 
         TopicMember topicMember = this.topicMemberService.findByEntityAndTopicAndStatus(entity, topic, acceptedStatus);
         return topicMember != null;
@@ -116,8 +116,7 @@ public class PermissionService {
             return true;
         }
 
-        TopicMemberStatus acceptedStatus = new TopicMemberStatus();
-        acceptedStatus.setId(TOPIC_MEMBER_STATUS_ACCEPTED);
+        TopicMemberStatus acceptedStatus = new TopicMemberStatusAccepted();
         TopicMember topicMember = this.topicMemberService.findByEntityAndTopicAndStatus(authenticatedEntity, topic, acceptedStatus);
 
         if (topicMember == null) {
@@ -210,8 +209,7 @@ public class PermissionService {
         Topic topic = new Topic();
         topic.setId(topicContentRequest.getTopicId());
 
-        TopicMemberStatus acceptedStatus = new TopicMemberStatus();
-        acceptedStatus.setId(TOPIC_MEMBER_STATUS_ACCEPTED);
+        TopicMemberStatus acceptedStatus = new TopicMemberStatusAccepted();
         TopicMember topicMember = this.topicMemberService.findByEntityAndTopicAndStatus(authenticatedEntity, topic, acceptedStatus);
 
         if (topicMember == null) {

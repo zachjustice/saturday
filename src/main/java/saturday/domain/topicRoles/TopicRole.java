@@ -10,6 +10,10 @@ import java.util.Objects;
 @javax.persistence.Entity
 @Table(name = "topic_roles")
 public class TopicRole {
+
+    public final static int TOPIC_ROLE_ADMIN = 2;
+    public final static int TOPIC_ROLE_USER = 1;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -18,10 +22,9 @@ public class TopicRole {
     @Column(name = "label")
     private String role;
 
-    public TopicRole() {
-    }
+    public TopicRole() {}
 
-    public TopicRole(int id, String role) {
+    protected TopicRole(int id, String role) {
         this.id = id;
         this.role = role;
     }
@@ -30,16 +33,8 @@ public class TopicRole {
         return id;
     }
 
-    protected void setId(int id) {
-        this.id = id;
-    }
-
     public String getRole() {
         return role;
-    }
-
-    protected void setRole(String role) {
-
     }
 
     @Override
