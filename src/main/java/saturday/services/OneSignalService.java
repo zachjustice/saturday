@@ -13,9 +13,11 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import saturday.domain.Topic;
 import saturday.domain.TopicMember;
-import saturday.domain.oneSignal.*;
+import saturday.domain.oneSignal.OneSignalContents;
+import saturday.domain.oneSignal.OneSignalFilter;
+import saturday.domain.oneSignal.OneSignalNotification;
+import saturday.domain.oneSignal.OneSignalResponse;
 import saturday.utils.HTTPUtils;
-
 
 @Service()
 public class OneSignalService implements NotificationService {
