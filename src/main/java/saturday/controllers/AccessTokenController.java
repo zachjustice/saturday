@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import saturday.domain.accessTokenTypes.AccessTokenType;
+import saturday.domain.accessTokenTypes.AccessTokenTypeBearerToken;
 import saturday.domain.accessTokens.AccessToken;
 import saturday.domain.Entity;
 import saturday.domain.accessTokens.BearerToken;
@@ -168,10 +170,10 @@ public class AccessTokenController {
         Authentication auth = new UsernamePasswordAuthenticationToken(actualUser.getEmail(), null, emptyList());
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        String token = TokenAuthenticationUtils.createToken(actualUser.getEmail());
-        entityService.updateEntity(actualUser);
+        AccessToken token = new BearerToken(actualUser);
+        accessTokenService.save(token);
 
-        HTTPUtils.addAuthenticationHeader(response, token);
+        HTTPUtils.addAuthenticationHeader(response, token.getToken());
 
         return new ResponseEntity<>(actualUser, HttpStatus.OK);
     }
@@ -228,8 +230,8 @@ public class AccessTokenController {
         entityService.updateEntity(entity);
 
         // delete the access token if its valid and we've successfully updated the user
-        // TODO disable the access token to prevent re-use
         accessTokenService.deleteAccessTokenByToken(existingAccessToken.getToken());
+        accessTokenService.deleteAccessTokenByEntityAndType(entity, new AccessTokenTypeBearerToken());
 
         return new ResponseEntity<>("SUCCESS", HttpStatus.OK);
     }

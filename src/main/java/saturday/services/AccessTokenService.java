@@ -36,6 +36,10 @@ public class AccessTokenService {
         accessTokenRepository.deleteAccessTokenByToken(token);
     }
 
+    public void deleteAccessTokenByEntityAndType(Entity entity, AccessTokenType type) {
+        accessTokenRepository.deleteAccessTokenByEntityAndType(entity, type);
+    }
+
     /**
      * Retrieve an access token. Useful for determining if an access token is valid.
      *
