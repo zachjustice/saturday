@@ -11,8 +11,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import saturday.filters.JWTAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import saturday.filters.AuthenticationFilter;
+import saturday.services.AccessTokenService;
 
 import javax.sql.DataSource;
 
@@ -27,11 +28,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final DataSource dataSource;
+    private final AccessTokenService accessTokenService;
 
     @Autowired
-    public WebSecurityConfig(BCryptPasswordEncoder bCryptPasswordEncoder, @Qualifier("dataSource") DataSource dataSource) {
+    public WebSecurityConfig(
+            BCryptPasswordEncoder bCryptPasswordEncoder,
+            @Qualifier("dataSource") DataSource dataSource,
+            AccessTokenService accessTokenService
+    ) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.dataSource = dataSource;
+        this.accessTokenService = accessTokenService;
     }
 
     @Override
@@ -69,10 +76,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 // Authenticate everything else
                 .anyRequest().authenticated()
                 .and()
-                // validate each request using a JWT in the Authorization header
+                // validate each request using the token in the Authorization header
                 .addFilterBefore(
-                        new JWTAuthenticationFilter(),
-                        UsernamePasswordAuthenticationFilter.class
+                        new AuthenticationFilter(accessTokenService),
+                        BasicAuthenticationFilter.class
                 )
                 .sessionManagement()
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
