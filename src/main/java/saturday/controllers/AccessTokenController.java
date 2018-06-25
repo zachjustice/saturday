@@ -77,7 +77,8 @@ public class AccessTokenController {
      * Validate a facebook access token and exchange the validated token with a saturday access token.
      * If the auth'ed user doesn't exist in our system, one is created using data from facebook's /me route using
      * the fb extended access token.
-     * @param response We attach our token to the http response so the client can retrieve it
+     *
+     * @param response         We attach our token to the http response so the client can retrieve it
      * @param validationEntity The only field we use is fbAccessToken which we use to obtain an extended fb access token
      * @return The entity associated with the fb token
      */
@@ -96,20 +97,20 @@ public class AccessTokenController {
 
             fbAccessToken = accessToken.getAccessToken();
         } catch (FacebookOAuthException ex) {
-           throw new AccessDeniedException("Failed to validate facebook auth token. Invalid access token.");
-        } catch(FacebookException ex) {
-           logger.info(ex.getLocalizedMessage());
-           throw new ProcessingResourceException(
-                   "Failed to validate facebook auth token. " +
-                   "Error while attempting to validate client id."
-           );
+            throw new AccessDeniedException("Failed to validate facebook auth token. Invalid access token.");
+        } catch (FacebookException ex) {
+            logger.info(ex.getLocalizedMessage());
+            throw new ProcessingResourceException(
+                    "Failed to validate facebook auth token. " +
+                            "Error while attempting to validate client id."
+            );
         }
 
         DefaultFacebookClient facebookClient25 = new DefaultFacebookClient(fbAccessToken, Version.VERSION_2_11);
         User fbUser = facebookClient25.fetchObject("me", User.class, Parameter.with("fields", "id,email,name,gender"));
         Entity entity = this.entityService.findEntityByEmail(fbUser.getEmail());
 
-        if(entity == null) {
+        if (entity == null) {
             // save unregistered users after the validating the fb auth token
             // but only if we haven't seen this user yet
             entity = new Entity();
@@ -125,7 +126,7 @@ public class AccessTokenController {
         }
 
         // make sure entity has a saturday-specific tokens we can put in the response headers
-        if(StringUtils.isEmpty(entity.getToken())) {
+        if (StringUtils.isEmpty(entity.getToken())) {
             entity.setToken(TokenAuthenticationUtils.createToken(fbUser.getEmail()));
         }
 
@@ -135,25 +136,26 @@ public class AccessTokenController {
 
     /**
      * Given an entity object populated with an email and password, create a saturday access token.
+     *
      * @param response We attach our token to the http response so the client can retrieve it
-     * @param user The user to auth
+     * @param user     The user to auth
      * @return The auth'ed entity with the token in the header
      */
     @RequestMapping(value = "/access_token", method = RequestMethod.PUT)
     public ResponseEntity<Entity> getToken(HttpServletResponse response, @RequestBody Entity user) throws BusinessLogicException, ProcessingResourceException, ResourceNotFoundException {
 
-        if(StringUtils.isEmpty(user.getEmail())) {
-           throw new ProcessingResourceException("Invalid request. Empty email");
+        if (StringUtils.isEmpty(user.getEmail())) {
+            throw new ProcessingResourceException("Invalid request. Empty email");
         }
 
-        if(StringUtils.isEmpty(user.getPassword())) {
+        if (StringUtils.isEmpty(user.getPassword())) {
             throw new ProcessingResourceException("Invalid request. Empty password");
         }
 
         String givenPassword = user.getPassword();
         Entity actualUser = entityService.findEntityByEmail(user.getEmail());
 
-        if(actualUser == null || !bCryptPasswordEncoder.matches(givenPassword, actualUser.getPassword())) {
+        if (actualUser == null || !bCryptPasswordEncoder.matches(givenPassword, actualUser.getPassword())) {
             try {
                 TimeUnit.SECONDS.sleep(1);
             } catch (InterruptedException e) {
@@ -178,20 +180,21 @@ public class AccessTokenController {
 
     /**
      * Reset a user's password provided a valid access token and password
-     * @param rawToken The reset password token
+     *
+     * @param rawToken      The reset password token
      * @param updatedEntity The entity object which holds the updated password
      * @return Success if the password was updated correctly
      */
     @RequestMapping(value = "/reset_password", method = RequestMethod.PUT)
     public ResponseEntity<String> resetPassword(
-            @RequestParam(value="token") String rawToken,
+            @RequestParam(value = "token") String rawToken,
             @RequestBody Entity updatedEntity
     ) {
 
         // query the access token table by token to make sure the token is still valid
         // (i.e. hasn't already been used)
         AccessToken existingAccessToken;
-        try{
+        try {
             existingAccessToken = accessTokenService.findByToken(rawToken);
         } catch (ResourceNotFoundException e) {
             throw new UnauthorizedUserException("Access token is invalid.");
@@ -199,19 +202,26 @@ public class AccessTokenController {
 
         // Make sure they're using the correct kind of token
         // i.e. use a normal auth token to reset the password
-        if(existingAccessToken.getType().getId() != ACCESS_TOKEN_TYPE_RESET_PASSWORD) {
+        if (existingAccessToken.getType().getId() != ACCESS_TOKEN_TYPE_RESET_PASSWORD) {
             throw new UnauthorizedUserException("Access token is invalid.");
         }
 
         // We've validated the user is authenticated. Now make sure the request has the required fields.
-        if(StringUtils.isEmpty(updatedEntity.getPassword()) || updatedEntity.getPassword().length() < PASSWORD_MIN_LENGTH) {
-            throw new IllegalArgumentException("Password field must be at least " + PASSWORD_MIN_LENGTH + " characters.");
+        if (
+            StringUtils.isEmpty(updatedEntity.getPassword())
+            || updatedEntity.getPassword().length() < PASSWORD_MIN_LENGTH
+        ) {
+            throw new IllegalArgumentException(
+                    "Password field must be at least " + PASSWORD_MIN_LENGTH + " characters."
+            );
         }
 
         Entity entity = existingAccessToken.getEntity();
 
-        if(entity == null) {
-            logger.error("Attempted to reset password. Token was valid but the entity was null: " + existingAccessToken);
+        if (entity == null) {
+            logger.error(
+                    "Attempted to reset password. Token was valid but the entity was null: " + existingAccessToken
+            );
             throw new ResourceNotFoundException("Unable to reset password.");
         }
 
