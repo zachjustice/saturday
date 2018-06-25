@@ -28,6 +28,7 @@ public class AccessTokenService {
 
     /**
      * We delete tokens when users logout or the token is otherwise invalidated.
+     *
      * @param token the raw bearer token to delete
      */
     @Transactional
@@ -37,12 +38,13 @@ public class AccessTokenService {
 
     /**
      * Retrieve an access token. Useful for determining if an access token is valid.
+     *
      * @param rawToken The raw bearer token to find
      * @return The access token object associated with the raw token
      */
     public AccessToken findByToken(String rawToken) {
         AccessToken token = accessTokenRepository.findByToken(rawToken);
-        if(token == null) {
+        if (token == null) {
             throw new ResourceNotFoundException("Token, " + rawToken + ", does not exist!");
         }
 
@@ -51,9 +53,10 @@ public class AccessTokenService {
 
     /**
      * Persist an access token using an email, expirationTime, and AccessTokenType.
-     * @param email The email to be stored in the token
+     *
+     * @param entity                The entity associated with the token
      * @param expirationTimeFromNow How many milliseconds from now the token should expire
-     * @param accessTokenType what kind of the access token the token should be
+     * @param accessTokenType       what kind of the access token the token should be
      * @return The saved access token
      */
     public AccessToken save(Entity entity, int expirationTimeFromNow, AccessTokenType accessTokenType) {
@@ -94,30 +97,17 @@ public class AccessTokenService {
 
     /**
      * Persist an access token.
+     *
      * @param token The token with is expiry date to be saved
      * @return The saved access token
      */
     public AccessToken save(AccessToken token) {
-        if(StringUtils.isEmpty(token.getToken())) {
+        if (StringUtils.isEmpty(token.getToken())) {
             throw new IllegalArgumentException("Error persisting access token. Null token.");
         }
 
-        if(token.getExpirationDate() == null) {
-            throw new IllegalArgumentException("Error persisting access token. Expiration date is null.");
-        }
-
-        if(token.getType() == null || token.getId() == null) {
-            throw new IllegalArgumentException("Error persisting access token. Invalid access token type is null.");
-        }
-
-        AccessToken existing = null;
-        try {
-            existing = findByToken(token.getToken());
-        } catch(ResourceNotFoundException ignored) {
-        }
-
-        if(existing != null) {
-            throw new DuplicateResourceException("Error persisting access token.");
+        if (token.getType() == null) {
+            throw new IllegalArgumentException("Error persisting access token. Access token type is null.");
         }
 
         return accessTokenRepository.save(token);
@@ -125,6 +115,7 @@ public class AccessTokenService {
 
     /**
      * Constructs a string of random capitalized letters and digits with a length specified by the {@code num} argument
+     *
      * @param num How long the returned string should be
      * @return A string of random letters
      */

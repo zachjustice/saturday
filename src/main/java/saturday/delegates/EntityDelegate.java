@@ -28,13 +28,21 @@ public class EntityDelegate {
         this.accessTokenService = accessTokenService;
     }
 
-    public Entity save(Entity entity) {
+    /**
+     * Creates an entity. Publishes a registration event upon successful creation
+     * and adds a new access token for the user. This token is returned so that
+     * the entity controller can add the token to the response http headers.
+     * @param entity The entity to create
+     * @return The token for the new user.
+     */
+    public String save(Entity entity) {
         entity = entityService.saveEntity(entity);
+
         String uuid = UUID.randomUUID().toString();
         AccessToken token = new BearerToken(entity, uuid);
-
         accessTokenService.save(token);
+
         saturdayEventPublisher.publishRegistrationEvent(entity);
-        return entity;
+        return uuid;
     }
 }

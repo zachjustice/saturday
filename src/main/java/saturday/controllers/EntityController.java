@@ -69,10 +69,10 @@ public class EntityController {
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public ResponseEntity<Entity> createEntity(HttpServletResponse response, @RequestBody Entity entity) {
 
-        entityDelegate.save(entity);
+        String token = entityDelegate.save(entity);
 
         // Only add token if the preceding was successful to avoid adding Auth headers to error'ed requests
-        HTTPUtils.addAuthenticationHeader(response, entity.getToken());
+        HTTPUtils.addAuthenticationHeader(response, token);
 
         return new ResponseEntity<>(entity, HttpStatus.OK);
     }

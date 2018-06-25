@@ -142,7 +142,7 @@ public class EntityService {
         entity.setIsEmailConfirmed(false);
         entity.setPassword(bCryptPasswordEncoder.encode(entity.getPassword()));
 
-        Role authorRole = new RoleUser();
+        RoleUser authorRole = new RoleUser();
         entity.setRoles(new HashSet<>(Collections.singletonList(authorRole)));
 
         return entityRepository.save(entity);

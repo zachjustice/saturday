@@ -8,6 +8,8 @@ import java.util.Objects;
 
 @javax.persistence.Entity
 @Table(name = "access_tokens")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(discriminatorType = DiscriminatorType.INTEGER, name = "type_id")
 public class AccessToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,13 +22,12 @@ public class AccessToken {
     private Date expirationDate;
 
     @ManyToOne
-    @JoinColumn(name="type_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name="type_id", referencedColumnName = "id", nullable = false, insertable = false, updatable = false)
     private AccessTokenType type;
 
     @ManyToOne
     @JoinColumn(name="entity_id", referencedColumnName = "id", nullable = false)
     private saturday.domain.Entity entity;
-
 
     public AccessToken() {
     }

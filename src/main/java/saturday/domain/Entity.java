@@ -3,11 +3,19 @@ package saturday.domain;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.hibernate.validator.constraints.Email;
-import org.hibernate.validator.constraints.NotEmpty;
 import saturday.domain.roles.Role;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -62,17 +70,18 @@ public class Entity {
     @Column(name = "fb_id" )
     private Long fbId ;
 
+    @JsonIgnore
     @Column(name = "fb_access_token" )
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String fbAccessToken;
 
     @JsonIgnore
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany()
     @JoinTable(name = "entity_roles", joinColumns = @JoinColumn(name = "entity_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
 
     @JsonIgnore
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = {CascadeType.REFRESH, CascadeType.MERGE})
     @JoinTable(name = "topic_members", joinColumns = @JoinColumn(name = "entity_id"), inverseJoinColumns = @JoinColumn(name = "topic_id"))
     private List<Topic> topics;
 
@@ -161,6 +170,7 @@ public class Entity {
         this.gender = gender;
     }
 
+    @JsonIgnore
     public Long getFbId() {
         return fbId;
     }
@@ -169,6 +179,7 @@ public class Entity {
         this.fbId = fbId;
     }
 
+    @JsonIgnore
     public String getFbAccessToken() {
         return fbAccessToken;
     }
@@ -177,6 +188,7 @@ public class Entity {
         this.fbAccessToken = fbAccessToken;
     }
 
+    @JsonIgnore
     public String getPassword() {
         return password;
     }
@@ -193,6 +205,7 @@ public class Entity {
         this.birthday = birthday;
     }
 
+    @JsonIgnore
     public String getToken() {
         return token;
     }
