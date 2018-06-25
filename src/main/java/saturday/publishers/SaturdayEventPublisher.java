@@ -6,11 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import saturday.domain.*;
-import saturday.domain.event.RegistrationEvent;
-import saturday.domain.event.ResetPasswordEvent;
-import saturday.domain.event.TopicMemberInviteEvent;
+import saturday.domain.Entity;
 import saturday.domain.TopicMember;
+import saturday.domain.events.RegistrationEvent;
+import saturday.domain.events.ResetPasswordEvent;
+import saturday.domain.events.TopicMemberInviteEvent;
 
 @Component
 public class SaturdayEventPublisher {

@@ -1,4 +1,4 @@
-package saturday.domain.event;
+package saturday.domain.events;
 
 import org.springframework.context.ApplicationEvent;
 import saturday.domain.Entity;
