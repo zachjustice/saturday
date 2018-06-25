@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import saturday.delegates.EntityDelegate;
 import saturday.domain.Entity;
 import saturday.exceptions.AccessDeniedException;
 import saturday.publishers.SaturdayEventPublisher;
@@ -20,7 +21,6 @@ import saturday.services.ConfirmEmailService;
 import saturday.services.EntityService;
 import saturday.services.PermissionService;
 import saturday.services.S3Service;
-import saturday.services.TopicMemberService;
 import saturday.utils.HTTPUtils;
 
 import javax.servlet.http.HttpServletResponse;
@@ -38,6 +38,7 @@ public class EntityController {
     private final ConfirmEmailService confirmEmailService;
     private final PermissionService permissionService;
     private final SaturdayEventPublisher saturdayEventPublisher;
+    private final EntityDelegate entityDelegate;
 
     @Value("${saturday.s3.user-files-bucket}")
     private String bucketName;
@@ -54,20 +55,21 @@ public class EntityController {
             PermissionService permissionService,
             S3Service s3Service,
             ConfirmEmailService confirmEmailService,
-            SaturdayEventPublisher saturdayEventPublisher
+            SaturdayEventPublisher saturdayEventPublisher,
+            EntityDelegate entityDelegate
     ) {
         this.entityService = entityService;
         this.permissionService = permissionService;
         this.s3Service = s3Service;
         this.confirmEmailService = confirmEmailService;
         this.saturdayEventPublisher = saturdayEventPublisher;
+        this.entityDelegate = entityDelegate;
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public ResponseEntity<Entity> createEntity(HttpServletResponse response, @RequestBody Entity entity) {
 
-        entity = entityService.saveEntity(entity);
-        saturdayEventPublisher.publishRegistrationEvent(entity);
+        entityDelegate.save(entity);
 
         // Only add token if the preceding was successful to avoid adding Auth headers to error'ed requests
         HTTPUtils.addAuthenticationHeader(response, entity.getToken());
