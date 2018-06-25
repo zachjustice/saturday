@@ -38,7 +38,6 @@ public class EntityController {
     private final ConfirmEmailService confirmEmailService;
     private final PermissionService permissionService;
     private final SaturdayEventPublisher saturdayEventPublisher;
-    private final TopicMemberService topicMemberService;
 
     @Value("${saturday.s3.user-files-bucket}")
     private String bucketName;
@@ -55,15 +54,13 @@ public class EntityController {
             PermissionService permissionService,
             S3Service s3Service,
             ConfirmEmailService confirmEmailService,
-            SaturdayEventPublisher saturdayEventPublisher,
-            TopicMemberService topicMemberService
+            SaturdayEventPublisher saturdayEventPublisher
     ) {
         this.entityService = entityService;
         this.permissionService = permissionService;
         this.s3Service = s3Service;
         this.confirmEmailService = confirmEmailService;
         this.saturdayEventPublisher = saturdayEventPublisher;
-        this.topicMemberService = topicMemberService;
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
