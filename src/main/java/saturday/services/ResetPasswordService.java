@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
-import saturday.domain.AccessToken;
-import saturday.domain.AccessTokenType;
+import saturday.domain.accessTokens.AccessToken;
+import saturday.domain.accessTokenTypes.AccessTokenType;
 import saturday.domain.Entity;
 import saturday.utils.FileUtils;
 

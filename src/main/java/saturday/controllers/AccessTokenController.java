@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import saturday.domain.AccessToken;
+import saturday.domain.accessTokens.AccessToken;
 import saturday.domain.Entity;
 import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.BusinessLogicException;

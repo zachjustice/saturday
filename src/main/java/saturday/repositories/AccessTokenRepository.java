@@ -2,10 +2,7 @@ package saturday.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import saturday.domain.AccessToken;
-import saturday.domain.Entity;
-
-import java.util.List;
+import saturday.domain.accessTokens.AccessToken;
 
 /**
  * Created by zachjustice on 7/26/17.
