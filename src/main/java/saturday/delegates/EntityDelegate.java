@@ -2,14 +2,12 @@ package saturday.delegates;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import saturday.domain.accessTokens.AccessToken;
 import saturday.domain.Entity;
+import saturday.domain.accessTokens.AccessToken;
 import saturday.domain.accessTokens.BearerToken;
 import saturday.publishers.SaturdayEventPublisher;
 import saturday.services.AccessTokenService;
 import saturday.services.EntityService;
-
-import java.util.UUID;
 
 @Component
 public class EntityDelegate {
