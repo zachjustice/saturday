@@ -103,20 +103,12 @@ public class EntityController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        // TODO better way to do this
-        entity.setPassword("");
-        entity.setToken("");
-
         return new ResponseEntity<>(entity, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/entities/{id}", method = RequestMethod.GET)
     public ResponseEntity<Entity> getEntity(@PathVariable(value = "id") int id) {
         Entity entity = entityService.findEntityById(id);
-
-        // TODO better way to do this
-        entity.setPassword("");
-        entity.setToken("");
 
         return new ResponseEntity<>(entity, HttpStatus.OK);
     }
