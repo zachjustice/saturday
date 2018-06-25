@@ -1,4 +1,4 @@
-package saturday.domain.TopicPermissions;
+package saturday.domain.topicPermissions;
 
 public class TopicPermissionCanPost extends TopicPermission {
     public TopicPermissionCanPost() {

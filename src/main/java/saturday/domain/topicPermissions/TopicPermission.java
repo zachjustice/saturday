@@ -1,4 +1,4 @@
-package saturday.domain.TopicPermissions;
+package saturday.domain.topicPermissions;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;

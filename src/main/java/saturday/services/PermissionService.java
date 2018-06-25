@@ -7,7 +7,7 @@ import saturday.domain.Topic;
 import saturday.domain.TopicContent;
 import saturday.domain.TopicContentRequest;
 import saturday.domain.TopicMember;
-import saturday.domain.TopicPermissions.TopicPermission;
+import saturday.domain.topicPermissions.TopicPermission;
 import saturday.domain.TopicRolePermission;
 import saturday.domain.topicMemberStatuses.TopicMemberStatus;
 import saturday.domain.topicMemberStatuses.TopicMemberStatusAccepted;
