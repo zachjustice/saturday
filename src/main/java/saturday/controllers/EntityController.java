@@ -79,7 +79,6 @@ public class EntityController {
 
     @RequestMapping(value = "/entities/{id}", method = RequestMethod.PUT)
     public ResponseEntity<Entity> saveEntity(
-            HttpServletResponse response,
             @PathVariable(value = "id") int id,
             @RequestBody Entity updatedEntity
     ) {
@@ -91,7 +90,6 @@ public class EntityController {
         }
 
         currEntity = entityService.updateEntity(updatedEntity, true);
-        HTTPUtils.addAuthenticationHeader(response, currEntity.getToken());
 
         return new ResponseEntity<>(currEntity, HttpStatus.OK);
     }

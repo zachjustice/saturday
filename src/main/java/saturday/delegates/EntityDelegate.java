@@ -38,11 +38,10 @@ public class EntityDelegate {
     public String save(Entity entity) {
         entity = entityService.saveEntity(entity);
 
-        String uuid = UUID.randomUUID().toString();
-        AccessToken token = new BearerToken(entity, uuid);
+        AccessToken token = new BearerToken(entity);
         accessTokenService.save(token);
 
         saturdayEventPublisher.publishRegistrationEvent(entity);
-        return uuid;
+        return token.getToken();
     }
 }

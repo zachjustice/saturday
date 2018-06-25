@@ -33,7 +33,6 @@ START TRANSACTION;
     id SERIAL PRIMARY KEY,
     created TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),
     modified TIMESTAMP WITHOUT TIME ZONE,
-    token CHARACTER VARYING,
     is_email_confirmed BOOLEAN DEFAULT false,
 
     -- user info

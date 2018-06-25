@@ -29,10 +29,6 @@ public class Entity {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "token")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private String token;
-
     @Column(name = "email")
     private String email;
 
@@ -203,15 +199,6 @@ public class Entity {
 
     public void setBirthday(Date birthday) {
         this.birthday = birthday;
-    }
-
-    @JsonIgnore
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
     }
 
     public List<Topic> getTopics() {

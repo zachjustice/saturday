@@ -80,7 +80,6 @@ public class EntityService {
         Date updatedBirthday = updatedEntity.getBirthday();
         String updatedGender = updatedEntity.getGender();
         String updatedPassword = updatedEntity.getPassword();
-        String updatedToken = updatedEntity.getToken();
 
         if(!StringUtils.isEmpty(updatedName)) {
             currEntity.setName(updatedName);
@@ -94,11 +93,6 @@ public class EntityService {
             currEntity.setGender(updatedGender);
         }
 
-        if(!StringUtils.isEmpty(updatedToken)) {
-            // TODO multiple tokens
-            currEntity.setToken(updatedToken);
-        }
-
         if(!StringUtils.isEmpty(updatedPassword) && setPassword) {
             // TODO email verification
             currEntity.setPassword(bCryptPasswordEncoder.encode(updatedPassword));
@@ -106,12 +100,6 @@ public class EntityService {
 
         if(!StringUtils.isEmpty(updatedEmail)) {
             currEntity.setEmail(updatedEmail);
-
-            // Need a new token if the email was updated
-            if(StringUtils.isEmpty(updatedToken)) {
-                String token = TokenAuthenticationUtils.createToken(updatedEmail);
-                currEntity.setToken(token);
-            }
         }
 
         return entityRepository.save(currEntity);

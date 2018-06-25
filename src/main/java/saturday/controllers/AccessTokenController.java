@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import saturday.domain.accessTokens.AccessToken;
 import saturday.domain.Entity;
+import saturday.domain.accessTokens.BearerToken;
 import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ProcessingResourceException;
@@ -125,12 +126,10 @@ public class AccessTokenController {
             entity.setFbAccessToken(fbAccessToken);
         }
 
-        // make sure entity has a saturday-specific tokens we can put in the response headers
-        if (StringUtils.isEmpty(entity.getToken())) {
-            entity.setToken(TokenAuthenticationUtils.createToken(fbUser.getEmail()));
-        }
+        AccessToken token = new BearerToken(entity);
+        accessTokenService.save(token);
 
-        HTTPUtils.addAuthenticationHeader(response, entity.getToken());
+        HTTPUtils.addAuthenticationHeader(response, token.getToken());
         return new ResponseEntity<>(entity, HttpStatus.OK);
     }
 
