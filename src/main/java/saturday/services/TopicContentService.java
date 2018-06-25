@@ -27,7 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Service("topicContentService")
+@Service()
 public class TopicContentService {
     @Value("${saturday.page-size-limit}")
     private int PAGE_SIZE_LIMIT;

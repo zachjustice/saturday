@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 
-@Service("entityService")
+@Service()
 public class EntityService {
 
     private final EntityRepository entityRepository;

@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Service("s3Service")
+@Service()
 public class S3Service {
 
     @Value("${saturday.s3.user-files-bucket}")

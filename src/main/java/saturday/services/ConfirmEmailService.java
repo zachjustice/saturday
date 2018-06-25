@@ -20,7 +20,7 @@ import saturday.utils.TokenAuthenticationUtils;
 import java.io.IOException;
 import java.util.Base64;
 
-@Service("confirmEmailService")
+@Service()
 public class ConfirmEmailService {
 
     private final EmailService emailService;

@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Service("topicMemberService")
+@Service()
 public class TopicMemberService {
     private final TopicMemberRepository topicMemberRepository;
     private final EntityService entityService;

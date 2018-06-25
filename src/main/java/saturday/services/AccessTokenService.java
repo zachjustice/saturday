@@ -16,7 +16,7 @@ import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Random;
 
-@Service("accessTokenService")
+@Service()
 public class AccessTokenService {
     private final AccessTokenRepository accessTokenRepository;
     @Value("${saturday.access-token-type.reset-password}")

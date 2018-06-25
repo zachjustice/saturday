@@ -14,7 +14,7 @@ import saturday.utils.FileUtils;
 
 import java.io.IOException;
 
-@Service("resetPasswordService")
+@Service()
 public class ResetPasswordService {
 
     private final AccessTokenService accessTokenService;

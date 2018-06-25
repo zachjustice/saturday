@@ -14,7 +14,7 @@ import saturday.repositories.TopicRepository;
 
 import java.util.List;
 
-@Service("topicService")
+@Service()
 public class TopicService {
 
     private final TopicRepository topicRepository;
