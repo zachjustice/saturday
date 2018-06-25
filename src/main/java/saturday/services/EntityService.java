@@ -126,7 +126,6 @@ public class EntityService {
 
         String token = TokenAuthenticationUtils.createToken(entity.getEmail());
 
-        entity.setToken(token);
         entity.setIsEmailConfirmed(false);
         entity.setPassword(bCryptPasswordEncoder.encode(entity.getPassword()));
 

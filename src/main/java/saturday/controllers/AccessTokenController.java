@@ -169,7 +169,6 @@ public class AccessTokenController {
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         String token = TokenAuthenticationUtils.createToken(actualUser.getEmail());
-        actualUser.setToken(token);
         entityService.updateEntity(actualUser);
 
         HTTPUtils.addAuthenticationHeader(response, token);
