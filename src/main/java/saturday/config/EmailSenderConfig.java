@@ -21,8 +21,8 @@ public class EmailSenderConfig {
     private String FROM_EMAIL;
 
     @Bean
-    public JavaMailSenderImpl getJavaMailSender() {
-        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+    public JavaMailSender getJavaMailSender() {
+        JavaMailSender mailSender = new JavaMailSender();
         mailSender.setHost(SPRING_MAIL_HOST);
         mailSender.setPort(SPRING_MAIL_SMTP_PORT);
         mailSender.setUsername(SPRING_MAIL_USERNAME);

@@ -17,7 +17,7 @@ import saturday.domain.Entity;
 import saturday.exceptions.AccessDeniedException;
 import saturday.publishers.SaturdayEventPublisher;
 import saturday.services.ConfirmEmailService;
-import saturday.services.EntityServiceImpl;
+import saturday.services.EntityService;
 import saturday.services.PermissionService;
 import saturday.services.S3Service;
 import saturday.services.TopicMemberService;
@@ -33,7 +33,7 @@ import java.util.UUID;
 @RestController
 public class EntityController {
 
-    private final EntityServiceImpl entityService;
+    private final EntityService entityService;
     private final S3Service s3Service;
     private final ConfirmEmailService confirmEmailService;
     private final PermissionService permissionService;
@@ -51,7 +51,7 @@ public class EntityController {
 
     @Autowired
     public EntityController(
-            EntityServiceImpl entityService,
+            EntityService entityService,
             PermissionService permissionService,
             S3Service s3Service,
             ConfirmEmailService confirmEmailService,
