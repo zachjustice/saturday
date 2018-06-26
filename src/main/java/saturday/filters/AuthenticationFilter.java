@@ -38,7 +38,11 @@ public class AuthenticationFilter extends GenericFilterBean {
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(
+            ServletRequest request,
+            ServletResponse response,
+            FilterChain chain
+    ) throws IOException, ServletException {
         final HttpServletRequest httpRequest = (HttpServletRequest)request;
 
         // extract token from header
@@ -60,7 +64,12 @@ public class AuthenticationFilter extends GenericFilterBean {
 
         String email = emailAndTokenArr[0];
         String rawToken = emailAndTokenArr[1];
+        validateToken(email, rawToken);
 
+        chain.doFilter(request, response);
+    }
+
+    private void validateToken(String email, String rawToken) {
         List<AccessToken> accessTokens;
         try {
             accessTokens = accessTokenService.findByEmailAndTypeId(email, AccessTokenType.BEARER_TOKEN);
@@ -74,11 +83,10 @@ public class AuthenticationFilter extends GenericFilterBean {
                 .findFirst();
 
         matchingToken.ifPresent(this::setSecurityContext);
-
-        chain.doFilter(request, response);
     }
 
     private void setSecurityContext(AccessToken accessToken) {
+        List<AccessToken> accessTokens;
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                 accessToken.getEntity().getEmail(),
                 null,
