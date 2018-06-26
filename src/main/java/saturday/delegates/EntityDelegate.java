@@ -3,27 +3,24 @@ package saturday.delegates;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import saturday.domain.Entity;
-import saturday.domain.accessTokens.AccessToken;
-import saturday.domain.accessTokens.BearerToken;
 import saturday.publishers.SaturdayEventPublisher;
-import saturday.services.AccessTokenService;
 import saturday.services.EntityService;
 
 @Component
 public class EntityDelegate {
     private final SaturdayEventPublisher saturdayEventPublisher;
     private final EntityService entityService;
-    private final AccessTokenService accessTokenService;
+    private final AccessTokenDelegate accessTokenDelegate;
 
     @Autowired
     public EntityDelegate(
             SaturdayEventPublisher saturdayEventPublisher,
             EntityService entityService,
-            AccessTokenService accessTokenService
+            AccessTokenDelegate accessTokenDelegate
     ) {
         this.saturdayEventPublisher = saturdayEventPublisher;
         this.entityService = entityService;
-        this.accessTokenService = accessTokenService;
+        this.accessTokenDelegate = accessTokenDelegate;
     }
 
     /**
@@ -31,15 +28,14 @@ public class EntityDelegate {
      * and adds a new access token for the user. This token is returned so that
      * the entity controller can add the token to the response http headers.
      * @param entity The entity to create
-     * @return The token for the new user.
+     * @return The base64 encoded token consisting of the raw access token and the user's email.
      */
     public String save(Entity entity) {
         entity = entityService.saveEntity(entity);
 
-        AccessToken token = new BearerToken(entity);
-        accessTokenService.save(token);
+        String base64EncodedEmailAndToken = accessTokenDelegate.saveBearerToken(entity);
 
         saturdayEventPublisher.publishRegistrationEvent(entity);
-        return token.getToken();
+        return base64EncodedEmailAndToken;
     }
 }

@@ -78,7 +78,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 // validate each request using the token in the Authorization header
                 .addFilterBefore(
-                        new AuthenticationFilter(accessTokenService),
+                        new AuthenticationFilter(accessTokenService, bCryptPasswordEncoder),
                         BasicAuthenticationFilter.class
                 )
                 .sessionManagement()

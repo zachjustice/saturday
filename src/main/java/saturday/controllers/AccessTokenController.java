@@ -23,11 +23,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import saturday.domain.accessTokenTypes.AccessTokenType;
+import saturday.delegates.AccessTokenDelegate;
+import saturday.domain.Entity;
 import saturday.domain.accessTokenTypes.AccessTokenTypeBearerToken;
 import saturday.domain.accessTokens.AccessToken;
-import saturday.domain.Entity;
-import saturday.domain.accessTokens.BearerToken;
 import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ProcessingResourceException;
@@ -36,7 +35,6 @@ import saturday.exceptions.UnauthorizedUserException;
 import saturday.services.AccessTokenService;
 import saturday.services.EntityService;
 import saturday.utils.HTTPUtils;
-import saturday.utils.TokenAuthenticationUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.concurrent.TimeUnit;
@@ -49,6 +47,7 @@ public class AccessTokenController {
     private final AccessTokenService accessTokenService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final DefaultFacebookClient facebookClient;
+    private final AccessTokenDelegate accessTokenDelegate;
 
     @Value("${spring.social.facebook.app-id}")
     private String FACEBOOK_APP_ID;
@@ -68,12 +67,13 @@ public class AccessTokenController {
             EntityService entityService,
             AccessTokenService accessTokenService,
             BCryptPasswordEncoder bCryptPasswordEncoder,
-            DefaultFacebookClient facebookClient
-    ) {
+            DefaultFacebookClient facebookClient,
+            AccessTokenDelegate accessTokenDelegate) {
         this.entityService = entityService;
         this.accessTokenService = accessTokenService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.facebookClient = facebookClient;
+        this.accessTokenDelegate = accessTokenDelegate;
     }
 
     /**
@@ -128,10 +128,9 @@ public class AccessTokenController {
             entity.setFbAccessToken(fbAccessToken);
         }
 
-        AccessToken token = new BearerToken(entity);
-        accessTokenService.save(token);
+        String base64EncodedEmailAndToken = accessTokenDelegate.saveBearerToken(entity);
 
-        HTTPUtils.addAuthenticationHeader(response, token.getToken());
+        HTTPUtils.addAuthenticationHeader(response, base64EncodedEmailAndToken);
         return new ResponseEntity<>(entity, HttpStatus.OK);
     }
 
@@ -139,24 +138,24 @@ public class AccessTokenController {
      * Given an entity object populated with an email and password, create a saturday access token.
      *
      * @param response We attach our token to the http response so the client can retrieve it
-     * @param user     The user to auth
+     * @param entity     The user to auth
      * @return The auth'ed entity with the token in the header
      */
     @RequestMapping(value = "/access_token", method = RequestMethod.PUT)
-    public ResponseEntity<Entity> getToken(HttpServletResponse response, @RequestBody Entity user) throws BusinessLogicException, ProcessingResourceException, ResourceNotFoundException {
+    public ResponseEntity<Entity> getToken(HttpServletResponse response, @RequestBody Entity entity) throws BusinessLogicException, ProcessingResourceException, ResourceNotFoundException {
 
-        if (StringUtils.isEmpty(user.getEmail())) {
+        if (StringUtils.isEmpty(entity.getEmail())) {
             throw new ProcessingResourceException("Invalid request. Empty email");
         }
 
-        if (StringUtils.isEmpty(user.getPassword())) {
+        if (StringUtils.isEmpty(entity.getPassword())) {
             throw new ProcessingResourceException("Invalid request. Empty password");
         }
 
-        String givenPassword = user.getPassword();
-        Entity actualUser = entityService.findEntityByEmail(user.getEmail());
+        String givenPassword = entity.getPassword();
+        Entity existingEntity = entityService.findEntityByEmail(entity.getEmail());
 
-        if (actualUser == null || !bCryptPasswordEncoder.matches(givenPassword, actualUser.getPassword())) {
+        if (existingEntity == null || !bCryptPasswordEncoder.matches(givenPassword, existingEntity.getPassword())) {
             try {
                 TimeUnit.SECONDS.sleep(1);
             } catch (InterruptedException e) {
@@ -167,15 +166,14 @@ public class AccessTokenController {
             throw new UnauthorizedUserException("Invalid password or email.");
         }
 
-        Authentication auth = new UsernamePasswordAuthenticationToken(actualUser.getEmail(), null, emptyList());
+        Authentication auth = new UsernamePasswordAuthenticationToken(existingEntity.getEmail(), null, emptyList());
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        AccessToken token = new BearerToken(actualUser);
-        accessTokenService.save(token);
+        String base64EncodedEmailAndToken = accessTokenDelegate.saveBearerToken(existingEntity);
 
-        HTTPUtils.addAuthenticationHeader(response, token.getToken());
+        HTTPUtils.addAuthenticationHeader(response, base64EncodedEmailAndToken);
 
-        return new ResponseEntity<>(actualUser, HttpStatus.OK);
+        return new ResponseEntity<>(existingEntity, HttpStatus.OK);
     }
 
     /**
