@@ -4,16 +4,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import saturday.domain.accessTokens.AccessToken;
-import saturday.domain.accessTokenTypes.AccessTokenType;
 import saturday.domain.Entity;
-import saturday.exceptions.DuplicateResourceException;
+import saturday.domain.accessTokenTypes.AccessTokenType;
+import saturday.domain.accessTokens.AccessToken;
 import saturday.exceptions.ResourceNotFoundException;
 import saturday.repositories.AccessTokenRepository;
 import saturday.utils.TokenAuthenticationUtils;
 
 import java.security.SecureRandom;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 @Service()
@@ -123,6 +123,7 @@ public class AccessTokenService {
      * @param num How long the returned string should be
      * @return A string of random letters
      */
+    @Deprecated
     private String getRandomLettersAndDigits(int num) {
         Random random = new SecureRandom();
         String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -134,5 +135,9 @@ public class AccessTokenService {
         }
 
         return randomLettersAndDigits.toString();
+    }
+
+    public List<AccessToken> findByEmailAndTypeId(String email, int typeId) {
+        return accessTokenRepository.findByEmailAndTypeId(email, typeId);
     }
 }
