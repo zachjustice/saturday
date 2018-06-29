@@ -9,12 +9,12 @@ import saturday.domain.accessTokenTypes.AccessTokenType;
 import saturday.domain.accessTokens.AccessToken;
 import saturday.exceptions.ResourceNotFoundException;
 import saturday.repositories.AccessTokenRepository;
-import saturday.utils.TokenAuthenticationUtils;
 
 import java.security.SecureRandom;
-import java.util.Date;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Supplier;
 
 @Service()
 public class AccessTokenService {
@@ -36,6 +36,7 @@ public class AccessTokenService {
         accessTokenRepository.deleteAccessTokenByToken(token);
     }
 
+    @Transactional
     public void deleteAccessTokenByEntityAndType(Entity entity, AccessTokenType type) {
         accessTokenRepository.deleteAccessTokenByEntityAndType(entity, type);
     }
@@ -53,50 +54,6 @@ public class AccessTokenService {
         }
 
         return token;
-    }
-
-    /**
-     * Persist an access token using an email, expirationTime, and AccessTokenType.
-     *
-     * @param entity                The entity associated with the token
-     * @param expirationTimeFromNow How many milliseconds from now the token should expire
-     * @param accessTokenType       what kind of the access token the token should be
-     * @return The saved access token
-     */
-    public AccessToken save(Entity entity, int expirationTimeFromNow, AccessTokenType accessTokenType) {
-        if (entity == null) {
-            throw new IllegalArgumentException("Error persisting access token. Null entity.");
-        }
-
-        if (StringUtils.isEmpty(entity.getEmail().trim())) {
-            throw new IllegalArgumentException("Error persisting access token. Empty email.");
-        }
-
-        if (expirationTimeFromNow <= 0) {
-            throw new IllegalArgumentException("Error persisting access token. ExpirationTimeFromNow must be greater than 0.");
-        }
-
-        if (accessTokenType == null) {
-            throw new IllegalArgumentException("Error persisting access token. Null accessTokenType.");
-        }
-
-        Date expirationDate = new Date(System.currentTimeMillis() + expirationTimeFromNow);
-
-        String token;
-        if (accessTokenType.getId() == ACCESS_TOKEN_TYPE_RESET_PASSWORD) {
-            int forgotPasswordCodeLength = 9;
-            token = getRandomLettersAndDigits(forgotPasswordCodeLength);
-        } else {
-            token = TokenAuthenticationUtils.createToken(entity.getEmail(), expirationDate);
-        }
-
-        AccessToken accessToken = new AccessToken();
-        accessToken.setType(accessTokenType);
-        accessToken.setExpirationDate(expirationDate);
-        accessToken.setToken(token);
-        accessToken.setEntity(entity);
-
-        return accessTokenRepository.save(accessToken);
     }
 
     /**
@@ -138,6 +95,25 @@ public class AccessTokenService {
     }
 
     public List<AccessToken> findByEmailAndTypeId(String email, int typeId) {
-        return accessTokenRepository.findByEmailAndTypeId(email, typeId);
+        if (StringUtils.isEmpty(email)) {
+            return Collections.emptyList();
+        }
+
+        return getOrElse(
+                () ->  accessTokenRepository.findByEmailAndTypeId(email, typeId),
+                Collections.emptyList()
+        );
+    }
+
+    private <T> T getOrElse(Supplier<T> supplier, T defaultValue) {
+        try {
+            return supplier.get();
+        } catch (ResourceNotFoundException e) {
+            return defaultValue;
+        }
+    }
+
+    public void delete(AccessToken accessToken) {
+        accessTokenRepository.delete(accessToken);
     }
 }

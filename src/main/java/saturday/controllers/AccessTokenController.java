@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import saturday.delegates.AccessTokenDelegate;
 import saturday.domain.Entity;
+import saturday.domain.accessTokenTypes.AccessTokenType;
 import saturday.domain.accessTokenTypes.AccessTokenTypeBearerToken;
 import saturday.domain.accessTokens.AccessToken;
 import saturday.exceptions.AccessDeniedException;
@@ -37,6 +38,7 @@ import saturday.services.EntityService;
 import saturday.utils.HTTPUtils;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.Collections.emptyList;
@@ -188,21 +190,15 @@ public class AccessTokenController {
             @RequestParam(value = "token") String rawToken,
             @RequestBody Entity updatedEntity
     ) {
+        if (StringUtils.isEmpty(updatedEntity.getEmail())) {
+            throw new IllegalArgumentException("Email is empty or null");
+        }
 
         // query the access token table by token to make sure the token is still valid
         // (i.e. hasn't already been used)
-        AccessToken existingAccessToken;
-        try {
-            existingAccessToken = accessTokenService.findByToken(rawToken);
-        } catch (ResourceNotFoundException e) {
-            throw new UnauthorizedUserException("Access token is invalid.");
-        }
+        Optional<AccessToken> accessTokenOptional = accessTokenDelegate.validateRawToken(updatedEntity.getEmail(), rawToken, AccessTokenType.FORGOT_PASSWORD);
 
-        // Make sure they're using the correct kind of token
-        // i.e. use a normal auth token to reset the password
-        if (existingAccessToken.getType().getId() != ACCESS_TOKEN_TYPE_RESET_PASSWORD) {
-            throw new UnauthorizedUserException("Access token is invalid.");
-        }
+        AccessToken accessToken = accessTokenOptional.orElseThrow(AccessDeniedException::new);
 
         // We've validated the user is authenticated. Now make sure the request has the required fields.
         if (
@@ -214,11 +210,11 @@ public class AccessTokenController {
             );
         }
 
-        Entity entity = existingAccessToken.getEntity();
+        Entity entity = accessToken.getEntity();
 
         if (entity == null) {
             logger.error(
-                    "Attempted to reset password. Token was valid but the entity was null: " + existingAccessToken
+                    "Attempted to reset password. Token was valid but the entity was null: " + accessTokenOptional
             );
             throw new ResourceNotFoundException("Unable to reset password.");
         }
@@ -227,8 +223,8 @@ public class AccessTokenController {
         entity.setPassword(bCryptPasswordEncoder.encode(updatedEntity.getPassword()));
         entityService.updateEntity(entity);
 
-        // delete the access token if its valid and we've successfully updated the user
-        accessTokenService.deleteAccessTokenByToken(existingAccessToken.getToken());
+        // delete the reset password token and all other current bearer tokens if its valid and we've successfully updated the user
+        accessTokenService.delete(accessToken);
         accessTokenService.deleteAccessTokenByEntityAndType(entity, new AccessTokenTypeBearerToken());
 
         return new ResponseEntity<>("SUCCESS", HttpStatus.OK);

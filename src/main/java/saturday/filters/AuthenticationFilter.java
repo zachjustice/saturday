@@ -5,10 +5,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.filter.GenericFilterBean;
+import saturday.delegates.AccessTokenDelegate;
 import saturday.domain.accessTokenTypes.AccessTokenType;
 import saturday.domain.accessTokens.AccessToken;
-import saturday.exceptions.ResourceNotFoundException;
-import saturday.services.AccessTokenService;
+import saturday.domain.accessTokens.BearerToken;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -16,7 +16,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,15 +25,12 @@ public class AuthenticationFilter extends GenericFilterBean {
     private static final String TOKEN_PREFIX = "Bearer";
     private static final String HEADER_STRING = "Authorization";
 
-    private AccessTokenService accessTokenService;
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private AccessTokenDelegate accessTokenDelegate;
 
     public AuthenticationFilter(
-            AccessTokenService accessTokenService,
-            BCryptPasswordEncoder bCryptPasswordEncoder
+            AccessTokenDelegate accessTokenDelegate
     ) {
-        this.accessTokenService = accessTokenService;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.accessTokenDelegate = accessTokenDelegate;
     }
 
     @Override
@@ -55,38 +51,18 @@ public class AuthenticationFilter extends GenericFilterBean {
         // get and check whether token is valid ( token.replace(TOKEN_PREFIX, "")
         // from DB or file wherever you are storing the token)
         base64EncodedEmailAndToken = base64EncodedEmailAndToken.replace(TOKEN_PREFIX, "").trim();
-        String emailAndToken = new String(Base64.decode(base64EncodedEmailAndToken));
-        String[] emailAndTokenArr = emailAndToken.split(":");
 
-        if (emailAndTokenArr.length != 2) {
-            throw new IllegalArgumentException("Invalid bearer token");
-        }
+        Optional<AccessToken> accessTokenOptional = accessTokenDelegate.validate(
+                base64EncodedEmailAndToken,
+                AccessTokenType.BEARER_TOKEN
+        );
 
-        String email = emailAndTokenArr[0];
-        String rawToken = emailAndTokenArr[1];
-        validateToken(email, rawToken);
+        accessTokenOptional.ifPresent(this::setSecurityContext);
 
         chain.doFilter(request, response);
     }
 
-    private void validateToken(String email, String rawToken) {
-        List<AccessToken> accessTokens;
-        try {
-            accessTokens = accessTokenService.findByEmailAndTypeId(email, AccessTokenType.BEARER_TOKEN);
-        } catch (ResourceNotFoundException e) {
-            accessTokens = new ArrayList<>();
-        }
-
-        Optional<AccessToken> matchingToken = accessTokens
-                .stream()
-                .filter(accessToken -> bCryptPasswordEncoder.matches(rawToken, accessToken.getToken()))
-                .findFirst();
-
-        matchingToken.ifPresent(this::setSecurityContext);
-    }
-
     private void setSecurityContext(AccessToken accessToken) {
-        List<AccessToken> accessTokens;
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                 accessToken.getEntity().getEmail(),
                 null,

@@ -10,13 +10,11 @@ import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import saturday.domain.Entity;
-import saturday.domain.roles.Role;
 import saturday.domain.roles.RoleUser;
 import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ProcessingResourceException;
 import saturday.repositories.EntityRepository;
 import saturday.repositories.RoleRepository;
-import saturday.utils.TokenAuthenticationUtils;
 
 import java.util.Collections;
 import java.util.Date;
@@ -123,8 +121,6 @@ public class EntityService {
         if(StringUtils.isEmpty(entity.getName())) {
             throw new BusinessLogicException("Name cannot be empty.");
         }
-
-        String token = TokenAuthenticationUtils.createToken(entity.getEmail());
 
         entity.setIsEmailConfirmed(false);
         entity.setPassword(bCryptPasswordEncoder.encode(entity.getPassword()));

@@ -1,6 +1,7 @@
 package saturday.domain.accessTokens;
 
 import saturday.domain.accessTokenTypes.AccessTokenType;
+import saturday.domain.accessTokenTypes.AccessTokenTypeEmailConfirmationToken;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -36,6 +37,18 @@ public class AccessToken {
         this.token = token;
         this.type = type;
         this.entity = entity;
+    }
+
+    public AccessToken(
+            String tokenHash,
+            AccessTokenType type,
+            saturday.domain.Entity entity,
+            Date expirationDate
+    ) {
+        this.token = tokenHash;
+        this.type = type;
+        this.entity = entity;
+        this.expirationDate = expirationDate;
     }
 
     public Integer getId() {

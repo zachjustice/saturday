@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
+import saturday.delegates.AccessTokenDelegate;
 import saturday.domain.accessTokens.AccessToken;
 import saturday.domain.accessTokenTypes.AccessTokenType;
 import saturday.domain.Entity;
@@ -17,7 +18,7 @@ import java.io.IOException;
 @Service()
 public class ResetPasswordService {
 
-    private final AccessTokenService accessTokenService;
+    private final AccessTokenDelegate accessTokenDelegate;
     private final EmailService emailService;
 
     @Value("${saturday.access-token-type.reset-password}")
@@ -31,10 +32,10 @@ public class ResetPasswordService {
 
     @Autowired
     public ResetPasswordService(
-            AccessTokenService accessTokenService,
+            AccessTokenDelegate accessTokenDelegate,
             EmailService emailService
     ) {
-        this.accessTokenService = accessTokenService;
+        this.accessTokenDelegate = accessTokenDelegate;
         this.emailService = emailService;
     }
 
@@ -44,9 +45,10 @@ public class ResetPasswordService {
      * @throws MailException If the email is unable to send
      */
     public void sendEmail(Entity entity) throws MailException {
-        AccessTokenType accessTokenType = new AccessTokenType();
-        accessTokenType.setId(ACCESS_TOKEN_TYPE_RESET_PASSWORD);
-        AccessToken accessToken = accessTokenService.save(entity, 60 * 60 * 24 * 1000, accessTokenType);
+        String token = accessTokenDelegate.saveResetPasswordToken(
+                entity,
+                60 * 60 * 24 * 1000
+        );
 
         String forgotPasswordEmailTemplate;
         try {
@@ -63,7 +65,7 @@ public class ResetPasswordService {
                         entity.getName()
                 ).replace(
                         "{{FORGOT_PASSWORD_CODE}}",
-                        formatResetPasswordToken(accessToken.getToken())
+                        formatResetPasswordToken(token)
                 );
 
         emailService.sendEmail("MomDiary Account Recovery", entity.getEmail(), FROM_EMAIL, forgotPasswordEmailBody);

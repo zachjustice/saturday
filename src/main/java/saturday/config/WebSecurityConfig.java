@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import saturday.delegates.AccessTokenDelegate;
 import saturday.filters.AuthenticationFilter;
 import saturday.services.AccessTokenService;
 
@@ -28,17 +29,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final DataSource dataSource;
-    private final AccessTokenService accessTokenService;
+    private final AccessTokenDelegate accessTokenDelegate;
 
     @Autowired
     public WebSecurityConfig(
             BCryptPasswordEncoder bCryptPasswordEncoder,
             @Qualifier("dataSource") DataSource dataSource,
-            AccessTokenService accessTokenService
+            AccessTokenDelegate accessTokenDelegate
     ) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.dataSource = dataSource;
-        this.accessTokenService = accessTokenService;
+        this.accessTokenDelegate = accessTokenDelegate;
     }
 
     @Override
@@ -78,7 +79,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 // validate each request using the token in the Authorization header
                 .addFilterBefore(
-                        new AuthenticationFilter(accessTokenService, bCryptPasswordEncoder),
+                        new AuthenticationFilter(accessTokenDelegate),
                         BasicAuthenticationFilter.class
                 )
                 .sessionManagement()

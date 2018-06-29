@@ -9,22 +9,24 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
-import saturday.domain.accessTokens.AccessToken;
-import saturday.domain.accessTokenTypes.AccessTokenType;
+import saturday.delegates.AccessTokenDelegate;
 import saturday.domain.Entity;
+import saturday.domain.accessTokenTypes.AccessTokenType;
+import saturday.domain.accessTokens.AccessToken;
 import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.ResourceNotFoundException;
 import saturday.utils.FileUtils;
-import saturday.utils.TokenAuthenticationUtils;
 
 import java.io.IOException;
 import java.util.Base64;
+import java.util.Optional;
 
 @Service()
 public class ConfirmEmailService {
 
     private final EmailService emailService;
     private final AccessTokenService accessTokenService;
+    private final AccessTokenDelegate accessTokenDelegate;
     private final EntityService entityService;
 
     @Value("${saturday.client-url}")
@@ -40,9 +42,15 @@ public class ConfirmEmailService {
     private static final String CONFIRMATON_URL_PLACEHOLDER = "{{CONFIRMATION_URL}}";
 
     @Autowired
-    public ConfirmEmailService(EmailService emailService, AccessTokenService accessTokenService, EntityService entityService) {
+    public ConfirmEmailService(
+            EmailService emailService,
+            AccessTokenService accessTokenService,
+            AccessTokenDelegate accessTokenDelegate,
+            EntityService entityService
+    ) {
         this.emailService = emailService;
         this.accessTokenService = accessTokenService;
+        this.accessTokenDelegate = accessTokenDelegate;
         this.entityService = entityService;
     }
 
@@ -64,9 +72,10 @@ public class ConfirmEmailService {
      * @throws MailException if there is a problem sending the email
      */
     public void sendEmail(Entity entity) throws MailException {
-        AccessTokenType accessTokenType = new AccessTokenType();
-        accessTokenType.setId(ACCESS_TOKEN_TYPE_EMAIL_CONFIRMATION);
-        AccessToken accessToken = accessTokenService.save(entity, 60 * 60 * 24 * 1000, accessTokenType);
+        String base64EncodedEmailAndToken = accessTokenDelegate.saveEmailConfirmationToken(
+                entity,
+                60 * 60 * 24 * 1000
+        );
 
         String confirmationEmailTemplate;
         ClassPathResource cpr = new ClassPathResource("templates/confirm_email.html");
@@ -79,7 +88,7 @@ public class ConfirmEmailService {
 
         String confirmationEmailBody = confirmationEmailTemplate.replace(
                 CONFIRMATON_URL_PLACEHOLDER,
-                constructVerificationUrl(accessToken.getToken(), entity.getEmail())
+                constructVerificationUrl(base64EncodedEmailAndToken , entity.getEmail())
         );
 
         emailService.sendEmail(CONFIRMATON_EMAIL_SUBJECT, entity.getEmail(), FROM_EMAIL, confirmationEmailBody);
@@ -98,26 +107,22 @@ public class ConfirmEmailService {
      *                               - if the token is not a registration token
      */
     public Entity validateConfirmEmailToken(String token) {
-        String email = TokenAuthenticationUtils.validateToken(token);
+        Optional<AccessToken> accessTokenOptional = accessTokenDelegate.validate(
+                token,
+                AccessTokenType.EMAIL_CONFIRMATION
+        );
+
+        AccessToken accessToken = accessTokenOptional.orElseThrow(AccessDeniedException::new);
 
         // Check if the user has already confirmed their email address
-        Entity entity = entityService.findEntityByEmail(email);
+        Entity entity = entityService.findEntityByEmail(accessToken.getEntity().getEmail());
         if (entity.getIsEmailConfirmed()) {
             return entity;
         }
 
-        // query the access token table by token to make sure its still valid
-        // (i.e. its not being reused)
-        AccessToken existing;
-        try {
-            existing = accessTokenService.findByToken(token);
-        } catch (ResourceNotFoundException e) {
-            throw new AccessDeniedException("Access token is not valid.");
-        }
-
         // Make sure they're using the correct kind of token
         // i.e. we don't want people to use a normal auth or password reset token to confirm the email
-        if (existing.getType().getId() != ACCESS_TOKEN_TYPE_EMAIL_CONFIRMATION) {
+        if (accessToken.getType().getId() != ACCESS_TOKEN_TYPE_EMAIL_CONFIRMATION) {
             throw new AccessDeniedException("Access token is invalid.");
         }
 
@@ -126,7 +131,7 @@ public class ConfirmEmailService {
         entityService.updateEntity(entity);
 
         // delete the access token after we've updated the user
-        accessTokenService.deleteAccessTokenByToken(existing.getToken());
+        accessTokenService.delete(accessToken);
         return entity;
     }
 
