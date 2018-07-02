@@ -38,7 +38,7 @@ public class TopicMember {
     private saturday.domain.Entity creator;
 
     @ManyToOne
-    @JoinColumn(name="modifier_id", referencedColumnName = "id", nullable=false)
+    @JoinColumn(name="modifier_id", referencedColumnName = "id")
     private saturday.domain.Entity modifier;
 
     @Column(name = "created", insertable = false, updatable = false)

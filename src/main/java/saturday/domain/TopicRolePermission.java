@@ -43,7 +43,7 @@ public class TopicRolePermission {
     private Entity creator;
 
     @ManyToOne
-    @JoinColumn(name="modifier_id", referencedColumnName = "id", nullable=false)
+    @JoinColumn(name="modifier_id", referencedColumnName = "id")
     private Entity modifier;
 
     @Column(name = "created", insertable = false, updatable = false)
