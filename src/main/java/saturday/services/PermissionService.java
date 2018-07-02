@@ -46,7 +46,6 @@ public class PermissionService {
             throw new BusinessLogicException("Could not authenticate permissions. Topic is null while checking isTopicMember().");
         }
 
-        // TODO better way to do this
         TopicMemberStatus acceptedStatus = new TopicMemberStatusAccepted();
 
         TopicMember topicMember = this.topicMemberService.findByEntityAndTopicAndStatus(entity, topic, acceptedStatus);
@@ -174,7 +173,6 @@ public class PermissionService {
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
 
         return authenticatedEntity.isAdmin()
-                || topicMember.getEntity().getId() == authenticatedEntity.getId()
                 || isTopicMember(authenticatedEntity, topicMember.getTopic());
     }
 
@@ -263,13 +261,13 @@ public class PermissionService {
     /**
      * Validates if the auth'ed entity can update the topic member
      * Currently, the only field on topic members that can be updated is
-     * the topic member status.
+     * the topic member status and topic role.
+     *
      * Valid transitions for the topic member status
      * (pending|accepted) -> rescinded               by the inviter
      * rescinded          -> pending                 by the inviter
      * pending            -> (accepted | rejected)   by the invitee
      * accepted           -> left_topic              by the invitee
-     // TODO topic moderators, etc can rescind invites
      * @param newTopicMember The new topic member object with the applied updates
      * @return If the auth'ed user can modify the topic member
      */
@@ -277,10 +275,10 @@ public class PermissionService {
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
         TopicMember oldTopicMember = this.topicMemberService.findById(newTopicMember.getId());
         if(authenticatedEntity.isAdmin()) {
-            return authenticatedEntity.isAdmin();
+            return true;
         }
 
-        if(oldTopicMember.getStatus() == null) {
+        if(newTopicMember.getStatus() == null) {
             throw new BusinessLogicException("Failed to authenticate permissions. Null topic member status.");
         }
 
@@ -288,17 +286,22 @@ public class PermissionService {
             throw new BusinessLogicException("Failed to authenticate permissions. Null topic member status.");
         }
 
-        if(oldTopicMember.getCreator() == null) {
+        if(newTopicMember.getCreator() == null) {
             throw new BusinessLogicException("Failed to authenticate permissions. Null creator.");
         }
 
-        if(oldTopicMember.getEntity() == null) {
+        if(newTopicMember.getEntity() == null) {
             throw new BusinessLogicException("Failed to authenticate permissions. Null topic member entity.");
         }
 
         /*
          * Validate update to topic role
+         * If the topicRole has changed and the current entity isn't the owner, fail.
          */
+        if (newTopicMember.getTopicRole().getId() != oldTopicMember.getTopicRole().getId()
+            && oldTopicMember.getTopic().getOwner().getId() != authenticatedEntity.getId()) {
+            return false;
+        }
 
         /*
          * Validate update the new topic member status
@@ -306,7 +309,7 @@ public class PermissionService {
         if(oldTopicMember.getStatus().getId() == newTopicMember.getStatus().getId()) {
             // If there was no change to the topic member status, then we're all good
             return true;
-        } else if(oldTopicMember.getStatus().getId()          == TopicMemberStatus.PENDING
+        } else if(oldTopicMember.getStatus().getId()   == TopicMemberStatus.PENDING
                 && newTopicMember.getStatus().getId()  == TopicMemberStatus.RESCINDED
                 && oldTopicMember.getCreator().getId() == authenticatedEntity.getId()) {
 
