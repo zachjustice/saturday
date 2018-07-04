@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import saturday.delegates.TopicDelegate;
 import saturday.delegates.TopicRolePermissionDelegate;
+import saturday.domain.CreateTopicRequest;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicMember;
@@ -51,11 +52,11 @@ public class TopicController {
     }
 
     @RequestMapping(value = "/topics", method = RequestMethod.POST)
-    public ResponseEntity<Topic> createTopic(@RequestBody Topic topic) {
+    public ResponseEntity<Topic> createTopic(@RequestBody CreateTopicRequest createTopicRequest) {
 
         // TODO AWS API Gateway style rate limiting for topics?
         // Create a topic and set the current user as the only member
-        topic = topicDelegate.save(topic);
+        Topic topic = topicDelegate.save(createTopicRequest);
 
         return new ResponseEntity<>(topic, HttpStatus.OK);
     }

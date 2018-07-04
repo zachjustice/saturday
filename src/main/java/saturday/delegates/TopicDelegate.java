@@ -1,7 +1,10 @@
 package saturday.delegates;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import saturday.domain.CreateTopicRequest;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicMember;
@@ -20,10 +23,13 @@ import saturday.services.TopicMemberService;
 import saturday.services.TopicRolePermissionService;
 import saturday.services.TopicService;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Component()
 public class TopicDelegate {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final TopicService topicService;
     private final TopicMemberService topicMemberService;
@@ -54,9 +60,11 @@ public class TopicDelegate {
         return topicService.update(topic);
     }
 
-    public Topic save(Topic topic) {
+    public Topic save(CreateTopicRequest createTopicRequest) {
+        // TODO check 3 topics per minute
+
         // Create Topic
-        topic = topicService.save(topic);
+        Topic topic = topicService.save(createTopicRequest.getTopic());
 
         // Add creator of the topic as the only topic member with a role of admin
         Entity currentEntity = entityService.getAuthenticatedEntity();
@@ -92,7 +100,10 @@ public class TopicDelegate {
             topicRolePermissionService.save(adminPermission);
         }
 
-        return topic;
+        // TODO Add topic member for each email in the create topic request
+        logger.info(Arrays.toString(createTopicRequest.getInitialTopicMemberEmails()));
+
+        return createTopicRequest;
     }
 
     public List<Topic> getEntityTopics(int entityId) {

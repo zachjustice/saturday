@@ -12,6 +12,7 @@ import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ResourceNotFoundException;
 import saturday.repositories.TopicRepository;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Service()
@@ -103,13 +104,16 @@ public class TopicService {
     }
 
     public Topic save(Topic topic) {
+        if (topic == null) {
+            throw new IllegalArgumentException("Null topic");
+        }
 
         if (StringUtils.isEmpty(topic.getName()) || topic.getName().length() > TOPIC_NAME_MAX_LENGTH) {
-            throw new BusinessLogicException("Invalid topic name. Topic name must exist and be less than " + TOPIC_NAME_MAX_LENGTH + " characters.");
+            throw new IllegalArgumentException("Invalid topic name. Topic name must exist and be less than " + TOPIC_NAME_MAX_LENGTH + " characters.");
         }
 
         if (topic.getDescription() != null && topic.getDescription().length() > TOPIC_DESCRIPTION_MAX_LENGTH) {
-            throw new BusinessLogicException("Invalid topic description. Topic description must be less than " + TOPIC_DESCRIPTION_MAX_LENGTH + " characters.");
+            throw new IllegalArgumentException("Invalid topic description. Topic description must be less than " + TOPIC_DESCRIPTION_MAX_LENGTH + " characters.");
         }
 
         topic.setCreator(entityService.getAuthenticatedEntity());

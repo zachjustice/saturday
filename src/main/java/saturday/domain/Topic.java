@@ -19,32 +19,44 @@ public class Topic {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false)
-    private int id;
+    protected int id;
 
     @Column(name = "name")
-    private String name;
+    protected String name;
 
     @Column(name = "description")
-    private String description;
+    protected String description;
 
     @ManyToOne
     @JoinColumn(name="owner_id", referencedColumnName = "id", nullable=false)
-    private Entity owner;
+    protected Entity owner;
 
     @ManyToOne
     @JoinColumn(name="creator_id", referencedColumnName = "id", nullable=false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Entity creator;
+    protected Entity creator;
 
     @Column(name = "created", insertable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date created;
+    protected Date created;
 
     @Column(name = "modified", insertable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date modified;
+    protected Date modified;
+
+    public Topic(String name, String description, Entity owner, Entity creator, Date created, Date modified) {
+        this.name = name;
+        this.description = description;
+        this.owner = owner;
+        this.creator = creator;
+        this.created = created;
+        this.modified = modified;
+    }
+
+    public Topic() {
+    }
 
     public int getId() {
         return id;
