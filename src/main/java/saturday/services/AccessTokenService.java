@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Supplier;
 
+import static saturday.utils.CommonUtils.getOrElse;
+
 @Service()
 public class AccessTokenService {
     private final AccessTokenRepository accessTokenRepository;
@@ -103,14 +105,6 @@ public class AccessTokenService {
                 () ->  accessTokenRepository.findByEmailAndTypeId(email, typeId),
                 Collections.emptyList()
         );
-    }
-
-    private <T> T getOrElse(Supplier<T> supplier, T defaultValue) {
-        try {
-            return supplier.get();
-        } catch (ResourceNotFoundException e) {
-            return defaultValue;
-        }
     }
 
     public void delete(AccessToken accessToken) {

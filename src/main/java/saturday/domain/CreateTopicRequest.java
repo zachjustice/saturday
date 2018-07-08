@@ -2,9 +2,11 @@ package saturday.domain;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 public class CreateTopicRequest extends Topic {
-    private String[] initialTopicMemberEmails;
+    private List<String> initialTopicMemberEmails;
     private Topic topic;
 
     public CreateTopicRequest() {
@@ -30,14 +32,14 @@ public class CreateTopicRequest extends Topic {
         return this.topic;
     }
 
-    public String[] getInitialTopicMemberEmails() {
+    public List<String> getInitialTopicMemberEmails() {
         return initialTopicMemberEmails;
     }
 
     @Override
     public String toString() {
         return "CreateTopicRequest{" +
-                "initialTopicMemberEmails=" + Arrays.toString(initialTopicMemberEmails) +
+                "initialTopicMemberEmails=" + initialTopicMemberEmails.toString() +
                 '}';
     }
 
@@ -46,11 +48,13 @@ public class CreateTopicRequest extends Topic {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CreateTopicRequest that = (CreateTopicRequest) o;
-        return Arrays.equals(initialTopicMemberEmails, that.initialTopicMemberEmails);
+        return Objects.equals(initialTopicMemberEmails, that.initialTopicMemberEmails) &&
+                Objects.equals(topic, that.topic);
     }
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(initialTopicMemberEmails);
+
+        return Objects.hash(initialTopicMemberEmails, topic);
     }
 }

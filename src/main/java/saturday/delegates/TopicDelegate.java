@@ -17,6 +17,7 @@ import saturday.domain.topicMemberStatuses.TopicMemberStatusAccepted;
 import saturday.domain.topicRoles.TopicAdmin;
 import saturday.domain.topicRoles.TopicUser;
 import saturday.exceptions.AccessDeniedException;
+import saturday.exceptions.ResourceNotFoundException;
 import saturday.services.EntityService;
 import saturday.services.PermissionService;
 import saturday.services.TopicMemberService;
@@ -36,6 +37,7 @@ public class TopicDelegate {
     private final EntityService entityService;
     private final TopicRolePermissionService topicRolePermissionService;
     private final PermissionService permissionService;
+    private final TopicMemberDelegate topicMemberDelegate;
 
     @Autowired
     public TopicDelegate(
@@ -43,13 +45,14 @@ public class TopicDelegate {
             TopicMemberService topicMemberService,
             EntityService entityService,
             TopicRolePermissionService topicRolePermissionService,
-            PermissionService permissionService
-    ) {
+            PermissionService permissionService,
+            TopicMemberDelegate topicMemberDelegate) {
         this.topicService = topicService;
         this.topicMemberService = topicMemberService;
         this.entityService = entityService;
         this.topicRolePermissionService = topicRolePermissionService;
         this.permissionService = permissionService;
+        this.topicMemberDelegate = topicMemberDelegate;
     }
 
     public Topic update(Topic topic) {
@@ -67,6 +70,25 @@ public class TopicDelegate {
         Topic topic = topicService.save(createTopicRequest.getTopic());
 
         // Add creator of the topic as the only topic member with a role of admin
+        setTopicOwner(topic);
+        setTopicRolePermissions(topic);
+        inviteInitialTopicMembers(createTopicRequest, topic);
+
+        return createTopicRequest.getTopic();
+    }
+
+    private void inviteInitialTopicMembers(CreateTopicRequest createTopicRequest, Topic topic) {
+        logger.info(createTopicRequest.getInitialTopicMemberEmails().toString());
+        createTopicRequest
+                .getInitialTopicMemberEmails()
+                .forEach((email) -> {
+                    try {
+                        topicMemberDelegate.inviteByEmail(email, topic.getId());
+                    } catch(ResourceNotFoundException ignored) { }
+                });
+    }
+
+    private void setTopicOwner(Topic topic) {
         Entity currentEntity = entityService.getAuthenticatedEntity();
 
         TopicMemberStatus acceptedStatus = new TopicMemberStatusAccepted();
@@ -80,7 +102,9 @@ public class TopicDelegate {
 
         topicMember.setStatus(acceptedStatus);
         topicMemberService.save(topicMember);
+    }
 
+    private void setTopicRolePermissions(Topic topic) {
         // Add default topic permissions for topic users
         //   users can post and invite by default
         TopicPermission[] allPermissions = new TopicPermission[]{
@@ -99,11 +123,6 @@ public class TopicDelegate {
 
             topicRolePermissionService.save(adminPermission);
         }
-
-        // TODO Add topic member for each email in the create topic request
-        logger.info(Arrays.toString(createTopicRequest.getInitialTopicMemberEmails()));
-
-        return createTopicRequest;
     }
 
     public List<Topic> getEntityTopics(int entityId) {
