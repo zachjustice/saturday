@@ -125,13 +125,13 @@ public class TopicDelegate {
         }
     }
 
-    public List<Topic> getEntityTopics(int entityId) {
+    public List<Topic> getTopicsByEntityAndTopicMemberStatusId(int entityId, int statusId) {
         Entity entity = entityService.findEntityById(entityId);
 
         if(!permissionService.canAccess(entity)) {
             throw new AccessDeniedException();
         }
 
-        return this.topicService.findByEntityIdAndTopicMemberStatusId(entityId, TopicMemberStatus.ACCEPTED);
+        return this.topicService.findByEntityIdAndTopicMemberStatusId(entityId, statusId);
     }
 }

@@ -17,6 +17,7 @@ import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicMember;
 import saturday.domain.TopicRolePermission;
+import saturday.domain.topicMemberStatuses.TopicMemberStatus;
 import saturday.exceptions.AccessDeniedException;
 import saturday.services.EntityService;
 import saturday.services.PermissionService;
@@ -127,11 +128,12 @@ public class TopicController {
      * @param entityId The entity for which to retrieve topics
      * @return A list of topics
      */
-    @RequestMapping(value = "/entities/{id}/topics", method = RequestMethod.GET)
-    public ResponseEntity<List<Topic>> getEntityTopics(
-            @PathVariable(value="id") int entityId
+    @RequestMapping(value = "/entities/{id}/topic_member_status_id/{status_id}", method = RequestMethod.GET)
+    public ResponseEntity<List<Topic>> getTopicByEntityAndTopicMemberStatusId(
+            @PathVariable(value = "id") int entityId,
+            @PathVariable("status_id") int statusId
     ) {
-        List<Topic> entityTopics = this.topicDelegate.getEntityTopics(entityId);
+        List<Topic> entityTopics = this.topicDelegate.getTopicsByEntityAndTopicMemberStatusId(entityId, statusId);
         return new ResponseEntity<>(entityTopics, HttpStatus.OK);
     }
 
