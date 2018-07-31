@@ -14,9 +14,8 @@ import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.function.Supplier;
 
-import static saturday.utils.CommonUtils.getOrElse;
+import static saturday.utils.CommonUtils.getOrDefault;
 
 @Service()
 public class AccessTokenService {
@@ -101,7 +100,7 @@ public class AccessTokenService {
             return Collections.emptyList();
         }
 
-        return getOrElse(
+        return getOrDefault(
                 () ->  accessTokenRepository.findByEmailAndTypeId(email, typeId),
                 Collections.emptyList()
         );

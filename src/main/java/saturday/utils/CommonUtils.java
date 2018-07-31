@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 
 public class CommonUtils {
 
-    public static <T> T getOrElse(Supplier<T> supplier, T defaultValue) {
+    public static <T> T getOrDefault(Supplier<T> supplier, T defaultValue) {
         try {
             return supplier.get();
         } catch (ResourceNotFoundException e) {
