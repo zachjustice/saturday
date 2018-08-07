@@ -1,14 +1,11 @@
 package saturday.filters;
 
-import org.postgresql.util.Base64;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.filter.GenericFilterBean;
 import saturday.delegates.AccessTokenDelegate;
 import saturday.domain.accessTokenTypes.AccessTokenType;
 import saturday.domain.accessTokens.AccessToken;
-import saturday.domain.accessTokens.BearerToken;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -16,7 +13,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;

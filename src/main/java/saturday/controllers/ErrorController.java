@@ -23,13 +23,13 @@ public class ErrorController extends ResponseEntityExceptionHandler {
     }
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    @ExceptionHandler(UnauthorizedUserException.class)
+    @ExceptionHandler(AccessDeniedException.class)
     public Map<String, String> handleUnauthorizedException(Exception e) {
         return getErrorResponse(e);
     }
 
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    @ExceptionHandler(AccessDeniedException.class)
+    @ExceptionHandler(UnauthorizedUserException.class)
     public Map<String, String> handleAccessDeniedException(Exception e) {
         return getErrorResponse(e);
     }
