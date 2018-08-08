@@ -71,6 +71,10 @@ public class TopicRolePermissionService {
         return topicRolePermission;
     }
 
+    public List<TopicRolePermission> findByTopicId(int topicId) {
+        return this.topicRolePermissionRepository.findByTopicId(topicId);
+    }
+
     public List<TopicRolePermission> findByEntityId(int entityId) {
         return this.topicRolePermissionRepository.findByEntityId(entityId);
     }

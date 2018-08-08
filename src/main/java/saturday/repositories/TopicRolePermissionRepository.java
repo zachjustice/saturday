@@ -26,4 +26,6 @@ public interface TopicRolePermissionRepository extends JpaRepository<TopicRolePe
 
     List<TopicRolePermission> findByTopicIdAndIsAllowed(int id, boolean isAllowed);
     TopicRolePermission findByTopicIdAndTopicRoleIdAndTopicPermissionId(int topicId, int topicRoleId, int topicPermissionId);
+
+    List<TopicRolePermission> findByTopicId(int topicId);
 }
