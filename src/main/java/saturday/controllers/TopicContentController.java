@@ -171,12 +171,12 @@ public class TopicContentController {
     }
 
     /**
-     * Returns a list of topic content for a topic
+     * Returns a list of topic content for a topic inclusive for start and end date
      *
      * @return list of topic content
      */
     @RequestMapping(value = "/topics/{id}/topic_content", method = RequestMethod.GET)
-    public ResponseEntity<Map<String, List<TopicContent>>> getTopicContentByTopic(
+    public ResponseEntity<List<TopicContent>> getTopicContentByTopic(
             @PathVariable(value = "id") int topicId,
             @RequestParam(value = "start") @DateTimeFormat(pattern="yyyy-MM-dd") Date start,
             @RequestParam(value = "end") @DateTimeFormat(pattern="yyyy-MM-dd") Date end
@@ -187,7 +187,7 @@ public class TopicContentController {
             throw new AccessDeniedException("Authenticated entity does not have sufficient permissions");
         }
 
-        Map<String, List<TopicContent>> topicContentList = topicContentService.findTopicContentByTopicIdGroupedByDateTaken(start, end, topicId);
+        List<TopicContent> topicContentList = topicContentService.findTopicContentByTopicIdAndDateRange(start, end, topicId);
         return new ResponseEntity<>(topicContentList, HttpStatus.OK);
     }
 }

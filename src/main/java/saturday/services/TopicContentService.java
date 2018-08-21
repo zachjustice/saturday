@@ -91,33 +91,9 @@ public class TopicContentService {
      * @return all topic content for a topic
      */
 
-    public Map<String, List<TopicContent>> findTopicContentByTopicIdGroupedByDateTaken(Date start, Date end, int topicId) {
-
-        Map<DateTime, List<TopicContent>> topicContentByDateTaken = topicContentRepository
-                .findTopicContentByTopicIdAndDateTakenBetweenOrderByDateTakenDesc(topicId, start, end)
-                .stream()
-                .collect(Collectors.groupingBy((topicContent) -> {
-                    DateTime dateTime = new DateTime(topicContent.getDateTaken().getTime());
-                    return dateTime.withTimeAtStartOfDay();
-                }));
-
-        LinkedHashMap<String, List<TopicContent>> orderedTopicContentByDate = new LinkedHashMap<>();
-
-        // first date in the map should be the earliest. (we start getting photos in January and end getting photos
-        // February- currDate/feb is after startDate/jan)
-        for (DateTime currDate = new DateTime(end); currDate.isAfter(start.getTime()); currDate = currDate.plusDays(-1)) {
-            SimpleDateFormat format = new SimpleDateFormat(dateFormat);
-            String dateFormatted = format.format(currDate.toDate());
-
-            List<TopicContent> topicContentForDay = topicContentByDateTaken.get(currDate);
-            if (topicContentForDay == null) {
-                topicContentForDay = new ArrayList<>();
-            }
-
-            orderedTopicContentByDate.put(dateFormatted, topicContentForDay);
-        }
-
-        return orderedTopicContentByDate;
+    public List<TopicContent> findTopicContentByTopicIdAndDateRange(Date start, Date end, int topicId) {
+        return topicContentRepository
+                .findTopicContentByTopicIdAndDateTakenBetweenOrderByDateTakenDesc(topicId, start, end);
     }
 
     /**
