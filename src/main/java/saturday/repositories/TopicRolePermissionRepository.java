@@ -19,7 +19,8 @@ public interface TopicRolePermissionRepository extends JpaRepository<TopicRolePe
                     "join topic_members tm " +
                     "   on tm.topic_id = trp.topic_id " +
                     "   and trp.topic_role_id = tm.topic_role_id  " +
-                    "where tm.entity_id = :entity_id",
+                    "where tm.entity_id = :entity_id" +
+                    "   and tm.status_id = 3",
             nativeQuery = true
     )
     List<TopicRolePermission> findByEntityId(@Param("entity_id") int entityId);

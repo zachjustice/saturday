@@ -15,6 +15,7 @@ import saturday.domain.TopicRolePermission;
 import saturday.domain.topicMemberStatuses.TopicMemberStatus;
 import saturday.domain.topicMemberStatuses.TopicMemberStatusAccepted;
 import saturday.domain.topicRoles.TopicAdmin;
+import saturday.domain.topicRoles.TopicRole;
 import saturday.domain.topicRoles.TopicUser;
 import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.ResourceNotFoundException;
@@ -105,23 +106,29 @@ public class TopicDelegate {
     }
 
     private void setTopicRolePermissions(Topic topic) {
-        // Add default topic permissions for topic users
+        // Add default topic permissions for topic users and admins
         //   users can post and invite by default
         TopicPermission[] allPermissions = new TopicPermission[]{
                 new TopicPermissionCanPost(),
                 new TopicPermissionCanInvite()
         };
 
-        for(TopicPermission topicPermission: allPermissions) {
-            TopicUser userTopicRole = new TopicUser();
+        //   admins can post and invite by default
+        TopicRole[] allRoles = new TopicRole[]{
+                new TopicUser(),
+                new TopicAdmin()
+        };
 
-            TopicRolePermission adminPermission = new TopicRolePermission();
-            adminPermission.setTopic(topic);
-            adminPermission.setTopicRole(userTopicRole);
-            adminPermission.setTopicPermission(topicPermission);
-            adminPermission.setIsAllowed(true);
+        for(TopicRole topicRole: allRoles) {
+            for (TopicPermission topicPermission : allPermissions) {
+                TopicRolePermission adminPermission = new TopicRolePermission();
+                adminPermission.setTopic(topic);
+                adminPermission.setTopicRole(topicRole);
+                adminPermission.setTopicPermission(topicPermission);
+                adminPermission.setIsAllowed(true);
 
-            topicRolePermissionService.save(adminPermission);
+                topicRolePermissionService.save(adminPermission);
+            }
         }
     }
 
