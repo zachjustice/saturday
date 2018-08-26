@@ -40,6 +40,12 @@ public class ErrorController extends ResponseEntityExceptionHandler {
         return getErrorResponse(e);
     }
 
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(DuplicateResourceException.class)
+    public Map<String, String> handleDuplicateResourceException(Exception e) {
+        return getErrorResponse(e);
+    }
+
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     public Map<String, String> handleException(Exception e) {

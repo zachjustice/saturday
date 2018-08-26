@@ -12,6 +12,7 @@ import org.springframework.util.StringUtils;
 import saturday.domain.Entity;
 import saturday.domain.roles.RoleUser;
 import saturday.exceptions.BusinessLogicException;
+import saturday.exceptions.DuplicateResourceException;
 import saturday.exceptions.ProcessingResourceException;
 import saturday.repositories.EntityRepository;
 import saturday.repositories.RoleRepository;
@@ -107,7 +108,7 @@ public class EntityService {
         Entity entityWithSameEmail = findEntityByEmail(entity.getEmail());
 
         if(entityWithSameEmail != null) {
-            throw new BusinessLogicException("An entity with the email '" + entity.getEmail() + "' already exists.");
+            throw new DuplicateResourceException("An entity with the email '" + entity.getEmail() + "' already exists.");
         }
 
         if(StringUtils.isEmpty(entity.getPassword()) || entity.getPassword().length() < 8) {
