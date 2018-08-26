@@ -38,22 +38,20 @@ public class AuthenticationFilter extends GenericFilterBean {
         final HttpServletRequest httpRequest = (HttpServletRequest)request;
 
         // extract token from header
-        String base64EncodedEmailAndToken = httpRequest.getHeader(HEADER_STRING);
-        if (base64EncodedEmailAndToken == null) {
+        String base64EncodedToken = httpRequest.getHeader(HEADER_STRING);
+        if (base64EncodedToken == null) {
             chain.doFilter(request, response);
             return;
         }
 
-        // get and check whether token is valid ( token.replace(TOKEN_PREFIX, "")
-        // from DB or file wherever you are storing the token)
-        base64EncodedEmailAndToken = base64EncodedEmailAndToken.replace(TOKEN_PREFIX, "").trim();
+        base64EncodedToken = base64EncodedToken.replace(TOKEN_PREFIX, "").trim();
 
-        Optional<AccessToken> accessTokenOptional = accessTokenDelegate.validate(
-                base64EncodedEmailAndToken,
-                AccessTokenType.BEARER_TOKEN
-        );
+        if(base64EncodedToken.charAt(0) == ':') {
+            base64EncodedToken = base64EncodedToken.substring(1).trim();
+        }
 
-        accessTokenOptional.ifPresent(this::setSecurityContext);
+        accessTokenDelegate.validate(base64EncodedToken)
+            .ifPresent(this::setSecurityContext);
 
         chain.doFilter(request, response);
     }

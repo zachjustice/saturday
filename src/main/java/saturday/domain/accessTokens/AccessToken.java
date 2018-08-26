@@ -4,6 +4,8 @@ import saturday.domain.accessTokenTypes.AccessTokenType;
 import saturday.domain.accessTokenTypes.AccessTokenTypeEmailConfirmationToken;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Objects;
 
@@ -16,7 +18,8 @@ public class AccessToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "token")
+    @Column(name = "token", nullable = false)
+    @NotEmpty
     private String token;
 
     @Column(name = "expiration_date")
@@ -24,10 +27,12 @@ public class AccessToken {
 
     @ManyToOne
     @JoinColumn(name="type_id", referencedColumnName = "id", nullable = false, insertable = false, updatable = false)
+    @NotNull
     private AccessTokenType type;
 
     @ManyToOne
     @JoinColumn(name="entity_id", referencedColumnName = "id", nullable = false)
+    @NotNull
     private saturday.domain.Entity entity;
 
     public AccessToken() {

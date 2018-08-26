@@ -13,6 +13,7 @@ import saturday.repositories.AccessTokenRepository;
 import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 import static saturday.utils.CommonUtils.getOrDefault;
@@ -104,6 +105,10 @@ public class AccessTokenService {
                 () ->  accessTokenRepository.findByEmailAndTypeId(email, typeId),
                 Collections.emptyList()
         );
+    }
+
+    public Optional<AccessToken> findById(int id) {
+        return accessTokenRepository.findById(id);
     }
 
     public void delete(AccessToken accessToken) {

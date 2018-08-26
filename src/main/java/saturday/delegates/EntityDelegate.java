@@ -33,9 +33,9 @@ public class EntityDelegate {
     public String save(Entity entity) {
         entity = entityService.saveEntity(entity);
 
-        String base64EncodedEmailAndToken = accessTokenDelegate.saveBearerToken(entity);
+        String base64EncodedToken = accessTokenDelegate.saveBearerToken(entity);
 
         saturdayEventPublisher.publishRegistrationEvent(entity);
-        return base64EncodedEmailAndToken;
+        return base64EncodedToken;
     }
 }

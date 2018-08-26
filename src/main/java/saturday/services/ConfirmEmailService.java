@@ -72,7 +72,7 @@ public class ConfirmEmailService {
      * @throws MailException if there is a problem sending the email
      */
     public void sendEmail(Entity entity) throws MailException {
-        String base64EncodedEmailAndToken = accessTokenDelegate.saveEmailConfirmationToken(
+        String base64EncodedToken = accessTokenDelegate.saveEmailConfirmationToken(
                 entity,
                 60 * 60 * 24 * 1000
         );
@@ -88,7 +88,7 @@ public class ConfirmEmailService {
 
         String confirmationEmailBody = confirmationEmailTemplate.replace(
                 CONFIRMATON_URL_PLACEHOLDER,
-                constructVerificationUrl(base64EncodedEmailAndToken , entity.getEmail())
+                constructVerificationUrl(base64EncodedToken , entity.getEmail())
         );
 
         emailService.sendEmail(CONFIRMATON_EMAIL_SUBJECT, entity.getEmail(), FROM_EMAIL, confirmationEmailBody);
@@ -107,12 +107,8 @@ public class ConfirmEmailService {
      *                               - if the token is not a registration token
      */
     public Entity validateConfirmEmailToken(String token) {
-        Optional<AccessToken> accessTokenOptional = accessTokenDelegate.validate(
-                token,
-                AccessTokenType.EMAIL_CONFIRMATION
-        );
-
-        AccessToken accessToken = accessTokenOptional.orElseThrow(AccessDeniedException::new);
+        AccessToken accessToken = accessTokenDelegate.validate(token)
+                .orElseThrow(AccessDeniedException::new);
 
         // Check if the user has already confirmed their email address
         Entity entity = entityService.findEntityByEmail(accessToken.getEntity().getEmail());

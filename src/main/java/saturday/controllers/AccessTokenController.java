@@ -27,12 +27,14 @@ import saturday.delegates.AccessTokenDelegate;
 import saturday.domain.Entity;
 import saturday.domain.accessTokenTypes.AccessTokenType;
 import saturday.domain.accessTokenTypes.AccessTokenTypeBearerToken;
+import saturday.domain.accessTokenTypes.AccessTokenTypeResetPasswordToken;
 import saturday.domain.accessTokens.AccessToken;
 import saturday.exceptions.AccessDeniedException;
 import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ProcessingResourceException;
 import saturday.exceptions.ResourceNotFoundException;
 import saturday.exceptions.UnauthorizedUserException;
+import saturday.repositories.AccessTokenRepository;
 import saturday.services.AccessTokenService;
 import saturday.services.EntityService;
 import saturday.utils.HTTPUtils;
@@ -50,6 +52,7 @@ public class AccessTokenController {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final DefaultFacebookClient facebookClient;
     private final AccessTokenDelegate accessTokenDelegate;
+    private final AccessTokenRepository accessTokenRepository;
 
     @Value("${spring.social.facebook.app-id}")
     private String FACEBOOK_APP_ID;
@@ -70,12 +73,15 @@ public class AccessTokenController {
             AccessTokenService accessTokenService,
             BCryptPasswordEncoder bCryptPasswordEncoder,
             DefaultFacebookClient facebookClient,
-            AccessTokenDelegate accessTokenDelegate) {
+            AccessTokenDelegate accessTokenDelegate,
+            AccessTokenRepository accessTokenRepository
+    ) {
         this.entityService = entityService;
         this.accessTokenService = accessTokenService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.facebookClient = facebookClient;
         this.accessTokenDelegate = accessTokenDelegate;
+        this.accessTokenRepository = accessTokenRepository;
     }
 
     /**
@@ -130,9 +136,9 @@ public class AccessTokenController {
             entity.setFbAccessToken(fbAccessToken);
         }
 
-        String base64EncodedEmailAndToken = accessTokenDelegate.saveBearerToken(entity);
+        String base64EncodedToken = accessTokenDelegate.saveBearerToken(entity);
 
-        HTTPUtils.addAuthenticationHeader(response, base64EncodedEmailAndToken);
+        HTTPUtils.addAuthenticationHeader(response, base64EncodedToken);
         return new ResponseEntity<>(entity, HttpStatus.OK);
     }
 
@@ -171,9 +177,9 @@ public class AccessTokenController {
         Authentication auth = new UsernamePasswordAuthenticationToken(existingEntity.getEmail(), null, emptyList());
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        String base64EncodedEmailAndToken = accessTokenDelegate.saveBearerToken(existingEntity);
+        String base64EncodedToken = accessTokenDelegate.saveBearerToken(existingEntity);
 
-        HTTPUtils.addAuthenticationHeader(response, base64EncodedEmailAndToken);
+        HTTPUtils.addAuthenticationHeader(response, base64EncodedToken);
 
         return new ResponseEntity<>(existingEntity, HttpStatus.OK);
     }
@@ -196,9 +202,15 @@ public class AccessTokenController {
 
         // query the access token table by token to make sure the token is still valid
         // (i.e. hasn't already been used)
-        Optional<AccessToken> accessTokenOptional = accessTokenDelegate.validateRawToken(updatedEntity.getEmail(), rawToken, AccessTokenType.FORGOT_PASSWORD);
-
-        AccessToken accessToken = accessTokenOptional.orElseThrow(AccessDeniedException::new);
+        AccessToken accessToken = accessTokenRepository
+                .findByEmailAndTypeId(
+                        updatedEntity.getEmail(),
+                        ACCESS_TOKEN_TYPE_RESET_PASSWORD
+                )
+                .stream()
+                .filter(token -> bCryptPasswordEncoder.matches(rawToken, token.getToken()))
+                .findFirst()
+                .orElseThrow(AccessDeniedException::new);
 
         // We've validated the user is authenticated. Now make sure the request has the required fields.
         if (
@@ -214,7 +226,7 @@ public class AccessTokenController {
 
         if (entity == null) {
             logger.error(
-                    "Attempted to reset password. Token was valid but the entity was null: " + accessTokenOptional
+                    "Attempted to reset password. Token was valid but the entity was null: " + accessToken
             );
             throw new ResourceNotFoundException("Unable to reset password.");
         }
@@ -223,8 +235,8 @@ public class AccessTokenController {
         entity.setPassword(bCryptPasswordEncoder.encode(updatedEntity.getPassword()));
         entityService.updateEntity(entity);
 
-        // delete the reset password token and all other current bearer tokens if its valid and we've successfully updated the user
-        accessTokenService.delete(accessToken);
+        // delete all reset password tokens and all other current bearer tokens if its valid and we've successfully updated the user
+        accessTokenService.deleteAccessTokenByEntityAndType(entity, new AccessTokenTypeResetPasswordToken());
         accessTokenService.deleteAccessTokenByEntityAndType(entity, new AccessTokenTypeBearerToken());
 
         return new ResponseEntity<>("SUCCESS", HttpStatus.OK);
