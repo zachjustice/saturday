@@ -20,6 +20,7 @@ import saturday.repositories.RoleRepository;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 
 @Service()
 public class EntityService {
@@ -150,6 +151,14 @@ public class EntityService {
         }
 
         return authenticatedEntity;
+    }
+
+    public List<Entity> search(String searchTerm) {
+        if (searchTerm == null || StringUtils.isEmpty(searchTerm.trim())) {
+            return null;
+        }
+
+        return entityRepository.search(searchTerm.trim());
     }
 }
 

@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import saturday.delegates.EntityDelegate;
 import saturday.domain.Entity;
 import saturday.exceptions.AccessDeniedException;
+import saturday.exceptions.BadRequestException;
 import saturday.publishers.SaturdayEventPublisher;
 import saturday.services.ConfirmEmailService;
 import saturday.services.EntityService;
@@ -95,19 +96,20 @@ public class EntityController {
     }
 
     @RequestMapping(value = "/entities", method = RequestMethod.GET)
-    public ResponseEntity<Entity> findEntityByEmail(@RequestParam(value = "email") String email) {
-
-        Entity entity = entityService.findEntityByEmail(email);
-
-        if (entity == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity find(
+            @RequestParam(value = "term", required = false) String searchTerm,
+            @RequestParam(value = "email", required = false) String email
+    ) {
+        if (searchTerm != null) {
+            return new ResponseEntity<>(entityDelegate.search(searchTerm), HttpStatus.OK);
+        } else if (email != null) {
+            Entity entity = entityDelegate.findByEmail(email);
+            return entity == null ?
+                    new ResponseEntity<>(HttpStatus.NOT_FOUND):
+                    new ResponseEntity<>(entity, HttpStatus.OK);
+        } else {
+            throw new BadRequestException("Request parameter 'term' or 'email' is required.");
         }
-
-        if (!permissionService.canView(entity)) {
-            throw new AccessDeniedException();
-        }
-
-        return new ResponseEntity<>(entity, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/entities/{id}", method = RequestMethod.GET)

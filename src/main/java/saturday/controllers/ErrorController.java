@@ -35,7 +35,7 @@ public class ErrorController extends ResponseEntityExceptionHandler {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler({BusinessLogicException.class, ProcessingResourceException.class})
+    @ExceptionHandler({BusinessLogicException.class, ProcessingResourceException.class, BadRequestException.class})
     public Map<String, String> handleBadRequestException(Exception e) {
         return getErrorResponse(e);
     }

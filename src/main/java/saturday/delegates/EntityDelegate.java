@@ -1,26 +1,35 @@
 package saturday.delegates;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import saturday.domain.Entity;
+import saturday.exceptions.AccessDeniedException;
 import saturday.publishers.SaturdayEventPublisher;
 import saturday.services.EntityService;
+import saturday.services.PermissionService;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class EntityDelegate {
     private final SaturdayEventPublisher saturdayEventPublisher;
     private final EntityService entityService;
     private final AccessTokenDelegate accessTokenDelegate;
+    private final PermissionService permissionService;
 
     @Autowired
     public EntityDelegate(
             SaturdayEventPublisher saturdayEventPublisher,
             EntityService entityService,
-            AccessTokenDelegate accessTokenDelegate
-    ) {
+            AccessTokenDelegate accessTokenDelegate,
+            PermissionService permissionService) {
         this.saturdayEventPublisher = saturdayEventPublisher;
         this.entityService = entityService;
         this.accessTokenDelegate = accessTokenDelegate;
+        this.permissionService = permissionService;
     }
 
     /**
@@ -37,5 +46,27 @@ public class EntityDelegate {
 
         saturdayEventPublisher.publishRegistrationEvent(entity);
         return base64EncodedToken;
+    }
+
+    public List<Entity> search(String searchTerm) {
+        List<Entity> entities = entityService.search(searchTerm);
+
+        return entities.stream()
+                .filter(permissionService::canView)
+                .collect(Collectors.toList());
+    }
+
+    public Entity findByEmail(String searchTerm) {
+        Entity entity = entityService.findEntityByEmail(searchTerm);
+
+        if (entity == null) {
+            return null;
+        }
+
+        if (!permissionService.canView(entity)) {
+            throw new AccessDeniedException();
+        }
+
+        return entity;
     }
 }
