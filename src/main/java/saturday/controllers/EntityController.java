@@ -99,6 +99,10 @@ public class EntityController {
 
         Entity entity = entityService.findEntityByEmail(email);
 
+        if (entity == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
         if (!permissionService.canView(entity)) {
             throw new AccessDeniedException();
         }

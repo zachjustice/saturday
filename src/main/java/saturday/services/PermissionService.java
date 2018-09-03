@@ -79,8 +79,8 @@ public class PermissionService {
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
         return authenticatedEntity.isAdmin()
                 || entity.getIsProfilePublic()
-                || topicMemberService.isTopicMembersTogether(authenticatedEntity, entity)
-                || authenticatedEntity.getId() == entity.getId();
+                || authenticatedEntity.getId() == entity.getId()
+                || topicMemberService.isTopicMembersTogether(authenticatedEntity, entity);
     }
 
     /**
