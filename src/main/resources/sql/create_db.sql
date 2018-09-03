@@ -42,10 +42,13 @@ START TRANSACTION;
     gender CHARACTER VARYING,
     birthday DATE NOT NULL,
     password_hash VARCHAR NOT NULL,
+    is_profile_public BOOLEAN DEFAULT FALSE,
 
     -- fb metadata
     fb_id BIGINT UNIQUE, -- NOT NULL,
     fb_access_token CHARACTER VARYING, -- NOT NULL
+
+    -- constraints
     CONSTRAINT unique_email UNIQUE(email),
     CONSTRAINT valid_password_length CHECK(CHAR_LENGTH(password_hash) >= 8)
   );

@@ -4,7 +4,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
 import saturday.delegates.AccessTokenDelegate;
-import saturday.domain.accessTokenTypes.AccessTokenType;
 import saturday.domain.accessTokens.AccessToken;
 
 import javax.servlet.FilterChain;
@@ -13,7 +12,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 
