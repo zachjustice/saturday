@@ -18,6 +18,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @javax.persistence.Entity
@@ -49,6 +50,9 @@ public class Entity {
 
     @Column(name = "isEmailConfirmed")
     private boolean isEmailConfirmed;
+
+    @Column(name = "is_profile_public")
+    private boolean isProfilePublic;
 
     @Column(name = "created", insertable = false, updatable = false)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -209,6 +213,39 @@ public class Entity {
         this.topics = topics;
     }
 
+    public boolean getIsProfilePublic() {
+        return isProfilePublic;
+    }
+
+    public void setIProfilePublic(boolean isProfilePublic) {
+        this.isProfilePublic = isProfilePublic;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Entity entity = (Entity) o;
+        return id == entity.id &&
+                isEmailConfirmed == entity.isEmailConfirmed &&
+                isProfilePublic == entity.isProfilePublic &&
+                Objects.equals(email, entity.email) &&
+                Objects.equals(password, entity.password) &&
+                Objects.equals(name, entity.name) &&
+                Objects.equals(birthday, entity.birthday) &&
+                Objects.equals(gender, entity.gender) &&
+                Objects.equals(created, entity.created) &&
+                Objects.equals(modified, entity.modified) &&
+                Objects.equals(pictureUrl, entity.pictureUrl) &&
+                Objects.equals(fbId, entity.fbId) &&
+                Objects.equals(fbAccessToken, entity.fbAccessToken);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, email, password, name, birthday, gender, isEmailConfirmed, isProfilePublic, created, modified, pictureUrl, fbId, fbAccessToken);
+    }
+
     @Override
     public String toString() {
         return "Entity{" +
@@ -216,10 +253,15 @@ public class Entity {
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", name='" + name + '\'' +
+                ", birthday=" + birthday +
+                ", gender='" + gender + '\'' +
                 ", isEmailConfirmed=" + isEmailConfirmed +
+                ", isProfilePublic=" + isProfilePublic +
                 ", created=" + created +
                 ", modified=" + modified +
+                ", pictureUrl='" + pictureUrl + '\'' +
+                ", fbId=" + fbId +
+                ", fbAccessToken='" + fbAccessToken + '\'' +
                 '}';
     }
-
 }

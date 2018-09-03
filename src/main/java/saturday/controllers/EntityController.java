@@ -99,8 +99,8 @@ public class EntityController {
 
         Entity entity = entityService.findEntityByEmail(email);
 
-        if (entity == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (!permissionService.canView(entity)) {
+            throw new AccessDeniedException();
         }
 
         return new ResponseEntity<>(entity, HttpStatus.OK);
@@ -109,6 +109,10 @@ public class EntityController {
     @RequestMapping(value = "/entities/{id}", method = RequestMethod.GET)
     public ResponseEntity<Entity> getEntity(@PathVariable(value = "id") int id) {
         Entity entity = entityService.findEntityById(id);
+
+        if (!permissionService.canView(entity)) {
+            throw new AccessDeniedException();
+        }
 
         return new ResponseEntity<>(entity, HttpStatus.OK);
     }

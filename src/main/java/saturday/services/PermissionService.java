@@ -68,17 +68,38 @@ public class PermissionService {
      * @param entity The entity to auth against
      * @return If the entity is allowed access
      */
+    public boolean canView(Entity entity) {
+        if(entity == null) {
+            throw new IllegalArgumentException(
+                    "Failed to authenticate permissions. " +
+                            "Entity is null while checking canAccess(Entity)"
+            );
+        }
+
+        Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
+        return authenticatedEntity.isAdmin()
+                || entity.getIsProfilePublic()
+                || topicMemberService.isTopicMembersTogether(authenticatedEntity, entity)
+                || authenticatedEntity.getId() == entity.getId();
+    }
+
+    /**
+     * Check if the auth'ed entity can access an Entity owned resource.
+     * This check applies to actions for updating the entity, sending confirmation emails, etc.
+     * @param entity The entity to auth against
+     * @return If the entity is allowed access
+     */
     public boolean canAccess(Entity entity) {
         if(entity == null) {
-            // TODO throw exception?
-            throw new ProcessingResourceException(
+            throw new IllegalArgumentException(
                     "Failed to authenticate permissions. " +
                     "Entity is null while checking canAccess(Entity)"
             );
         }
 
         Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
-        return authenticatedEntity.isAdmin() || authenticatedEntity.getId() == entity.getId();
+        return authenticatedEntity.isAdmin()
+                || authenticatedEntity.getId() == entity.getId();
     }
 
     /**

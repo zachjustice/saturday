@@ -186,4 +186,16 @@ public class TopicMemberService {
             return new ArrayList<>();
         }
     }
+
+    public boolean isTopicMembersTogether(Entity authenticatedEntity, Entity entity) {
+        if (authenticatedEntity == null) {
+            throw new IllegalArgumentException("Authenticated entity is null");
+        }
+
+        if (entity == null) {
+            throw new IllegalArgumentException("Entity is null");
+        }
+
+        return topicMemberRepository.isTopicMembersTogether(authenticatedEntity, entity);
+    }
 }
