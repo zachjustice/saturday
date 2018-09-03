@@ -196,6 +196,6 @@ public class TopicMemberService {
             throw new IllegalArgumentException("Entity is null");
         }
 
-        return topicMemberRepository.isTopicMembersTogether(authenticatedEntity, entity);
+        return topicMemberRepository.getSharedTopicsBetweenEntities(authenticatedEntity.getId(), entity.getId()) > 0;
     }
 }

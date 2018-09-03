@@ -34,10 +34,10 @@ public interface TopicMemberRepository extends JpaRepository<TopicMember, Intege
     TopicMember findByEntityIdAndTopicId(int entityId, int topicId);
 
     @Query(
-            value = "select distinct t1.topic_id from topic_members t1, topic_members t2 where (t1.entity_id = :authenticated_entity_id and t2.entity_id = :entity_id ) and t1.topic_id = t2.topic_id order by topic_id",
+            value = "select count(distinct t1.topic_id) from topic_members t1, topic_members t2 where (t1.entity_id = :authenticated_entity_id and t2.entity_id = :entity_id ) and t1.topic_id = t2.topic_id",
             nativeQuery = true
     )
-    boolean isTopicMembersTogether(
+    int getSharedTopicsBetweenEntities(
             @Param("authenticated_entity_id") int authenticatedEntityId,
             @Param("entity_id") int entityId
     );
