@@ -81,6 +81,8 @@ public class EntityService {
         String updatedGender = updatedEntity.getGender();
         String updatedPassword = updatedEntity.getPassword();
 
+        currEntity.setIsProfilePublic(updatedEntity.getIsProfilePublic());
+
         if(!StringUtils.isEmpty(updatedName)) {
             currEntity.setName(updatedName);
         }

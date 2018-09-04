@@ -17,7 +17,7 @@ public interface EntityRepository extends JpaRepository<Entity, Long> {
     Entity findById(int id);
 
     @Query(
-            value = "select * from entities where LOWER(email) LIKE CONCAT('%', LOWER(:term), '%') or LOWER(name) LIKE CONCAT('%', LOWER(:term), '%') limit 10",
+            value = "select * from entities where LOWER(email) LIKE CONCAT('%', LOWER(:term), '%') or LOWER(name) LIKE CONCAT('%', LOWER(:term), '%') limit 20",
             nativeQuery = true
     )
     List<Entity> search(@Param("term") String term);

@@ -217,7 +217,7 @@ public class Entity {
         return isProfilePublic;
     }
 
-    public void setIProfilePublic(boolean isProfilePublic) {
+    public void setIsProfilePublic(boolean isProfilePublic) {
         this.isProfilePublic = isProfilePublic;
     }
 
