@@ -141,7 +141,7 @@ public class TopicMemberController {
         TopicMember topicMember = topicMemberService.findByEntityIdAndTopicId(entityId, topicId);
         topicMember.setStatus(topicMemberStatus);
 
-        if(!permissionService.canModify(topicMember )) {
+        if(!permissionService.canModify(topicMember)) {
             throw new AccessDeniedException();
         }
 
