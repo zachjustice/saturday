@@ -35,6 +35,15 @@ public class TopicMemberDelegate {
         this.permissionService = permissionService;
     }
 
+
+    public List<TopicMember> inviteByEmail(List<String> emails, int topicId) {
+        if (emails == null) {
+            throw new IllegalArgumentException("Emails cannot be null.");
+        }
+
+        return emails.stream().map(email -> inviteByEmail(email, topicId)).collect(Collectors.toList());
+    }
+
     public TopicMember inviteByEmail(String email, int topicId) {
         Topic topic = topicService.findTopicById(topicId);
         if (topic == null) {

@@ -150,12 +150,12 @@ public class TopicMemberController {
     }
 
     @RequestMapping(value = "/topics/{topic_id}/invite", method = RequestMethod.POST)
-    public ResponseEntity<TopicMember> inviteByEmail(
+    public ResponseEntity<List<TopicMember>> inviteByEmail(
             @PathVariable(value = "topic_id") int id,
-            @RequestParam(value = "email") String email
+            @RequestBody InviteRequest inviteRequest
     ) {
-        TopicMember topicMember = topicMemberDelegate.inviteByEmail(email, id);
-        return new ResponseEntity<>(topicMember, HttpStatus.OK);
+        List<TopicMember> topicMembers = topicMemberDelegate.inviteByEmail(inviteRequest.getEmails(), id);
+        return new ResponseEntity<>(topicMembers, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/topic_members/{id}", method = RequestMethod.DELETE)
@@ -170,5 +170,17 @@ public class TopicMemberController {
         topicMemberService.deleteById(id);
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    private class InviteRequest {
+        private List<String> emails;
+
+        public List<String> getEmails() {
+            return emails;
+        }
+
+        public void setEmails(List<String> emails) {
+            this.emails = emails;
+        }
     }
 }
