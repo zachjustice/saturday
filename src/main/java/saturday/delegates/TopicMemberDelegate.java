@@ -41,15 +41,15 @@ public class TopicMemberDelegate {
             throw new IllegalArgumentException("Emails cannot be null.");
         }
 
-        return emails.stream().map(email -> inviteByEmail(email, topicId)).collect(Collectors.toList());
-    }
-
-    public TopicMember inviteByEmail(String email, int topicId) {
         Topic topic = topicService.findTopicById(topicId);
         if (topic == null) {
             throw new ResourceNotFoundException("No topic with the id " + topicId + " exists!");
         }
 
+        return emails.stream().map(email -> inviteByEmail(email, topic)).collect(Collectors.toList());
+    }
+
+    public TopicMember inviteByEmail(String email, Topic topic) {
         if(!permissionService.canCreateTopicMember(topic)) {
             throw new AccessDeniedException();
         }

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import saturday.delegates.TopicMemberDelegate;
 import saturday.domain.Entity;
+import saturday.domain.InviteRequest;
 import saturday.domain.TopicMember;
 import saturday.domain.topicMemberStatuses.TopicMemberStatus;
 import saturday.exceptions.AccessDeniedException;
@@ -170,17 +171,5 @@ public class TopicMemberController {
         topicMemberService.deleteById(id);
 
         return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    private class InviteRequest {
-        private List<String> emails;
-
-        public List<String> getEmails() {
-            return emails;
-        }
-
-        public void setEmails(List<String> emails) {
-            this.emails = emails;
-        }
     }
 }

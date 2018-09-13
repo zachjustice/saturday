@@ -84,7 +84,7 @@ public class TopicDelegate {
                 .getInitialTopicMemberEmails()
                 .forEach((email) -> {
                     try {
-                        topicMemberDelegate.inviteByEmail(email, topic.getId());
+                        topicMemberDelegate.inviteByEmail(email, topic);
                     } catch(ResourceNotFoundException ignored) { }
                 });
     }
