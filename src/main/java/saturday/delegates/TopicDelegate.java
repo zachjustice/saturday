@@ -8,12 +8,12 @@ import saturday.domain.CreateTopicRequest;
 import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicMember;
-import saturday.domain.topicPermissions.TopicPermission;
-import saturday.domain.topicPermissions.TopicPermissionCanInvite;
-import saturday.domain.topicPermissions.TopicPermissionCanPost;
 import saturday.domain.TopicRolePermission;
 import saturday.domain.topicMemberStatuses.TopicMemberStatus;
 import saturday.domain.topicMemberStatuses.TopicMemberStatusAccepted;
+import saturday.domain.topicPermissions.TopicPermission;
+import saturday.domain.topicPermissions.TopicPermissionCanInvite;
+import saturday.domain.topicPermissions.TopicPermissionCanPost;
 import saturday.domain.topicRoles.TopicAdmin;
 import saturday.domain.topicRoles.TopicRole;
 import saturday.domain.topicRoles.TopicUser;
@@ -25,7 +25,6 @@ import saturday.services.TopicMemberService;
 import saturday.services.TopicRolePermissionService;
 import saturday.services.TopicService;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Component()
@@ -65,8 +64,6 @@ public class TopicDelegate {
     }
 
     public Topic save(CreateTopicRequest createTopicRequest) {
-        // TODO check 3 topics per minute
-
         // Create Topic
         Topic topic = topicService.save(createTopicRequest.getTopic());
 

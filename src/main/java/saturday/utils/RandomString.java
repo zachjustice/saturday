@@ -34,7 +34,6 @@ public class RandomString {
         this(new SecureRandom(), symbols);
     }
 
-
     public RandomString(Random random, String symbols) {
         if (symbols.length() < 2) throw new IllegalArgumentException();
         this.random = Objects.requireNonNull(random);

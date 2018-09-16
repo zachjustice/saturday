@@ -105,6 +105,8 @@ START TRANSACTION;
     id SERIAL PRIMARY KEY,
     name VARCHAR(20) NOT NULL,
     description VARCHAR(150),
+    invite_link VARCHAR,
+    invite_link_enabled BOOLEAN DEFAULT TRUE NOT NULL,
     owner_id INT NOT NULL REFERENCES entities(id),
     creator_id INT NOT NULL REFERENCES entities(id),
     created TIMESTAMP WITHOUT TIME ZONE DEFAULT now(),

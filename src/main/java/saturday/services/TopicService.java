@@ -11,8 +11,8 @@ import saturday.domain.Topic;
 import saturday.exceptions.BusinessLogicException;
 import saturday.exceptions.ResourceNotFoundException;
 import saturday.repositories.TopicRepository;
+import saturday.utils.RandomString;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Service()
@@ -116,8 +116,12 @@ public class TopicService {
             throw new IllegalArgumentException("Invalid topic description. Topic description must be less than " + TOPIC_DESCRIPTION_MAX_LENGTH + " characters.");
         }
 
+        RandomString randomString = new RandomString(RandomString.lower + RandomString.upper);
+
         topic.setCreator(entityService.getAuthenticatedEntity());
         topic.setOwner(entityService.getAuthenticatedEntity());
+        topic.setInviteLink(randomString.nextString(6));
+        topic.setInviteLinkEnabled(true);
         return topicRepository.save(topic);
     }
 

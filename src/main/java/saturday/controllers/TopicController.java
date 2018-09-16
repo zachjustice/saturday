@@ -147,7 +147,6 @@ public class TopicController {
             @PathVariable(value = "entity_id") int entityId,
             @PathVariable(value = "topic_role_id") int topicRoleId
     ) {
-
         Entity entity = entityService.findEntityById(entityId);
 
         if (!permissionService.canAccess(entity)) {
