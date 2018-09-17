@@ -63,6 +63,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PUT, "/confirm_email").permitAll()
                 //.antMatchers(HttpMethod.GET, "/send_confirmation_email").permitAll()
 
+                .antMatchers(HttpMethod.OPTIONS, "/share/*").permitAll()
+                .antMatchers(HttpMethod.GET, "/share/*").permitAll()
+
                 .antMatchers(HttpMethod.OPTIONS, "/validate_access_token").permitAll()
                 .antMatchers(HttpMethod.POST, "/validate_access_token").permitAll()
 
