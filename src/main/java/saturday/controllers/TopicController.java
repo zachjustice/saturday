@@ -160,4 +160,22 @@ public class TopicController {
 
         return new ResponseEntity<>(topicsEntityIsAdminOf, HttpStatus.OK);
     }
+
+
+    /**
+     * Get topic info for a shareable topic
+     * @param shareLink Unique id for the group for sharing
+     */
+    @RequestMapping(value = "/share/{share_link}", method = RequestMethod.GET)
+    public ResponseEntity<Topic> getTopicsEntityIsAdminOf(
+            @PathVariable(value = "share_link") String shareLink
+    ) {
+        Topic topic = topicService.findEntityByInviteLink(shareLink);
+
+        if (!permissionService.canShare(topic)) {
+            throw new AccessDeniedException();
+        }
+
+        return new ResponseEntity<>(topic, HttpStatus.OK);
+    }
 }

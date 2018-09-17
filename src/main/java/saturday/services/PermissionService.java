@@ -410,4 +410,9 @@ public class PermissionService {
         return topicMember.getTopicRole().getId() == TopicRole.ADMIN;
 
     }
+
+    public boolean canShare(Topic topic) {
+        Entity authenticatedEntity = this.entityService.getAuthenticatedEntity();
+        return authenticatedEntity.isAdmin() && topic.isInviteLinkEnabled();
+    }
 }

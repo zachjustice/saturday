@@ -1,5 +1,6 @@
 package saturday.services;
 
+import org.apache.http.util.TextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,6 +132,14 @@ public class TopicService {
 
     public List<Topic> findByEntityIdAndTopicMemberStatusId(int entityId, int statusId) {
         return this.topicRepository.findByEntityIdAndTopicMemberStatusId(entityId, statusId);
+    }
+
+    public Topic findEntityByInviteLink(String shareLink) {
+        if (TextUtils.isBlank(shareLink.trim())) {
+            throw new IllegalArgumentException("Null shareLink");
+        }
+
+        return this.topicRepository.findByInviteLink(shareLink);
     }
 }
 
