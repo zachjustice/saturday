@@ -112,6 +112,15 @@ public class EntityController {
         }
     }
 
+    @RequestMapping(value = "/invite", method = RequestMethod.GET)
+    public ResponseEntity invite(
+            @RequestParam(value = "invite_link", required = false) String inviteLink,
+            @RequestParam(value = "email", required = false) String email
+    ) {
+        this.entityDelegate.processInvite(email, inviteLink);
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/entities/{id}", method = RequestMethod.GET)
     public ResponseEntity<Entity> getEntity(@PathVariable(value = "id") int id) {
         Entity entity = entityService.findEntityById(id);

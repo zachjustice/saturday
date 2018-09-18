@@ -1,12 +1,13 @@
 package saturday.delegates;
 
+import org.apache.http.util.TextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import saturday.domain.Entity;
 import saturday.exceptions.AccessDeniedException;
 import saturday.publishers.SaturdayEventPublisher;
+import saturday.services.EmailService;
 import saturday.services.EntityService;
 import saturday.services.PermissionService;
 
@@ -15,21 +16,27 @@ import java.util.stream.Collectors;
 
 @Component
 public class EntityDelegate {
+    @Value("${saturday.ses.from-email}")
+    private String FROM_EMAIL;
+
     private final SaturdayEventPublisher saturdayEventPublisher;
     private final EntityService entityService;
     private final AccessTokenDelegate accessTokenDelegate;
     private final PermissionService permissionService;
+    private final EmailService emailService;
 
     @Autowired
     public EntityDelegate(
             SaturdayEventPublisher saturdayEventPublisher,
             EntityService entityService,
             AccessTokenDelegate accessTokenDelegate,
-            PermissionService permissionService) {
+            PermissionService permissionService,
+            EmailService emailService) {
         this.saturdayEventPublisher = saturdayEventPublisher;
         this.entityService = entityService;
         this.accessTokenDelegate = accessTokenDelegate;
         this.permissionService = permissionService;
+        this.emailService = emailService;
     }
 
     /**
@@ -68,5 +75,18 @@ public class EntityDelegate {
         }
 
         return entity;
+    }
+
+    public void processInvite(String email, String inviteLink) {
+        if (TextUtils.isBlank(email)) {
+            throw new IllegalArgumentException("Email cannot be blank.");
+        }
+
+        this.emailService.sendEmail(
+                "MomDiary Invite",
+                "justice@zachsolutions.com",
+                FROM_EMAIL,
+                "Hey Zach, \nInvite '" + email + "' to momdiary.\nTheir invite link is '" + inviteLink + "'"
+        );
     }
 }
