@@ -2,7 +2,6 @@ package saturday.services;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.drew.imaging.ImageProcessingException;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,14 +23,9 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service()
 public class TopicContentService {
@@ -157,8 +151,7 @@ public class TopicContentService {
 
         // upload after s3 validation.
         // then insert into db since we have the bucket name and s3 key
-        String uuid = UUID.randomUUID().toString();
-        String s3key = keyPrefix + uuid; // topic-content/{{GUID}}
+        String s3key = keyPrefix + UUID.randomUUID().toString(); // topic-content/{{GUID}}
 
         // TODO move upload stuff to s3
         byte[] bI = FileUtils.decodeBase64(data);
@@ -232,8 +225,7 @@ public class TopicContentService {
 
         // upload after s3 validation.
         // then insert into db since we have the bucket name and s3 key
-        String uuid = UUID.randomUUID().toString();
-        String s3key = keyPrefix + uuid; // topic-content/{{GUID}}
+        String s3key = keyPrefix + UUID.randomUUID().toString(); // topic-content/{{GUID}}
         try {
             String fileExtension = MimeTypes.getFileExtention(file.getContentType());
             s3key = s3key  + "." + fileExtension;
