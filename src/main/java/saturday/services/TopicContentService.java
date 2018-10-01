@@ -233,12 +233,6 @@ public class TopicContentService {
         // upload after s3 validation.
         // then insert into db since we have the bucket name and s3 key
         String uuid = UUID.randomUUID().toString();
-        logger.info(String.format(
-                "File contentType %s, name %s, orig name %s",
-                file.getContentType(),
-                file.getName(),
-                file.getOriginalFilename()
-        ));
         String s3key = keyPrefix + uuid; // topic-content/{{GUID}}
         try {
             String fileExtension = MimeTypes.getFileExtention(file.getContentType());
