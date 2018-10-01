@@ -153,7 +153,6 @@ public class TopicContentService {
         // then insert into db since we have the bucket name and s3 key
         String s3key = keyPrefix + UUID.randomUUID().toString(); // topic-content/{{GUID}}
 
-        // TODO move upload stuff to s3
         byte[] bI = FileUtils.decodeBase64(data);
         InputStream fis = new ByteArrayInputStream(bI);
 
@@ -188,6 +187,7 @@ public class TopicContentService {
             logger.error("Failed to retrieve date from exif data for " + s3key + ". " + e.getMessage());
         }
 
+        topicContent.setDateTaken(dateTaken);
         return topicContentRepository.save(topicContent);
     }
 
