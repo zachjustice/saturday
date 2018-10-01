@@ -14,6 +14,7 @@ import saturday.domain.Entity;
 import saturday.domain.Topic;
 import saturday.domain.TopicContent;
 import saturday.exceptions.BusinessLogicException;
+import saturday.exceptions.ExtensionNotFound;
 import saturday.exceptions.ResourceNotFoundException;
 import saturday.repositories.TopicContentRepository;
 import saturday.utils.FileUtils;
@@ -232,8 +233,19 @@ public class TopicContentService {
         // upload after s3 validation.
         // then insert into db since we have the bucket name and s3 key
         String uuid = UUID.randomUUID().toString();
-        String fileExtension = MimeTypes.getFileExtention(file.getContentType());
-        String s3key = keyPrefix + uuid + "." + fileExtension; // topic-content/{{GUID}}
+        logger.info(String.format(
+                "File contentType %s, name %s, orig name %s",
+                file.getContentType(),
+                file.getName(),
+                file.getOriginalFilename()
+        ));
+        String s3key = keyPrefix + uuid; // topic-content/{{GUID}}
+        try {
+            String fileExtension = MimeTypes.getFileExtention(file.getContentType());
+            s3key = s3key  + "." + fileExtension;
+        } catch (ExtensionNotFound ex) {
+            logger.error("Unable to find extension for topic content", ex);
+        }
 
         try {
             // s3 url key is probably unique - should probably use GUID
