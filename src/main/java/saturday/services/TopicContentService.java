@@ -175,13 +175,12 @@ public class TopicContentService {
         Date dateTaken;
 
         try {
-            dateTaken = FileUtils.getDate(new BufferedInputStream(fis));
-
-            // log failures to parse metadata/exif data
-            if (dateTaken == null) {
-                logger.error("Failed to retrieve date from exif data for " + s3key + ".");
-                dateTaken = new Date();
-            }
+            dateTaken = FileUtils
+                    .getDate(new BufferedInputStream(fis))
+                    .orElseGet(() -> {
+                        logger.error(String.format("Failed to retrieve date from exif data for s3 key, '%s'.", s3key));
+                        return new Date();
+                    });
         } catch (ImageProcessingException e) {
             dateTaken = new Date();
             logger.error("Failed to retrieve date from exif data for " + s3key + ". " + e.getMessage());
@@ -228,7 +227,7 @@ public class TopicContentService {
         String s3key = keyPrefix + UUID.randomUUID().toString(); // topic-content/{{GUID}}
         try {
             String fileExtension = MimeTypes.getFileExtention(file.getContentType());
-            s3key = s3key  + "." + fileExtension;
+            s3key = s3key + "." + fileExtension;
         } catch (ExtensionNotFound ex) {
             logger.error("Unable to find extension for topic content", ex);
         }
@@ -252,13 +251,13 @@ public class TopicContentService {
         // get origin date of the photo if its available
         if (dateTaken == null) {
             try {
-                dateTaken = FileUtils.getDate(new BufferedInputStream(file.getInputStream()));
-
-                // log failures to parse metadata/exif data
-                if (dateTaken == null) {
-                    logger.error("Failed to retrieve date from exif data for " + s3key + ".");
-                    dateTaken = new Date();
-                }
+                final String errorMessage = String.format("Failed to retrieve date from exif data for s3 key, '%s'.", s3key);
+                dateTaken = FileUtils
+                        .getDate(new BufferedInputStream(file.getInputStream()))
+                        .orElseGet(() -> {
+                            logger.error(errorMessage);
+                            return new Date();
+                        });
             } catch (ImageProcessingException e) {
                 dateTaken = new Date();
                 logger.error("Failed to retrieve date from exif data for " + s3key + ". " + e.getMessage());

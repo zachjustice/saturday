@@ -6,6 +6,8 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.drew.metadata.exif.ExifInteropDirectory;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
+import com.drew.metadata.exif.GpsDirectory;
+import com.drew.metadata.icc.IccDirectory;
 import com.drew.metadata.iptc.IptcDirectory;
 import com.drew.metadata.png.PngDirectory;
 import org.apache.commons.io.IOUtils;
@@ -20,8 +22,17 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
+import static saturday.utils.CommonUtils.coalesce;
+
+@SuppressWarnings("WeakerAccess")
 public class FileUtils {
 
 
@@ -42,74 +53,28 @@ public class FileUtils {
         return stringBuilder;
     }
 
-    public static Date getDate(BufferedInputStream ioStream) throws ImageProcessingException, IOException {
-        Metadata metadata;
-        metadata = ImageMetadataReader.readMetadata(ioStream);
+    public static Optional<Date> getDate(BufferedInputStream ioStream) throws ImageProcessingException, IOException {
+        Metadata metadata = ImageMetadataReader.readMetadata(ioStream);
+        ArrayList<Date> dates = new ArrayList<>();
 
-        // First attempt to get the datetime from exif ifd0 directory
-        Date datetimeOriginal = null;
-        ExifIFD0Directory ifd0Directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
-        if(ifd0Directory != null) {
-            datetimeOriginal = ifd0Directory.getDate(ExifIFD0Directory.TAG_DATETIME_ORIGINAL);
+        metadata.getDirectories()
+                .forEach(directory ->
+                        dates.add(coalesce(
+                                directory.getDate(ExifInteropDirectory.TAG_DATETIME_ORIGINAL),
+                                directory.getDate(ExifInteropDirectory.TAG_DATETIME_DIGITIZED),
+                                directory.getDate(ExifInteropDirectory.TAG_DATETIME),
+                                directory.getDate(PngDirectory.TAG_LAST_MODIFICATION_TIME),
+                                directory.getDate(IptcDirectory.TAG_DATE_CREATED),
+                                directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL),
+                                directory.getDate(ExifIFD0Directory.TAG_DATETIME_ORIGINAL),
+                                directory.getDate(ExifIFD0Directory.TAG_DATETIME_DIGITIZED),
+                                directory.getDate(ExifIFD0Directory.TAG_DATETIME),
+                                directory.getDate(IccDirectory.TAG_PROFILE_DATETIME),
+                                directory.getDate(GpsDirectory.TAG_DATE_STAMP)
+                        ))
+                );
 
-            if(datetimeOriginal == null) {
-                datetimeOriginal = ifd0Directory.getDate(ExifIFD0Directory.TAG_DATETIME_DIGITIZED);
-            }
-
-            if(datetimeOriginal == null) {
-                datetimeOriginal = ifd0Directory.getDate(ExifIFD0Directory.TAG_DATETIME);
-            }
-        }
-
-        // if that fails, fallback by prioritized list of possible directories
-        if(datetimeOriginal == null) {
-            ExifSubIFDDirectory subIFDDirectory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
-
-            if(subIFDDirectory != null) {
-                datetimeOriginal = subIFDDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
-            }
-        }
-
-        if(datetimeOriginal == null) {
-            IptcDirectory iptcDirectory = metadata.getFirstDirectoryOfType(IptcDirectory.class);
-
-            if(iptcDirectory != null) {
-                datetimeOriginal = iptcDirectory.getDate(IptcDirectory.TAG_DATE_CREATED);
-            }
-        }
-
-        if(datetimeOriginal == null) {
-            ExifInteropDirectory interopDirectory = metadata.getFirstDirectoryOfType(ExifInteropDirectory.class);
-
-            if(interopDirectory != null) {
-                datetimeOriginal = interopDirectory.getDate(ExifInteropDirectory.TAG_DATETIME_ORIGINAL);
-            }
-        }
-        if(datetimeOriginal == null) {
-            ExifInteropDirectory interopDirectory = metadata.getFirstDirectoryOfType(ExifInteropDirectory.class);
-
-            if(interopDirectory != null) {
-                datetimeOriginal = interopDirectory.getDate(ExifInteropDirectory.TAG_DATETIME_DIGITIZED);
-            }
-        }
-
-        if(datetimeOriginal == null) {
-            ExifInteropDirectory interopDirectory = metadata.getFirstDirectoryOfType(ExifInteropDirectory.class);
-
-            if(interopDirectory != null) {
-                datetimeOriginal = interopDirectory.getDate(ExifInteropDirectory.TAG_DATETIME);
-            }
-        }
-
-        if(datetimeOriginal == null) {
-            PngDirectory pngDirectory = metadata.getFirstDirectoryOfType(PngDirectory.class);
-
-            if(pngDirectory != null) {
-                datetimeOriginal = pngDirectory.getDate(PngDirectory.TAG_LAST_MODIFICATION_TIME);
-            }
-        }
-
-        return datetimeOriginal;
+        return dates.stream().filter(Objects::nonNull).findAny();
     }
 
 
