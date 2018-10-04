@@ -61,15 +61,15 @@ public class FileUtils {
                 .forEach(directory ->
                         dates.add(coalesce(
                                 directory.getDate(ExifInteropDirectory.TAG_DATETIME_ORIGINAL),
-                                directory.getDate(ExifInteropDirectory.TAG_DATETIME_DIGITIZED),
                                 directory.getDate(ExifInteropDirectory.TAG_DATETIME),
-                                directory.getDate(PngDirectory.TAG_LAST_MODIFICATION_TIME),
                                 directory.getDate(IptcDirectory.TAG_DATE_CREATED),
                                 directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL),
                                 directory.getDate(ExifIFD0Directory.TAG_DATETIME_ORIGINAL),
-                                directory.getDate(ExifIFD0Directory.TAG_DATETIME_DIGITIZED),
                                 directory.getDate(ExifIFD0Directory.TAG_DATETIME),
                                 directory.getDate(IccDirectory.TAG_PROFILE_DATETIME),
+                                directory.getDate(ExifInteropDirectory.TAG_DATETIME_DIGITIZED),
+                                directory.getDate(ExifIFD0Directory.TAG_DATETIME_DIGITIZED),
+                                directory.getDate(PngDirectory.TAG_LAST_MODIFICATION_TIME),
                                 directory.getDate(GpsDirectory.TAG_DATE_STAMP)
                         ))
                 );
