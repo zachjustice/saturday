@@ -63,33 +63,3 @@ Jenkins has a default port of TCP/8080, but we’ll use iptables to redirect por
 sudo iptables -A PREROUTING -t nat -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 8080
 sudo iptables -t nat -I OUTPUT -p tcp -o lo --dport 80 -j REDIRECT --to-ports 8080
 ```
-
-TODO
-* Gradle build scripts for ebs deploys
-
-* Repeatable postman requests
-  * requires delete resource routes
-
-* S3 CORS
-  * Current policy is too permissive
-
-* Separate table for access tokens
-  * Use cookie scheme for auth instead of JWT
-  * Cron job for clearing out old tokens
-  * move entity.token field to access_tokens
-  * logout invalidates token
-
-* Cohesive exception scheme
-  * find<resource> methods shouldn't throw ResourceNotFoundExceptions()
-  * ProcessingResourceException vs BussinessLogicException
-  * Specific Exceptions rather than broad exceptions
-    * Most processing resource exceptions are probably illegal arguments
-    * Let callers handle specific scenarios.
-    
-##### BUGS
-* emailConfirmed + isEmailConfirmed both on user object
-
-Questions:
-* Use obscured ids rather than autoincrementing id?
-* use /me/<resource> instead of /entities/{id}/<resource>?
-
